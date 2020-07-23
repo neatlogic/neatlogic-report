@@ -4,6 +4,10 @@ import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.restful.annotation.EntityField;
 
 public class ReportAuthVo {
+	public final static String AUTHTYPE_USER = "user";
+	public final static String AUTHTYPE_TEAM = "team";
+	public final static String AUTHTYPE_ROLE = "role";
+
 	@EntityField(name = "报表id", type = ApiParamType.LONG)
 	private Long reportId;
 	@EntityField(name = "授权对象类型", type = ApiParamType.STRING)
@@ -17,6 +21,11 @@ public class ReportAuthVo {
 
 	public ReportAuthVo(Long _reportId, String _authType, String _authUuid) {
 		this.reportId = _reportId;
+		this.authType = _authType;
+		this.authUuid = _authUuid;
+	}
+
+	public ReportAuthVo(String _authType, String _authUuid) {
 		this.authType = _authType;
 		this.authUuid = _authUuid;
 	}

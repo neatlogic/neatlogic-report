@@ -18,6 +18,20 @@
 
 	<sql id="searchReportCondition">
 		<where>
+			<if test="searchMode == 'user'">
+				<choose>
+					<when test="reportAuthList != null and reportAuthList.size() > 0">
+						AND EXISTS (SELECT 1 FROM report_auth auth WHERE auth.report_id = a.id AND
+						<foreach collection="reportAuthList" item="auth" open="(" separator="OR" close=")">
+							(auth.type = #{auth.authType} AND auth.auth_uuid = #{auth.authUuid})
+						</foreach>
+						)
+					</when>
+					<otherwise>
+						AND FALSE
+					</otherwise>
+				</choose>
+			</if>
 			<if test="keyword!=null and keyword != ''">
 				AND name LIKE CONCAT('%',#{keyword},'%')
 			</if>
@@ -39,7 +53,7 @@
 		`fcd`,
 		`lcd`
 		FROM
-		`report`
+		`report` a
 		<include refid="searchReportCondition"></include>
 	</select>
 
@@ -47,7 +61,7 @@
 		SELECT
 		COUNT(1)
 		FROM
-		`report`
+		`report` a
 		<include refid="searchReportCondition"></include>
 	</select>
 

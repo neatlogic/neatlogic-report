@@ -46,6 +46,8 @@ public class ReportVo extends BasePageVo {
 	private List<String> authList;
 	@EntityField(name = "参数列表", type = ApiParamType.JSONARRAY)
 	private List<ReportParamVo> paramList;
+	@JSONField(serialize = false)
+	private transient String searchMode = "user";
 
 	public Long getId() {
 		if (id == null) {
@@ -182,6 +184,14 @@ public class ReportVo extends BasePageVo {
 
 	public void setParamList(List<ReportParamVo> paramList) {
 		this.paramList = paramList;
+	}
+
+	public String getSearchMode() {
+		return searchMode;
+	}
+
+	public void setSearchMode(String searchMode) {
+		this.searchMode = searchMode;
 	}
 
 }
