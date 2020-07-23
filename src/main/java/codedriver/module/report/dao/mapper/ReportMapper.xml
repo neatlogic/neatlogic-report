@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="codedriver.module.report.dao.mapper.ReportMapper">
+	<select id="getReportParamByReportId" parameterType="java.lang.Long" resultType="codedriver.module.report.dto.ReportParamVo">
+		SELECT
+		`report_id` as reportId,
+		`name`,
+		`type`,
+		`label`,
+		`config`,
+		`width`
+		FROM
+		`report_param`
+		WHERE
+		report_id = #{value}
+		order by sort
+	</select>
+
+	<sql id="searchReportCondition">
+		<where>
+			<if test="keyword!=null and keyword != ''">
+				AND name LIKE CONCAT('%',#{keyword},'%')
+			</if>
+			<if test="type !=null and type != ''">
+				AND type = #{type}
+			</if>
+		</where>
+	</sql>
+
+	<select id="searchReport" parameterType="codedriver.module.report.dto.ReportVo" resultType="codedriver.module.report.dto.ReportVo">
+		SELECT
+		`id`,
+		`name`,
+		`type`,
+		`is_active` as isActive,
+		`visit_count` as visitCount,
+		`fcu`,
+		`lcu`,
+		`fcd`,
+		`lcd`
+		FROM
+		`report`
+		<include refid="searchReportCondition"></include>
+	</select>
+
+	<select id="searchReportCount" parameterType="codedriver.module.report.dto.ReportVo" resultType="int">
+		SELECT
+		COUNT(1)
+		FROM
+		`report`
+		<include refid="searchReportCondition"></include>
+	</select>
+
+	<select id="getAllReportType" resultType="codedriver.module.report.dto.ReportTypeVo">
+		SELECT
+		COUNT(1) AS reportCount,
+		TYPE as name
+		FROM
+		`report`
+		GROUP BY TYPE
+	</select>
+
+	<select id="getReportById" parameterType="java.lang.Long" resultType="codedriver.module.report.dto.ReportVo">
+		SELECT
+		`id`,
+		`name`,
+		`type`,
+		`sql`,
+		`condition`,
+		`content`,
+		`is_active` AS isActive,
+		`visit_count` AS visitCount,
+		`fcu`,
+		`lcu`,
+		`fcd`,
+		`lcd`
+		FROM
+		`report`
+		WHERE id = #{value}
+	</select>
+
+	<select id="getReportAuthByReportId" parameterType="java.lang.Long" resultType="codedriver.module.report.dto.ReportAuthVo">
+		SELECT
+		`report_id` as reportId,
+		`type` as authType,
+		`auth_uuid` as authUuid
+		FROM
+		`report_auth`
+		WHERE report_id = #{value}
+	</select>
+
+
+	<update id="updateReportActive" parameterType="codedriver.module.report.dto.ReportVo">
+		UPDATE
+		`report`
+		SET
+		`is_active` = #{isActive}
+		WHERE `id` = #{id}
+	</update>
+
+	<update id="updateReport" parameterType="codedriver.module.report.dto.ReportVo">
+		UPDATE
+		`report`
+		SET
+		`name` = #{name},
+		`type` = #{type},
+		`sql` = #{sql},
+		`condition` = #{condition},
+		`content` = #{content},
+		`is_active` = #{isActive},
+		`lcu` = #{lcu},
+		`lcd` = NOW()
+		WHERE `id` = #{id}
+	</update>
+
+	<update id="updateReportVisitCount" parameterType="java.lang.Long">
+		UPDATE report SET visit_count = visit_count+1 WHERE id = #{value}
+	</update>
+
+	<insert id="insertReportParam" parameterType="codedriver.module.report.dto.ReportParamVo">
+		INSERT INTO `report_param` (
+		`report_id`,
+		`name`,
+		`type`,
+		`label`,
+		`config`,
+		`sort`,
+		`width`
+		)
+		VALUES
+		(
+		#{reportId},
+		#{name},
+		#{type},
+		#{label},
+		#{configStr},
+		#{sort},
+		#{width}
+		)
+	</insert>
+
+	<insert id="insertReport" parameterType="codedriver.module.report.dto.ReportVo">
+		INSERT INTO `report` (
+		`id`,
+		`name`,
+		`type`,
+		`sql`,
+		`condition`,
+		`content`,
+		`is_active`,
+		`fcu`,
+		`fcd`
+		)
+		VALUES
+		(
+		#{id},
+		#{name},
+		#{type},
+		#{sql},
+		#{condition},
+		#{content},
+		#{isActive},
+		#{fcu},
+		NOW()
+		)
+	</insert>
+
+	<insert id="insertReportAuth" parameterType="codedriver.module.report.dto.ReportAuthVo">
+		INSERT INTO `report_auth` (`report_id`, `type`, `auth_uuid`)
+		VALUES
+		(#{reportId}, #{authType}, #{authUuid});
+	</insert>
+
+
+	<delete id="deleteReportAuthByReportId" parameterType="java.lang.Long">
+		DELETE
+		FROM
+		`report_auth`
+		WHERE `report_id` = #{value}
+	</delete>
+
+	<delete id="deleteReportById" parameterType="java.lang.Long">
+		DELETE
+		FROM
+		`report`
+		WHERE
+		id = #{value}
+	</delete>
+
+	<delete id="deleteReportParamByReportId" parameterType="java.lang.Long">
+		DELETE
+		FROM
+		`report_param`
+		WHERE `report_id` = #{value}
+	</delete>
+</mapper>
