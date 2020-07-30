@@ -19,27 +19,27 @@ import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.Output;
 import codedriver.framework.restful.annotation.Param;
 import codedriver.framework.restful.core.ApiComponentBase;
-import codedriver.module.report.dao.mapper.ReportMapper;
-import codedriver.module.report.dto.ReportAuthVo;
-import codedriver.module.report.dto.ReportVo;
+import codedriver.module.report.dao.mapper.ReportInstanceMapper;
+import codedriver.module.report.dto.ReportInstanceAuthVo;
+import codedriver.module.report.dto.ReportInstanceVo;
 
 @Service
-public class SearchReportApi extends ApiComponentBase {
+public class SearchReportInstanceApi extends ApiComponentBase {
 
 	@Autowired
-	private ReportMapper reportMapper;
+	private ReportInstanceMapper reportInstanceMapper;
 
 	@Autowired
 	private TeamMapper teamMapper;
 
 	@Override
 	public String getToken() {
-		return "report/search";
+		return "reportinstance/search";
 	}
 
 	@Override
 	public String getName() {
-		return "查询报表定义";
+		return "查询报表";
 	}
 
 	@Override
@@ -48,38 +48,39 @@ public class SearchReportApi extends ApiComponentBase {
 	}
 
 	@Input({ @Param(name = "keyword", type = ApiParamType.STRING, desc = "关键字", xss = true), @Param(name = "needPage", type = ApiParamType.BOOLEAN, desc = "是否需要分页"), @Param(name = "pageSize", type = ApiParamType.INTEGER, desc = "每页数量"), @Param(name = "currentPage", type = ApiParamType.INTEGER, desc = "当前页"), })
-	@Output({ @Param(explode = BasePageVo.class), @Param(name = "tbodyList", desc = "报表定义列表", explode = ReportVo[].class) })
+	@Output({ @Param(explode = BasePageVo.class), @Param(name = "tbodyList", desc = "报表列表", explode = ReportInstanceVo[].class) })
 	@Description(desc = "查询报表")
 	@Override
 	public Object myDoService(JSONObject jsonObj) throws Exception {
-		ReportVo reportVo = JSONObject.toJavaObject(jsonObj, ReportVo.class);
+		ReportInstanceVo reportInstanceVo = JSONObject.toJavaObject(jsonObj, ReportInstanceVo.class);
 		String userUuid = UserContext.get().getUserUuid(true);
 		// 权限判断：如果是管理员
 		boolean hasAuth = AuthActionChecker.check("REPORT_MODIFY");
 		if (!hasAuth) {
 			// 如果不是管理员，则校验报表权限
-			List<ReportAuthVo> reportAuthList = new ArrayList<>();
-			reportAuthList.add(new ReportAuthVo(ReportAuthVo.AUTHTYPE_USER, userUuid));
+			reportInstanceVo.setSearchMode("user");
+			List<ReportInstanceAuthVo> reportAuthList = new ArrayList<>();
+			reportAuthList.add(new ReportInstanceAuthVo(ReportInstanceAuthVo.AUTHTYPE_USER, userUuid));
 			for (String roleUuid : UserContext.get().getRoleUuidList()) {
-				reportAuthList.add(new ReportAuthVo(ReportAuthVo.AUTHTYPE_ROLE, roleUuid));
+				reportAuthList.add(new ReportInstanceAuthVo(ReportInstanceAuthVo.AUTHTYPE_ROLE, roleUuid));
 			}
 			for (String teamUuid : teamMapper.getTeamUuidListByUserUuid(userUuid)) {
-				reportAuthList.add(new ReportAuthVo(ReportAuthVo.AUTHTYPE_TEAM, teamUuid));
+				reportAuthList.add(new ReportInstanceAuthVo(ReportInstanceAuthVo.AUTHTYPE_TEAM, teamUuid));
 			}
-			reportVo.setReportAuthList(reportAuthList);
+			reportInstanceVo.setReportInstanceAuthList(reportAuthList);
 		} else {
-			reportVo.setSearchMode("admin");
+			reportInstanceVo.setSearchMode("admin");
 		}
 
-		List<ReportVo> reportList = reportMapper.searchReport(reportVo);
+		List<ReportInstanceVo> reportInstanceList = reportInstanceMapper.searchReportInstance(reportInstanceVo);
 		JSONObject returnObj = new JSONObject();
-		returnObj.put("tbodyList", reportList);
-		if (reportList.size() > 0 && reportVo.getNeedPage()) {
-			int rowNum = reportMapper.searchReportCount(reportVo);
+		returnObj.put("tbodyList", reportInstanceList);
+		if (reportInstanceList.size() > 0 && reportInstanceVo.getNeedPage()) {
+			int rowNum = reportInstanceMapper.searchReportInstanceCount(reportInstanceVo);
 			returnObj.put("rowNum", rowNum);
-			returnObj.put("pageSize", reportVo.getPageSize());
-			returnObj.put("currentPage", reportVo.getCurrentPage());
-			returnObj.put("pageCount", PageUtil.getPageCount(rowNum, reportVo.getPageSize()));
+			returnObj.put("pageSize", reportInstanceVo.getPageSize());
+			returnObj.put("currentPage", reportInstanceVo.getCurrentPage());
+			returnObj.put("pageCount", PageUtil.getPageCount(rowNum, reportInstanceVo.getPageSize()));
 		}
 
 		return returnObj;

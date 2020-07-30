@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 
 import codedriver.framework.common.constvalue.ApiParamType;
@@ -13,21 +14,17 @@ import codedriver.framework.common.dto.BasePageVo;
 import codedriver.framework.restful.annotation.EntityField;
 import codedriver.framework.util.SnowflakeUtil;
 
-public class ReportVo extends BasePageVo {
+public class ReportInstanceVo extends BasePageVo {
 	@JSONField(serialize = false)
 	private transient String keyword;
 	@EntityField(name = "id", type = ApiParamType.LONG)
 	private Long id;
+	@EntityField(name = "报表定义id", type = ApiParamType.LONG)
+	private Long reportId;
+	@EntityField(name = "报表定义名称", type = ApiParamType.STRING)
+	private String reportName;
 	@EntityField(name = "名称", type = ApiParamType.STRING)
 	private String name;
-	@EntityField(name = "类型", type = ApiParamType.STRING)
-	private String type;
-	@EntityField(name = "sql配置内容", type = ApiParamType.STRING)
-	private String sql;
-	@EntityField(name = "条件配置内容", type = ApiParamType.STRING)
-	private String condition;
-	@EntityField(name = "主体配置内容", type = ApiParamType.STRING)
-	private String content;
 	@EntityField(name = "是否激活", type = ApiParamType.INTEGER)
 	private Integer isActive;
 	@EntityField(name = "访问次数", type = ApiParamType.INTEGER)
@@ -40,14 +37,16 @@ public class ReportVo extends BasePageVo {
 	private Date fcd;
 	@EntityField(name = "修改日期", type = ApiParamType.LONG)
 	private Date lcd;
+	@EntityField(name = "配置", type = ApiParamType.JSONOBJECT)
+	private JSONObject config;
 	@EntityField(name = "授权列表", type = ApiParamType.JSONARRAY)
-	private List<ReportAuthVo> reportAuthList;
+	private List<ReportInstanceAuthVo> reportInstanceAuthList;
 	@EntityField(name = "授权字符串列表", type = ApiParamType.JSONARRAY)
 	private List<String> authList;
-	@EntityField(name = "参数列表", type = ApiParamType.JSONARRAY)
-	private List<ReportParamVo> paramList;
-	@JSONField(serialize = false)//搜索模式，默认是按用户搜索，管理员页面无需检查用户权限
+	@JSONField(serialize = false) // 搜索模式，默认是按用户搜索，管理员页面无需检查用户权限
 	private transient String searchMode = "user";
+	@EntityField(name = "报表参数列表", type = ApiParamType.JSONARRAY)
+	private List<ReportParamVo> paramList;
 
 	public Long getId() {
 		if (id == null) {
@@ -66,14 +65,6 @@ public class ReportVo extends BasePageVo {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
 	}
 
 	public Integer getIsActive() {
@@ -124,30 +115,6 @@ public class ReportVo extends BasePageVo {
 		this.lcd = lcd;
 	}
 
-	public String getSql() {
-		return sql;
-	}
-
-	public void setSql(String sql) {
-		this.sql = sql;
-	}
-
-	public String getCondition() {
-		return condition;
-	}
-
-	public void setCondition(String condition) {
-		this.condition = condition;
-	}
-
-	public String getContent() {
-		return content;
-	}
-
-	public void setContent(String content) {
-		this.content = content;
-	}
-
 	public String getKeyword() {
 		return keyword;
 	}
@@ -156,18 +123,18 @@ public class ReportVo extends BasePageVo {
 		this.keyword = keyword;
 	}
 
-	public List<ReportAuthVo> getReportAuthList() {
-		return reportAuthList;
+	public List<ReportInstanceAuthVo> getReportInstanceAuthList() {
+		return reportInstanceAuthList;
 	}
 
-	public void setReportAuthList(List<ReportAuthVo> reportAuthList) {
-		this.reportAuthList = reportAuthList;
+	public void setReportInstanceAuthList(List<ReportInstanceAuthVo> reportInstanceAuthList) {
+		this.reportInstanceAuthList = reportInstanceAuthList;
 	}
 
 	public List<String> getAuthList() {
-		if (CollectionUtils.isEmpty(authList) && CollectionUtils.isNotEmpty(reportAuthList)) {
+		if (CollectionUtils.isEmpty(authList) && CollectionUtils.isNotEmpty(reportInstanceAuthList)) {
 			this.authList = new ArrayList<>();
-			for (ReportAuthVo reportAuthVo : reportAuthList) {
+			for (ReportInstanceAuthVo reportAuthVo : reportInstanceAuthList) {
 				this.authList.add(reportAuthVo.getAuthType() + "#" + reportAuthVo.getAuthUuid());
 			}
 		}
@@ -178,12 +145,40 @@ public class ReportVo extends BasePageVo {
 		this.authList = authList;
 	}
 
-	public List<ReportParamVo> getParamList() {
-		return paramList;
+	public Long getReportId() {
+		return reportId;
 	}
 
-	public void setParamList(List<ReportParamVo> paramList) {
-		this.paramList = paramList;
+	public void setReportId(Long reportId) {
+		this.reportId = reportId;
+	}
+
+	public JSONObject getConfig() {
+		return config;
+	}
+
+	public void setConfig(String config) {
+		try {
+			this.config = JSONObject.parseObject(config);
+		} catch (Exception ex) {
+
+		}
+	}
+
+	@JSONField(serialize = false)
+	public String getConfigStr() {
+		if (config != null) {
+			return config.toJSONString();
+		}
+		return null;
+	}
+
+	public String getReportName() {
+		return reportName;
+	}
+
+	public void setReportName(String reportName) {
+		this.reportName = reportName;
 	}
 
 	public String getSearchMode() {
@@ -192,6 +187,29 @@ public class ReportVo extends BasePageVo {
 
 	public void setSearchMode(String searchMode) {
 		this.searchMode = searchMode;
+	}
+
+	public List<ReportParamVo> getParamList() {
+		if (CollectionUtils.isNotEmpty(paramList) && config != null) {
+			JSONObject paramObj = config.getJSONObject("param");
+			if (paramObj != null) {
+				for (ReportParamVo reportParamVo : paramList) {
+					if (paramObj.containsKey(reportParamVo.getName())) {
+						JSONObject tmpObj = reportParamVo.getConfig();
+						if (tmpObj == null) {
+							tmpObj = new JSONObject();
+						}
+						tmpObj.put("defaultValue", paramObj.getJSONObject(reportParamVo.getName()).get("defaultValue"));
+						reportParamVo.setConfig(tmpObj.toJSONString());
+					}
+				}
+			}
+		}
+		return paramList;
+	}
+
+	public void setParamList(List<ReportParamVo> paramList) {
+		this.paramList = paramList;
 	}
 
 }

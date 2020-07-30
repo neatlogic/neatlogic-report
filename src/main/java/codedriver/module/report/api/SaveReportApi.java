@@ -34,7 +34,7 @@ public class SaveReportApi extends ApiComponentBase {
 
 	@Override
 	public String getName() {
-		return "修改报表";
+		return "保存报表定义";
 	}
 
 	@Override
@@ -42,9 +42,16 @@ public class SaveReportApi extends ApiComponentBase {
 		return null;
 	}
 
-	@Input({ @Param(name = "id", type = ApiParamType.LONG, desc = "报表id"), @Param(name = "name", type = ApiParamType.STRING, desc = "报表名称"), @Param(name = "type", type = ApiParamType.STRING, desc = "报表类型"), @Param(name = "sql", type = ApiParamType.STRING, desc = "报表数据源配置"), @Param(name = "condition", type = ApiParamType.STRING, desc = "报表条件配置"), @Param(name = "content", type = ApiParamType.STRING, desc = "报表内容配置"), @Param(name = "authList", type = ApiParamType.JSONARRAY, desc = "报表授权列表") })
+	@Input({ @Param(name = "id", type = ApiParamType.LONG, desc = "报表定义id"), 
+		@Param(name = "name", type = ApiParamType.STRING, desc = "报表定义名称"), 
+		@Param(name = "type", type = ApiParamType.STRING, desc = "报表定义类型"),
+		@Param(name = "isActive", type = ApiParamType.INTEGER, desc = "是否激活"), 
+		@Param(name = "sql", type = ApiParamType.STRING, desc = "报表定义数据源配置"), 
+		@Param(name = "condition", type = ApiParamType.STRING, desc = "报表定义条件配置"), 
+		@Param(name = "content", type = ApiParamType.STRING, desc = "报表定义内容配置"), 
+		@Param(name = "authList", type = ApiParamType.JSONARRAY, desc = "报表定义授权列表") })
 	@Output({ @Param(explode = ReportVo.class) })
-	@Description(desc = "修改报表，不受报表授权限制")
+	@Description(desc = "保存报表定义")
 	@Override
 	public Object myDoService(JSONObject jsonObj) throws Exception {
 		// 权限判断：如果是管理员

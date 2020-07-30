@@ -7,10 +7,13 @@ import com.alibaba.fastjson.annotation.JSONField;
 
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.restful.annotation.EntityField;
+import codedriver.framework.util.SnowflakeUtil;
 
 public class ReportParamVo {
 	@EntityField(name = "报表id", type = ApiParamType.LONG)
 	private Long reportId;
+	@EntityField(name = "id", type = ApiParamType.LONG)
+	private Long id;
 	@EntityField(name = "参数名称", type = ApiParamType.STRING)
 	private String name;
 	@EntityField(name = "参数标签", type = ApiParamType.STRING)
@@ -93,6 +96,17 @@ public class ReportParamVo {
 
 	public void setSort(Integer sort) {
 		this.sort = sort;
+	}
+
+	public Long getId() {
+		if (id == null) {
+			id = SnowflakeUtil.uniqueLong();
+		}
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 }

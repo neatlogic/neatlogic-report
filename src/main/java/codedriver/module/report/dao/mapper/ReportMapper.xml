@@ -3,6 +3,7 @@
 <mapper namespace="codedriver.module.report.dao.mapper.ReportMapper">
 	<select id="getReportParamByReportId" parameterType="java.lang.Long" resultType="codedriver.module.report.dto.ReportParamVo">
 		SELECT
+		`id` AS id,
 		`report_id` as reportId,
 		`name`,
 		`type`,
@@ -55,6 +56,10 @@
 		FROM
 		`report` a
 		<include refid="searchReportCondition"></include>
+		ORDER BY a.id DESC
+		<if test="needPage == true">
+			LIMIT #{startNum}, #{pageSize}
+		</if>
 	</select>
 
 	<select id="searchReportCount" parameterType="codedriver.module.report.dto.ReportVo" resultType="int">
@@ -133,6 +138,7 @@
 
 	<insert id="insertReportParam" parameterType="codedriver.module.report.dto.ReportParamVo">
 		INSERT INTO `report_param` (
+		`id`,
 		`report_id`,
 		`name`,
 		`type`,
@@ -143,6 +149,7 @@
 		)
 		VALUES
 		(
+		#{id},
 		#{reportId},
 		#{name},
 		#{type},
