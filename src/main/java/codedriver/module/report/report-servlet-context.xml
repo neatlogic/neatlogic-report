@@ -15,7 +15,7 @@
 		http://codedriver.techsure.com/schema/codedriver
 		http://codedriver.techsure.com/schema/codedriver.xsd">
 
-	<codedriver:module id="report" name="报表模块" groupName="报表" group="report" groupSort="3" groupDescription="统一报表平台" />
+	<codedriver:module id="report" name="报表模块" groupName="报表" group="report" groupSort="3" groupDescription="智能数据分析平台" />
 
 	<context:component-scan base-package="codedriver.module.report" />
 
