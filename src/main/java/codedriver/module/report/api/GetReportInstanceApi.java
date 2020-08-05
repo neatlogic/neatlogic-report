@@ -1,7 +1,9 @@
 package codedriver.module.report.api;
 
+import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,7 @@ import codedriver.framework.restful.annotation.Param;
 import codedriver.framework.restful.core.ApiComponentBase;
 import codedriver.module.report.dto.ReportInstanceAuthVo;
 import codedriver.module.report.dto.ReportInstanceVo;
+import codedriver.module.report.dto.ReportParamVo;
 import codedriver.module.report.dto.ReportVo;
 import codedriver.module.report.service.ReportInstanceService;
 import codedriver.module.report.service.ReportService;
@@ -90,7 +93,30 @@ public class GetReportInstanceApi extends ApiComponentBase {
 		}
 		if (reportInstanceVo.getReportId() != null) {
 			ReportVo reportVo = reportService.getReportDetailById(reportInstanceVo.getReportId());
-			reportInstanceVo.setParamList(reportVo.getParamList());
+			List<ReportParamVo> paramList = reportVo.getParamList();
+			JSONObject paramObj = null;
+			if (reportInstanceVo.getConfig() != null) {
+				paramObj = reportInstanceVo.getConfig().getJSONObject("param");
+			}
+			if (CollectionUtils.isNotEmpty(paramList) && paramObj != null) {
+				Iterator<ReportParamVo> it = paramList.iterator();
+				while (it.hasNext()) {
+					ReportParamVo param = it.next();
+					if (paramObj.containsKey(param.getName())) {
+						JSONObject newObj = paramObj.getJSONObject(param.getName());
+						if (newObj != null) {
+							if (param.getConfig() != null) {
+								param.getConfig().put("defaultValue", newObj.getString("defaultValue"));
+							} else {
+								param.setConfig(newObj.toJSONString());
+							}
+						}
+					} else {
+						it.remove();
+					}
+				}
+			}
+			reportInstanceVo.setParamList(paramList);
 		}
 		return reportInstanceVo;
 	}

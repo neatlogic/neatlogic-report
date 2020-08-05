@@ -20,6 +20,8 @@ public interface ReportInstanceMapper {
 
 	public int updateReportInstance(ReportInstanceVo reportInstanceVo);
 
+	public int updateReportInstanceActive(ReportInstanceVo reportInstanceVo);
+
 	public int deleteReportInstanceAuthByReportInstanceId(Long reportInstanceId);
 
 }

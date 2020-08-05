@@ -55,6 +55,9 @@
 			<if test="reportId !=null">
 				AND a.report_id = #{reportId}
 			</if>
+			<if test="searchMode == 'user'">
+				AND a.is_active = 1
+			</if>
 		</where>
 	</sql>
 
@@ -98,6 +101,14 @@
 		`config` = #{configStr},
 		`lcu` = #{lcu},
 		`lcd` = NOW()
+		WHERE `id` = #{id}
+	</update>
+
+	<update id="updateReportInstanceActive" parameterType="codedriver.module.report.dto.ReportInstanceVo">
+		UPDATE
+		`reportinstance`
+		SET
+		`is_active` = #{isActive}
 		WHERE `id` = #{id}
 	</update>
 

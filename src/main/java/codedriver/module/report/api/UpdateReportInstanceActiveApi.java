@@ -13,25 +13,25 @@ import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.OperationType;
 import codedriver.framework.restful.annotation.Param;
 import codedriver.framework.restful.core.ApiComponentBase;
-import codedriver.module.report.dao.mapper.ReportMapper;
-import codedriver.module.report.dto.ReportVo;
+import codedriver.module.report.dao.mapper.ReportInstanceMapper;
+import codedriver.module.report.dto.ReportInstanceVo;
 
 @Service
 @AuthAction(name = "REPORT_MODIFY")
 @OperationType(type = OperationTypeEnum.UPDATE)
-public class UpdateReportActiveApi extends ApiComponentBase {
+public class UpdateReportInstanceActiveApi extends ApiComponentBase {
 
 	@Autowired
-	private ReportMapper reportMapper;
+	private ReportInstanceMapper reportInstanceMapper;
 
 	@Override
 	public String getToken() {
-		return "report/toggleactive";
+		return "reportinstance/toggleactive";
 	}
 
 	@Override
 	public String getName() {
-		return "更改报表定义激活状态";
+		return "更改报表激活状态";
 	}
 
 	@Override
@@ -40,11 +40,11 @@ public class UpdateReportActiveApi extends ApiComponentBase {
 	}
 
 	@Input({ @Param(name = "id", type = ApiParamType.LONG, desc = "报表id"), @Param(name = "isActive", type = ApiParamType.INTEGER, desc = "是否激活") })
-	@Description(desc = "更改报表定义激活状态")
+	@Description(desc = "更改报表激活状态")
 	@Override
 	public Object myDoService(JSONObject jsonObj) throws Exception {
-		ReportVo reportVo = JSONObject.toJavaObject(jsonObj, ReportVo.class);
-		reportMapper.updateReportActive(reportVo);
+		ReportInstanceVo reportVo = JSONObject.toJavaObject(jsonObj, ReportInstanceVo.class);
+		reportInstanceMapper.updateReportInstanceActive(reportVo);
 		return null;
 	}
 }
