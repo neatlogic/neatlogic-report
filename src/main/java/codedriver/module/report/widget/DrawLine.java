@@ -97,7 +97,7 @@ public class DrawLine implements TemplateMethodModelEx {
 				// 非json格式
 			}
 		}
-		
+
 		if (canReturn) {
 			StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme();
 
@@ -105,13 +105,12 @@ public class DrawLine implements TemplateMethodModelEx {
 			standardChartTheme.apply(chart);
 			chart.getLegend().setFrame(new BlockBorder(Color.white));
 			CategoryPlot p = chart.getCategoryPlot();
-			if (isShowValue) {
-				CategoryItemRenderer renderer = new DrawLine.CustomRenderer(); // 设置方形数据点
-				p.setRenderer(renderer);
-			}
-			p.setOutlinePaint(Color.white);
+			CategoryItemRenderer render = new DrawLine.CustomRenderer();
+			render.setDefaultItemLabelsVisible(isShowValue);
+			p.setRenderer(render);
+			p.setOutlinePaint(null);
 			CategoryAxis axis = (CategoryAxis) p.getDomainAxis();// X坐标轴
-			if (tick>0) {
+			if (tick > 0) {
 				List<String> xLables = dataset.getColumnKeys();
 				for (int k = 0; k < xLables.size(); k++) {
 					if (k % tick != 0) {
@@ -122,25 +121,8 @@ public class DrawLine implements TemplateMethodModelEx {
 			axis.setLowerMargin(0);
 			axis.setUpperMargin(0);
 			axis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);// 倾斜45度
-			ValueAxis rAxis = p.getRangeAxis();// 对Y轴做操作 q
-			/*
-			Double maxNum = 0d;
-
-			for (int j = 0; j < dataset.getRowKeys().size(); j++) { // 获取最大值
-				for (int i = 0; i < dataset.getColumnKeys().size(); i++) {
-					Object temp = dataset.getValue(j, i);
-					if (temp != null) {
-						// float tempFloat = Float.parseFloat(temp.toString());
-						// int tempInt = (int) Math.rint(tempFloat);
-						Double tempInt = Double.valueOf((temp.toString()));
-						if (tempInt > maxNum) {
-							maxNum = tempInt;
-						}
-					}
-				}
-			}
-			rAxis.setRange(0, maxNum + 1); // 设置y轴范围*/
-			 rAxis.setAutoRange(true); // 设置y轴自动获取范围
+			ValueAxis yAxis = p.getRangeAxis();// 对Y轴做操作 q
+			yAxis.setAutoRange(true); // 设置y轴自动获取范围
 			try {
 				byte[] bytes = ChartUtils.encodeAsPNG(chart.createBufferedImage(width, height));
 				return "<img class='img-responsive' src=\"data:image/png;base64," + Base64.encodeBase64String(bytes) + "\">";
@@ -159,7 +141,7 @@ public class DrawLine implements TemplateMethodModelEx {
 		private Paint[] colors;
 
 		public CustomRenderer() {
-			this.colors = ReportConfig.CHART_COLOR;
+			this.colors = JfreeChartUtil.CHART_COLORS;
 		}
 
 		public Paint getItemPaint(final int row, final int column) {
@@ -172,4 +154,5 @@ public class DrawLine implements TemplateMethodModelEx {
 			return legendItem;
 		}
 	}
+
 }

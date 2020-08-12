@@ -2,6 +2,7 @@ package codedriver.module.report.widget;
 
 import java.awt.Color;
 import java.awt.Paint;
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -17,6 +18,7 @@ import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.block.BlockBorder;
 import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.PiePlot;
+import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.general.DefaultPieDataset;
 
 import com.alibaba.fastjson.JSONObject;
@@ -78,12 +80,7 @@ public class DrawPie implements TemplateMethodModelEx {
 			standardChartTheme.apply(chart);
 			chart.getLegend().setFrame(new BlockBorder(Color.white));
 			PiePlot p = (PiePlot) chart.getPlot();
-			p.setLabelBackgroundPaint(Color.decode("#fcfcfc"));
-			p.setOutlinePaint(Color.white);
-			p.setShadowXOffset(0);
-			p.setShadowYOffset(0);
-			p.setLegendLabelGenerator(new StandardPieSectionLabelGenerator("{0}：{1}({2})"));//设置legend显示格式  
-			p.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}({2})", NumberFormat.getNumberInstance(), new DecimalFormat("0.00%")));//设置标签带%
+
 			CustomRenderer renderer = new CustomRenderer();
 			renderer.setColor(p, dataset);
 			try {
@@ -97,20 +94,33 @@ public class DrawPie implements TemplateMethodModelEx {
 	}
 
 	static class CustomRenderer {
-		private Paint[] colors;
+		// private Paint[] colors;
 
 		public CustomRenderer() {
-			this.colors =  ReportConfig.CHART_COLOR;
+			// this.colors = JfreeChartUtil.CHART_COLORS;
 		}
 
 		public void setColor(PiePlot plot, DefaultPieDataset dataset) {
-			List<Comparable> keys = dataset.getKeys();
-			int aInt;
-			for (int i = 0; i < keys.size(); i++) {
-				aInt = i % this.colors.length;
-				plot.setSectionPaint(keys.get(i), this.colors[aInt]);
-			}
+
+			plot.setNoDataMessage("数据加载失败");
+			plot.setInsets(new RectangleInsets(10, 10, 5, 10));
+			PiePlot piePlot = (PiePlot) plot;
+			piePlot.setInsets(new RectangleInsets(0, 0, 0, 0));
+			piePlot.setCircular(true);// 圆形
+
+			// piePlot.setSimpleLabels(true);// 简单标签
+			piePlot.setLabelGap(0.01);
+			piePlot.setInteriorGap(0.05D);
+			piePlot.setLegendItemShape(new Rectangle(10, 10));// 图例形状
+			piePlot.setIgnoreNullValues(true);
+			piePlot.setLabelBackgroundPaint(null);// 去掉背景色
+			piePlot.setLabelShadowPaint(null);// 去掉阴影
+			piePlot.setLabelOutlinePaint(null);// 去掉边框
+			piePlot.setShadowPaint(null);
+			piePlot.setLegendLabelGenerator(new StandardPieSectionLabelGenerator("{0}：{1}({2})"));// 设置legend显示格式
+			piePlot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}({2})", NumberFormat.getNumberInstance(), new DecimalFormat("0.00%")));// 设置标签带%
+
 		}
 	}
-	
+
 }

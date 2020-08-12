@@ -1,7 +1,6 @@
 package codedriver.module.report.widget;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Paint;
 import java.io.IOException;
 import java.util.List;
@@ -30,7 +29,6 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import com.alibaba.fastjson.JSONObject;
 
-import codedriver.module.report.config.ReportConfig;
 import codedriver.module.report.util.JfreeChartUtil;
 import freemarker.template.SimpleHash;
 import freemarker.template.SimpleNumber;
@@ -114,7 +112,7 @@ public class DrawBarH implements TemplateMethodModelEx {
 			renderer.setDefaultItemLabelsVisible(isShowValue);
 			p.setRenderer(renderer);
 			p.setOutlinePaint(Color.white);
-			
+
 			CategoryAxis yxis = (CategoryAxis) p.getDomainAxis();// Y坐标轴
 			yxis.setLowerMargin(0);
 			yxis.setUpperMargin(0);
@@ -127,7 +125,7 @@ public class DrawBarH implements TemplateMethodModelEx {
 					}
 				}
 			}
-			
+
 			try {
 				byte[] bytes = ChartUtils.encodeAsPNG(chart.createBufferedImage(width, height));
 				return "<img class='img-responsive' src=\"data:image/png;base64," + Base64.encodeBase64String(bytes) + "\"/>";
@@ -153,8 +151,9 @@ public class DrawBarH implements TemplateMethodModelEx {
 			this.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
 			this.setDefaultPositiveItemLabelPosition(new ItemLabelPosition(ItemLabelAnchor.OUTSIDE3, TextAnchor.BASELINE_RIGHT));
 			this.setItemLabelAnchorOffset(30D);
-			this.colors = ReportConfig.CHART_COLOR;
-			this.setDefaultItemLabelFont(new Font("黑体", Font.PLAIN, ReportConfig.JFREECHART_FONTSIZE + 2));
+			this.colors = JfreeChartUtil.CHART_COLORS;
+			// this.setDefaultItemLabelFont(new Font("黑体", Font.PLAIN,
+			// ReportConfig.JFREECHART_FONTSIZE + 2));
 		}
 
 		public Paint getItemPaint(final int row, final int column) {

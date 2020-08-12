@@ -1,7 +1,6 @@
 package codedriver.module.report.widget;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Paint;
 import java.awt.geom.Ellipse2D;
 import java.io.IOException;
@@ -224,8 +223,9 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
 			this.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
 			this.setDefaultPositiveItemLabelPosition(new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BASELINE_CENTER));
 			this.setItemLabelAnchorOffset(-10D);
-			this.colors = ReportConfig.CHART_COLOR;
-			this.setDefaultItemLabelFont(new Font("黑体", Font.PLAIN, ReportConfig.JFREECHART_FONTSIZE + 2));
+			this.colors = JfreeChartUtil.CHART_COLORS;
+			// this.setDefaultItemLabelFont(new Font("黑体", Font.PLAIN,
+			// ReportConfig.JFREECHART_FONTSIZE + 2));
 		}
 
 		public Paint getItemPaint(final int row, final int column) {

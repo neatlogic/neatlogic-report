@@ -1,7 +1,6 @@
 package codedriver.module.report.widget;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Paint;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,7 +16,6 @@ import org.jfree.chart.LegendItem;
 import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
-import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.block.BlockBorder;
 import org.jfree.chart.labels.ItemLabelAnchor;
 import org.jfree.chart.labels.ItemLabelPosition;
@@ -33,7 +31,6 @@ import org.jfree.data.general.DatasetUtils;
 
 import com.alibaba.fastjson.JSONObject;
 
-import codedriver.module.report.config.ReportConfig;
 import codedriver.module.report.util.JfreeChartUtil;
 import freemarker.template.SimpleHash;
 import freemarker.template.SimpleNumber;
@@ -137,7 +134,7 @@ public class DrawStackedBarH implements TemplateMethodModelEx {
 			renderer.setDefaultItemLabelsVisible(isShowValue);
 			p.setRenderer(renderer);
 			p.setOutlinePaint(Color.white);
-			
+
 			CategoryAxis axis = (CategoryAxis) p.getDomainAxis();// Y坐标轴
 			axis.setLowerMargin(0);
 			axis.setUpperMargin(0);
@@ -150,7 +147,7 @@ public class DrawStackedBarH implements TemplateMethodModelEx {
 					}
 				}
 			}
-			
+
 			try {
 				byte[] bytes = ChartUtils.encodeAsPNG(chart.createBufferedImage(width, height));
 				return "<img src=\"data:image/png;base64," + Base64.encodeBase64String(bytes) + "\">";
@@ -173,8 +170,9 @@ public class DrawStackedBarH implements TemplateMethodModelEx {
 			this.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
 			this.setDefaultPositiveItemLabelPosition(new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BASELINE_CENTER));
 			this.setItemLabelAnchorOffset(-10D);
-			this.colors = ReportConfig.CHART_COLOR;
-			this.setDefaultItemLabelFont(new Font("黑体", Font.PLAIN, ReportConfig.JFREECHART_FONTSIZE + 2));
+			this.colors = JfreeChartUtil.CHART_COLORS;
+			// this.setDefaultItemLabelFont(new Font("黑体", Font.PLAIN,
+			// ReportConfig.JFREECHART_FONTSIZE + 2));
 		}
 
 		public Paint getItemPaint(final int row, final int column) {

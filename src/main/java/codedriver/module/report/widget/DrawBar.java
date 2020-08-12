@@ -1,7 +1,6 @@
 package codedriver.module.report.widget;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Paint;
 import java.io.IOException;
 import java.util.List;
@@ -16,7 +15,6 @@ import org.jfree.chart.LegendItem;
 import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
-import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.block.BlockBorder;
 import org.jfree.chart.labels.ItemLabelAnchor;
 import org.jfree.chart.labels.ItemLabelPosition;
@@ -30,11 +28,9 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import com.alibaba.fastjson.JSONObject;
 
-import codedriver.module.report.config.ReportConfig;
 import codedriver.module.report.util.JfreeChartUtil;
 import freemarker.template.SimpleHash;
 import freemarker.template.SimpleNumber;
-import freemarker.template.SimpleScalar;
 import freemarker.template.SimpleSequence;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
@@ -114,7 +110,7 @@ public class DrawBar implements TemplateMethodModelEx {
 			CategoryItemRenderer renderer = new DrawBar.CustomRenderer();
 			renderer.setDefaultItemLabelsVisible(isShowValue);
 			p.setRenderer(renderer);
-			p.setOutlinePaint(Color.white);
+			p.setOutlinePaint(null);
 
 			CategoryAxis axis = (CategoryAxis) p.getDomainAxis();// X坐标轴
 			axis.setLowerMargin(0);
@@ -128,40 +124,6 @@ public class DrawBar implements TemplateMethodModelEx {
 					}
 				}
 			}
-			/*
-			ValueAxis rAxis = p.getRangeAxis();// 对Y轴做操作
-			Double maxNum = Double.NEGATIVE_INFINITY;
-			for (int j = 0; j < dataset.getRowKeys().size(); j++) { // 获取最大值
-				for (int i = 0; i < dataset.getColumnKeys().size(); i++) {
-					Object temp = dataset.getValue(j, i);
-					if (temp != null) {
-						Double tempInt = Double.valueOf((temp.toString()));
-						if (tempInt > maxNum) {
-							maxNum = tempInt;
-						}
-					}
-				}
-			}
-			Double minNum = Double.MAX_VALUE;
-			for (int j = 0; j < dataset.getRowKeys().size(); j++) { // 获取最值
-				for (int i = 0; i < dataset.getColumnKeys().size(); i++) {
-					Object temp = dataset.getValue(j, i);
-					if (temp != null) {
-						Double tempInt = Double.valueOf((temp.toString()));
-						if (tempInt < minNum) {
-							minNum = tempInt;
-						}
-					}
-				}
-			}
-			rAxis.setRange(minNum - minNum * 0.1, maxNum == 0d ? 1 : maxNum * 1.2); // 设置y轴范围*/
-			// rAxis.setAutoRange(true); // 设置y轴自动获取范围
-			/*
-			 * rAxis.setMinorTickCount(10);//节段中的刻度数
-			 * rAxis.setMinorTickMarkInsideLength(4);//内刻度线向内长度
-			 * rAxis.setMinorTickMarkOutsideLength(4);//内刻度记线向外长度
-			 * rAxis.setTickMarkInsideLength(4);//外刻度线向内长度
-			 */
 			try {
 
 				byte[] bytes = ChartUtils.encodeAsPNG(chart.createBufferedImage(width, height));
@@ -188,8 +150,9 @@ public class DrawBar implements TemplateMethodModelEx {
 			this.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
 			this.setDefaultPositiveItemLabelPosition(new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BASELINE_CENTER));
 			this.setItemLabelAnchorOffset(10D);
-			this.colors = ReportConfig.CHART_COLOR;
-			this.setDefaultItemLabelFont(new Font("黑体", Font.PLAIN, ReportConfig.JFREECHART_FONTSIZE + 2));
+			this.colors = JfreeChartUtil.CHART_COLORS;
+			// this.setDefaultItemLabelFont(new Font("黑体", Font.PLAIN,
+			// ReportConfig.JFREECHART_FONTSIZE + 2));
 		}
 
 		public Paint getItemPaint(final int row, final int column) {

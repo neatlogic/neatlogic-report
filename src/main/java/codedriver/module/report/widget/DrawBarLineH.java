@@ -1,7 +1,6 @@
 package codedriver.module.report.widget;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Paint;
 import java.awt.geom.Ellipse2D;
 import java.io.IOException;
@@ -36,13 +35,13 @@ import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DatasetUtils;
 
-import codedriver.module.report.config.ReportConfig;
 import codedriver.module.report.util.JfreeChartUtil;
 import freemarker.template.SimpleHash;
 import freemarker.template.SimpleNumber;
 import freemarker.template.SimpleSequence;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
+
 @Deprecated
 public class DrawBarLineH implements TemplateMethodModelEx {
 	private static final Log logger = LogFactory.getLog(DrawBarLineH.class);
@@ -280,8 +279,9 @@ public class DrawBarLineH implements TemplateMethodModelEx {
 			this.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
 			this.setDefaultPositiveItemLabelPosition(new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BASELINE_CENTER));
 			this.setItemLabelAnchorOffset(-10D);
-			this.colors = ReportConfig.CHART_COLOR;
-			this.setDefaultItemLabelFont(new Font("黑体", Font.PLAIN, ReportConfig.JFREECHART_FONTSIZE + 2));
+			this.colors = JfreeChartUtil.CHART_COLORS;
+			// this.setDefaultItemLabelFont(new Font("黑体", Font.PLAIN,
+			// ReportConfig.JFREECHART_FONTSIZE + 2));
 		}
 
 		public Paint getItemPaint(final int row, final int column) {
