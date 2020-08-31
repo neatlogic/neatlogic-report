@@ -12,14 +12,14 @@ import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.OperationType;
 import codedriver.framework.restful.annotation.Param;
-import codedriver.framework.restful.core.ApiComponentBase;
+import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportVo;
 
 @Service
 @AuthAction(name = "REPORT_MODIFY")
 @OperationType(type = OperationTypeEnum.UPDATE)
-public class UpdateReportActiveApi extends ApiComponentBase {
+public class UpdateReportActiveApi extends PrivateApiComponentBase {
 
 	@Autowired
 	private ReportMapper reportMapper;

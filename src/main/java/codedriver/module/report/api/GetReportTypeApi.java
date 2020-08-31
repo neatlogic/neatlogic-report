@@ -13,12 +13,12 @@ import codedriver.framework.exception.type.PermissionDeniedException;
 import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Output;
 import codedriver.framework.restful.annotation.Param;
-import codedriver.framework.restful.core.ApiComponentBase;
+import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportTypeVo;
 
 @Service
-public class GetReportTypeApi extends ApiComponentBase {
+public class GetReportTypeApi extends PrivateApiComponentBase {
 
 	@Autowired
 	private ReportMapper reportMapper;

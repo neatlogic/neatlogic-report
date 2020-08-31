@@ -5,19 +5,17 @@ import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
 
-import codedriver.framework.auth.core.AuthActionChecker;
 import codedriver.framework.common.constvalue.ApiParamType;
-import codedriver.framework.exception.type.PermissionDeniedException;
 import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.Output;
 import codedriver.framework.restful.annotation.Param;
-import codedriver.framework.restful.core.ApiComponentBase;
+import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
 import codedriver.module.report.dto.ReportVo;
 import codedriver.module.report.service.ReportService;
 
 @Service
-public class DeleteReportApi extends ApiComponentBase {
+public class DeleteReportApi extends PrivateApiComponentBase {
 
 	@Autowired
 	private ReportService reportService;

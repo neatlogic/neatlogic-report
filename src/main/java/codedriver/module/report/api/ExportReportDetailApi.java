@@ -18,16 +18,16 @@ import com.alibaba.fastjson.JSONObject;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.Param;
-import codedriver.framework.restful.core.BinaryStreamApiComponentBase;
+import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportVo;
 import codedriver.module.report.exception.ReportNotFoundException;
 import codedriver.module.report.service.ReportService;
-import codedriver.module.report.util.ReportFreemarkerUtil;
 import codedriver.module.report.util.ExportUtil;
+import codedriver.module.report.util.ReportFreemarkerUtil;
 
 @Service
-public class ExportReportDetailApi extends BinaryStreamApiComponentBase {
+public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
 	private static final Log logger = LogFactory.getLog(ExportReportDetailApi.class);
 
 	@Autowired

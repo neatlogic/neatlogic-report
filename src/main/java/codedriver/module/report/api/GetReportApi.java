@@ -16,13 +16,13 @@ import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.Output;
 import codedriver.framework.restful.annotation.Param;
-import codedriver.framework.restful.core.ApiComponentBase;
+import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
 import codedriver.module.report.dto.ReportAuthVo;
 import codedriver.module.report.dto.ReportVo;
 import codedriver.module.report.service.ReportService;
 
 @Service
-public class GetReportApi extends ApiComponentBase {
+public class GetReportApi extends PrivateApiComponentBase {
 
 	@Autowired
 	private ReportService reportService;

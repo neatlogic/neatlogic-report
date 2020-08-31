@@ -14,7 +14,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.Param;
-import codedriver.framework.restful.core.BinaryStreamApiComponentBase;
+import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportVo;
 import codedriver.module.report.exception.ReportNotFoundException;
@@ -22,7 +22,7 @@ import codedriver.module.report.service.ReportService;
 import codedriver.module.report.util.ReportFreemarkerUtil;
 
 @Service
-public class ShowReportDetailApi extends BinaryStreamApiComponentBase {
+public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
 
 	@Autowired
 	private ReportMapper reportMapper;

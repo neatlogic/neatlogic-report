@@ -14,7 +14,7 @@ import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.Output;
 import codedriver.framework.restful.annotation.Param;
-import codedriver.framework.restful.core.ApiComponentBase;
+import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportAuthVo;
 import codedriver.module.report.dto.ReportParamVo;
@@ -22,7 +22,7 @@ import codedriver.module.report.dto.ReportVo;
 
 @Service
 @Transactional
-public class SaveReportApi extends ApiComponentBase {
+public class SaveReportApi extends PrivateApiComponentBase {
 
 	@Autowired
 	private ReportMapper reportMapper;
