@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
 
+import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.Param;
 import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
@@ -46,6 +47,7 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
 	}
 
 	@Input({ @Param(name = "id", desc = "报表id", isRequired = true) })
+	@Description(desc = "展示报表接口")
 	@Override
 	public Object myDoService(JSONObject paramObj, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Long reportId = paramObj.getLong("id");

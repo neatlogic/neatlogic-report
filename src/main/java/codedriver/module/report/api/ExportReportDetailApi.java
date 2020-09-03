@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSONObject;
 
 import codedriver.framework.common.constvalue.ApiParamType;
+import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.Param;
 import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
@@ -28,73 +29,78 @@ import codedriver.module.report.util.ReportFreemarkerUtil;
 
 @Service
 public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
-	private static final Log logger = LogFactory.getLog(ExportReportDetailApi.class);
+    private static final Log logger = LogFactory.getLog(ExportReportDetailApi.class);
 
-	@Autowired
-	private ReportMapper reportMapper;
+    @Autowired
+    private ReportMapper reportMapper;
 
-	@Autowired
-	private ReportService reportService;
+    @Autowired
+    private ReportService reportService;
 
-	@Override
-	public String getToken() {
-		return "report/export/{id}/{type}";
-	}
+    @Override
+    public String getToken() {
+        return "report/export/{id}/{type}";
+    }
 
-	@Override
-	public String getName() {
-		return "展示报表";
-	}
+    @Override
+    public String getName() {
+        return "导出报表";
+    }
 
-	@Override
-	public String getConfig() {
-		return null;
-	}
+    @Override
+    public String getConfig() {
+        return null;
+    }
 
-	@Input({ @Param(name = "id", desc = "报表id", type = ApiParamType.LONG, isRequired = true), @Param(name = "type", desc = "文件类型", type = ApiParamType.ENUM, rule = "pdf,word", isRequired = true) })
-	@Override
-	public Object myDoService(JSONObject paramObj, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		Long reportId = paramObj.getLong("id");
-		String type = paramObj.getString("type");
-		// 统计使用次数
-		reportMapper.updateReportVisitCount(reportId);
+    @Input({@Param(name = "id", desc = "报表id", type = ApiParamType.LONG, isRequired = true),
+        @Param(name = "type", desc = "文件类型", type = ApiParamType.ENUM, rule = "pdf,word", isRequired = true)})
+    @Description(desc = "导出报表接口")
+    @Override
+    public Object myDoService(JSONObject paramObj, HttpServletRequest request, HttpServletResponse response)
+        throws Exception {
+        Long reportId = paramObj.getLong("id");
+        String type = paramObj.getString("type");
+        // 统计使用次数
+        reportMapper.updateReportVisitCount(reportId);
 
-		OutputStream os = null;
-		try {
-			ReportVo reportVo = reportService.getReportDetailById(reportId);
-			if (reportVo == null) {
-				throw new ReportNotFoundException(reportId);
-			}
-			Map<String, Long> timeMap = new HashMap<>();
-			Map<String, Object> returnMap = reportService.getQueryResult(reportId, paramObj, timeMap, false);
-			Map<String, Object> tmpMap = new HashMap<>();
-			Map<String, Object> commonMap = new HashMap<>();
-			tmpMap.put("report", returnMap);
-			tmpMap.put("param", paramObj);
-			tmpMap.put("common", commonMap);
+        OutputStream os = null;
+        try {
+            ReportVo reportVo = reportService.getReportDetailById(reportId);
+            if (reportVo == null) {
+                throw new ReportNotFoundException(reportId);
+            }
+            Map<String, Long> timeMap = new HashMap<>();
+            Map<String, Object> returnMap = reportService.getQueryResult(reportId, paramObj, timeMap, false);
+            Map<String, Object> tmpMap = new HashMap<>();
+            Map<String, Object> commonMap = new HashMap<>();
+            tmpMap.put("report", returnMap);
+            tmpMap.put("param", paramObj);
+            tmpMap.put("common", commonMap);
 
-			String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, reportVo.getContent());
-			if ("pdf".equals(type)) {
-				os = response.getOutputStream();
-				response.setContentType("application/pdf");
-				response.setHeader("Content-Disposition", "attachment;filename=\"" + URLEncoder.encode(reportVo.getName(), "utf-8") + ".pdf\"");
-				ExportUtil.getPdfFileByHtml(content, true, os);
-			} else if ("word".equals(type)) {
-				os = response.getOutputStream();
-				response.setContentType("application/x-download");
-				response.setHeader("Content-Disposition", "attachment;filename=\"" + URLEncoder.encode(reportVo.getName(), "utf-8") + ".docx\"");
-				ExportUtil.getWordFileByHtml(content, true, os);
-			}
+            String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, reportVo.getContent());
+            if ("pdf".equals(type)) {
+                os = response.getOutputStream();
+                response.setContentType("application/pdf");
+                response.setHeader("Content-Disposition",
+                    "attachment;filename=\"" + URLEncoder.encode(reportVo.getName(), "utf-8") + ".pdf\"");
+                ExportUtil.getPdfFileByHtml(content, true, os);
+            } else if ("word".equals(type)) {
+                os = response.getOutputStream();
+                response.setContentType("application/x-download");
+                response.setHeader("Content-Disposition",
+                    "attachment;filename=\"" + URLEncoder.encode(reportVo.getName(), "utf-8") + ".docx\"");
+                ExportUtil.getWordFileByHtml(content, true, os);
+            }
 
-		} catch (Exception ex) {
-			logger.error(ex.getMessage(), ex);
-		} finally {
-			if (os != null) {
-				os.flush();
-				os.close();
-			}
-		}
-		return null;
-	}
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+        } finally {
+            if (os != null) {
+                os.flush();
+                os.close();
+            }
+        }
+        return null;
+    }
 
 }

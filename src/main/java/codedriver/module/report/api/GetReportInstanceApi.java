@@ -29,95 +29,95 @@ import codedriver.module.report.service.ReportService;
 @Service
 public class GetReportInstanceApi extends PrivateApiComponentBase {
 
-	@Autowired
-	private ReportInstanceService reportInstanceService;
+    @Autowired
+    private ReportInstanceService reportInstanceService;
 
-	@Autowired
-	private TeamMapper teamMapper;
+    @Autowired
+    private TeamMapper teamMapper;
 
-	@Autowired
-	private ReportService reportService;
+    @Autowired
+    private ReportService reportService;
 
-	@Override
-	public String getToken() {
-		return "reportinstance/get";
-	}
+    @Override
+    public String getToken() {
+        return "reportinstance/get";
+    }
 
-	@Override
-	public String getName() {
-		return "获取报表详细信息";
-	}
+    @Override
+    public String getName() {
+        return "获取报表详细信息";
+    }
 
-	@Override
-	public String getConfig() {
-		return null;
-	}
+    @Override
+    public String getConfig() {
+        return null;
+    }
 
-	@Input({ @Param(name = "id", type = ApiParamType.LONG, desc = "报表id", isRequired = true) })
-	@Output({ @Param(explode = ReportVo.class) })
-	@Description(desc = "获取报表详细信息")
-	@Override
-	public Object myDoService(JSONObject jsonObj) throws Exception {
-		// 权限判断：如果是管理员
-		boolean hasAuth = AuthActionChecker.check("REPORT_MODIFY");
-		Long reportInstanceId = jsonObj.getLong("id");
-		ReportInstanceVo reportInstanceVo = reportInstanceService.getReportInstanceDetailById(reportInstanceId);
+    @Input({@Param(name = "id", type = ApiParamType.LONG, desc = "报表id", isRequired = true)})
+    @Output({@Param(explode = ReportVo.class)})
+    @Description(desc = "获取报表详细信息接口")
+    @Override
+    public Object myDoService(JSONObject jsonObj) throws Exception {
+        // 权限判断：如果是管理员
+        boolean hasAuth = AuthActionChecker.check("REPORT_MODIFY");
+        Long reportInstanceId = jsonObj.getLong("id");
+        ReportInstanceVo reportInstanceVo = reportInstanceService.getReportInstanceDetailById(reportInstanceId);
 
-		if (!hasAuth) {
-			String userUuid = UserContext.get().getUserUuid(true);
-			List<String> userRoleList = UserContext.get().getRoleUuidList();
-			List<String> teamUuidList = teamMapper.getTeamUuidListByUserUuid(userUuid);
-			if (reportInstanceVo.getReportInstanceAuthList() != null) {
-				for (ReportInstanceAuthVo auth : reportInstanceVo.getReportInstanceAuthList()) {
-					if (auth.getAuthType().equals(ReportInstanceAuthVo.AUTHTYPE_USER)) {
-						if (auth.getAuthUuid().equals(userUuid)) {
-							hasAuth = true;
-							break;
-						}
-					} else if (auth.getAuthType().equals(ReportInstanceAuthVo.AUTHTYPE_ROLE)) {
-						if (userRoleList.contains(auth.getAuthUuid())) {
-							hasAuth = true;
-							break;
-						}
-					} else if (auth.getAuthType().equals(ReportInstanceAuthVo.AUTHTYPE_TEAM)) {
-						if (teamUuidList.contains(auth.getAuthUuid())) {
-							hasAuth = true;
-							break;
-						}
-					}
-				}
-			}
-		}
-		if (!hasAuth) {
-			throw new PermissionDeniedException();
-		}
-		if (reportInstanceVo.getReportId() != null) {
-			ReportVo reportVo = reportService.getReportDetailById(reportInstanceVo.getReportId());
-			List<ReportParamVo> paramList = reportVo.getParamList();
-			JSONObject paramObj = null;
-			if (reportInstanceVo.getConfig() != null) {
-				paramObj = reportInstanceVo.getConfig().getJSONObject("param");
-			}
-			if (CollectionUtils.isNotEmpty(paramList) && paramObj != null) {
-				Iterator<ReportParamVo> it = paramList.iterator();
-				while (it.hasNext()) {
-					ReportParamVo param = it.next();
-					if (paramObj.containsKey(param.getName())) {
-						JSONObject newObj = paramObj.getJSONObject(param.getName());
-						if (newObj != null) {
-							if (param.getConfig() != null) {
-								param.getConfig().put("defaultValue", newObj.getString("defaultValue"));
-							} else {
-								param.setConfig(newObj.toJSONString());
-							}
-						}
-					} else {
-						it.remove();
-					}
-				}
-			}
-			reportInstanceVo.setParamList(paramList);
-		}
-		return reportInstanceVo;
-	}
+        if (!hasAuth) {
+            String userUuid = UserContext.get().getUserUuid(true);
+            List<String> userRoleList = UserContext.get().getRoleUuidList();
+            List<String> teamUuidList = teamMapper.getTeamUuidListByUserUuid(userUuid);
+            if (reportInstanceVo.getReportInstanceAuthList() != null) {
+                for (ReportInstanceAuthVo auth : reportInstanceVo.getReportInstanceAuthList()) {
+                    if (auth.getAuthType().equals(ReportInstanceAuthVo.AUTHTYPE_USER)) {
+                        if (auth.getAuthUuid().equals(userUuid)) {
+                            hasAuth = true;
+                            break;
+                        }
+                    } else if (auth.getAuthType().equals(ReportInstanceAuthVo.AUTHTYPE_ROLE)) {
+                        if (userRoleList.contains(auth.getAuthUuid())) {
+                            hasAuth = true;
+                            break;
+                        }
+                    } else if (auth.getAuthType().equals(ReportInstanceAuthVo.AUTHTYPE_TEAM)) {
+                        if (teamUuidList.contains(auth.getAuthUuid())) {
+                            hasAuth = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if (!hasAuth) {
+            throw new PermissionDeniedException();
+        }
+        if (reportInstanceVo.getReportId() != null) {
+            ReportVo reportVo = reportService.getReportDetailById(reportInstanceVo.getReportId());
+            List<ReportParamVo> paramList = reportVo.getParamList();
+            JSONObject paramObj = null;
+            if (reportInstanceVo.getConfig() != null) {
+                paramObj = reportInstanceVo.getConfig().getJSONObject("param");
+            }
+            if (CollectionUtils.isNotEmpty(paramList) && paramObj != null) {
+                Iterator<ReportParamVo> it = paramList.iterator();
+                while (it.hasNext()) {
+                    ReportParamVo param = it.next();
+                    if (paramObj.containsKey(param.getName())) {
+                        JSONObject newObj = paramObj.getJSONObject(param.getName());
+                        if (newObj != null) {
+                            if (param.getConfig() != null) {
+                                param.getConfig().put("defaultValue", newObj.getString("defaultValue"));
+                            } else {
+                                param.setConfig(newObj.toJSONString());
+                            }
+                        }
+                    } else {
+                        it.remove();
+                    }
+                }
+            }
+            reportInstanceVo.setParamList(paramList);
+        }
+        return reportInstanceVo;
+    }
 }

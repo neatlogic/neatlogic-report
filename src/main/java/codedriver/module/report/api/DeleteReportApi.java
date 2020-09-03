@@ -37,7 +37,7 @@ public class DeleteReportApi extends PrivateApiComponentBase {
 
 	@Input({ @Param(name = "id", type = ApiParamType.LONG, desc = "报表id") })
 	@Output({ @Param(explode = ReportVo.class) })
-	@Description(desc = "删除报表")
+	@Description(desc = "删除报表接口")
 	@Override
 	public Object myDoService(JSONObject jsonObj) throws Exception {
 		Long reportId = jsonObj.getLong("id");
