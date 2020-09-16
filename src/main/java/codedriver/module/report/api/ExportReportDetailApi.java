@@ -58,7 +58,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
     }
 
     @Input({@Param(name = "id", desc = "报表id", type = ApiParamType.LONG, isRequired = true),
-        @Param(name = "type", desc = "文件类型", type = ApiParamType.ENUM, rule = "pdf,word", isRequired = true)})
+        @Param(name = "type", desc = "文件类型", type = ApiParamType.ENUM, rule = "pdf,word,excel", isRequired = true)})
     @Description(desc = "导出报表接口")
     @Override
     public Object myDoService(JSONObject paramObj, HttpServletRequest request, HttpServletResponse response)
