@@ -34,4 +34,6 @@ public interface ReportSendJobMapper {
 
     public int deleteReportRelation(Long id);
 
+    public int deleteJobById(Long id);
+
 }

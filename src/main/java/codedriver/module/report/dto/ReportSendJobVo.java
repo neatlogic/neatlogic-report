@@ -1,10 +1,14 @@
 package codedriver.module.report.dto;
 
 import codedriver.framework.common.constvalue.ApiParamType;
+import codedriver.framework.common.constvalue.GroupSearch;
 import codedriver.framework.common.dto.BaseEditorVo;
 import codedriver.framework.restful.annotation.EntityField;
 import codedriver.framework.util.SnowflakeUtil;
+import com.alibaba.fastjson.annotation.JSONField;
+import org.apache.commons.collections4.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -27,11 +31,14 @@ public class ReportSendJobVo extends BaseEditorVo {
 	@EntityField(name = "发送次数", type = ApiParamType.INTEGER)
 	private Integer execCount;
 	@EntityField(name = "邮件接收人列表", type = ApiParamType.JSONARRAY)
+	@JSONField(serialize = false)
 	private List<ReportReceiverVo> receiverList;
 	@EntityField(name = "收件人列表", type = ApiParamType.JSONARRAY)
 	private List<String> scList;
 	@EntityField(name = "抄送人列表", type = ApiParamType.JSONARRAY)
 	private List<String> ccList;
+	@EntityField(name = "收件人用户名或邮箱列表", type = ApiParamType.JSONARRAY)
+	private List<String> scNameList;
 	@EntityField(name = "报表列表", type = ApiParamType.JSONARRAY)
 	private List<ReportSendJobRelationVo> reportList;
 
@@ -111,6 +118,17 @@ public class ReportSendJobVo extends BaseEditorVo {
 	}
 
 	public List<String> getScList() {
+		if(CollectionUtils.isEmpty(scList) && CollectionUtils.isNotEmpty(receiverList)){
+			scList = new ArrayList<>();
+			for(ReportReceiverVo vo : receiverList) {
+				if("s".equals(vo.getType())){
+					if(!vo.getReceiver().contains("@")){
+						vo.setReceiver(GroupSearch.USER.getValuePlugin() + vo.getReceiver());
+					}
+					scList.add(vo.getReceiver());
+				}
+			}
+		}
 		return scList;
 	}
 
@@ -119,11 +137,30 @@ public class ReportSendJobVo extends BaseEditorVo {
 	}
 
 	public List<String> getCcList() {
+		if(CollectionUtils.isEmpty(ccList) && CollectionUtils.isNotEmpty(receiverList)){
+			ccList = new ArrayList<>();
+			for(ReportReceiverVo vo : receiverList) {
+				if("c".equals(vo.getType())){
+					if(!vo.getReceiver().contains("@")){
+						vo.setReceiver(GroupSearch.USER.getValuePlugin() + vo.getReceiver());
+					}
+					ccList.add(vo.getReceiver());
+				}
+			}
+		}
 		return ccList;
 	}
 
 	public void setCcList(List<String> ccList) {
 		this.ccList = ccList;
+	}
+
+	public List<String> getScNameList() {
+		return scNameList;
+	}
+
+	public void setScNameList(List<String> scNameList) {
+		this.scNameList = scNameList;
 	}
 
 	public List<ReportSendJobRelationVo> getReportList() {
