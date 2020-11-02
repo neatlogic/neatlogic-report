@@ -133,7 +133,7 @@
 		(IFNULL((SELECT `user_name` FROM `user` WHERE `uuid` = b.`receiver`),b.`receiver`)) as receiver
 		FROM `schedule_job_audit` a
 		left join `report_receiver` b on a.`job_uuid` = CONCAT(b.`report_send_job_id`,'')
-		WHERE a.`job_uuid` = #{jobUuid} and b.`type` = 's' and a.`content_hash` is not null
+		WHERE a.`job_uuid` = #{jobUuid} and b.`type` = 's'
 		ORDER BY a.`id` DESC
 		<if test="needPage == true">
 			LIMIT #{startNum}, #{pageSize}
