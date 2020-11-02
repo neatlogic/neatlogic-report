@@ -110,6 +110,36 @@
 		</if>
 	</select>
 
+	<resultMap id="ReportSendJobAuditMap" type="codedriver.module.report.dto.ReportSendJobAuditVo">
+		<id property="id" column="id" />
+		<result property="jobUuid" column="jobUuid" />
+		<result property="startTime" column="startTime" />
+		<result property="status" column="status" />
+		<result property="serverId" column="serverId" />
+		<result property="contentHash" column="contentHash" />
+		<collection property="receiverList" ofType="java.lang.String">
+			<result property="receiver" column="receiver" />
+		</collection>
+	</resultMap>
+
+	<select id="searchReportSendJobAudit" parameterType="codedriver.framework.scheduler.dto.JobAuditVo" resultMap="ReportSendJobAuditMap">
+		SELECT
+		a.`id`,
+		a.`job_uuid` AS jobUuid,
+		a.`start_time` AS startTime,
+		a.`status`,
+		a.`server_id` AS serverId,
+		a.`content_hash` AS contentHash,
+		(IFNULL((SELECT `user_name` FROM `user` WHERE `uuid` = b.`receiver`),b.`receiver`)) as receiver
+		FROM `schedule_job_audit` a
+		left join `report_receiver` b on a.`job_uuid` = CONCAT(b.`report_send_job_id`,'')
+		WHERE a.`job_uuid` = #{jobUuid} and b.`type` = 's' and a.`content_hash` is not null
+		ORDER BY a.`id` DESC
+		<if test="needPage == true">
+			LIMIT #{startNum}, #{pageSize}
+		</if>
+	</select>
+
     <update id="updateJob" parameterType="codedriver.module.report.dto.ReportSendJobVo">
 		UPDATE `report_send_job`
 		SET

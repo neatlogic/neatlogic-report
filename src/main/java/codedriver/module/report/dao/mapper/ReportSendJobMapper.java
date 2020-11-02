@@ -1,6 +1,8 @@
 package codedriver.module.report.dao.mapper;
 
+import codedriver.framework.scheduler.dto.JobAuditVo;
 import codedriver.module.report.dto.ReportReceiverVo;
+import codedriver.module.report.dto.ReportSendJobAuditVo;
 import codedriver.module.report.dto.ReportSendJobRelationVo;
 import codedriver.module.report.dto.ReportSendJobVo;
 
@@ -19,6 +21,8 @@ public interface ReportSendJobMapper {
     public int searchJobCount(ReportSendJobVo job);
 
     public List<ReportSendJobVo> searchJob(ReportSendJobVo job);
+
+    public List<ReportSendJobAuditVo> searchReportSendJobAudit(JobAuditVo vo);
 
     public int updateJob(ReportSendJobVo job);
 

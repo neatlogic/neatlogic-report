@@ -1,5 +1,6 @@
 package codedriver.module.report.api.schedule;
 
+import codedriver.framework.auth.core.AuthAction;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.reminder.core.OperationTypeEnum;
 import codedriver.framework.restful.annotation.*;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@AuthAction(name = "REPORT_MODIFY")
 @Transactional
 @OperationType(type = OperationTypeEnum.DELETE)
 public class ReportSendJobDeleteApi extends PrivateApiComponentBase {
