@@ -22,7 +22,11 @@ public interface ReportSendJobMapper {
 
     public List<ReportSendJobVo> searchJob(ReportSendJobVo job);
 
+    public List<ReportSendJobVo> getAllActiveJob();
+
     public List<ReportSendJobAuditVo> searchReportSendJobAudit(JobAuditVo vo);
+
+    public List<ReportSendJobRelationVo> getRelatedReportById(Long id);
 
     public int updateJob(ReportSendJobVo job);
 
