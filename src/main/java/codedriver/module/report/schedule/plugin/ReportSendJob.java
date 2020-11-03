@@ -2,7 +2,9 @@
 //
 //import codedriver.framework.asynchronization.threadlocal.TenantContext;
 //import codedriver.framework.dao.mapper.MailServerMapper;
+//import codedriver.framework.dao.mapper.UserMapper;
 //import codedriver.framework.dto.MailServerVo;
+//import codedriver.framework.dto.UserVo;
 //import codedriver.framework.notify.exception.EmailServerNotFoundException;
 //import codedriver.framework.scheduler.core.JobBase;
 //import codedriver.framework.scheduler.dto.JobObject;
@@ -17,8 +19,8 @@
 //import com.alibaba.fastjson.JSONObject;
 //import org.apache.commons.collections4.CollectionUtils;
 //import org.apache.commons.lang3.StringUtils;
-//import org.apache.commons.mail.HtmlEmail;
 //import org.quartz.JobExecutionContext;
+//import org.quartz.JobExecutionException;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 //import org.springframework.beans.factory.annotation.Autowired;
@@ -26,16 +28,14 @@
 //
 //import javax.activation.DataHandler;
 //import javax.activation.DataSource;
-//import javax.mail.internet.MimeBodyPart;
-//import javax.mail.internet.MimeUtility;
+//import javax.mail.*;
+//import javax.mail.internet.*;
 //import javax.mail.util.ByteArrayDataSource;
 //import java.io.ByteArrayInputStream;
 //import java.io.ByteArrayOutputStream;
+//import java.io.IOException;
 //import java.io.InputStream;
-//import java.util.ArrayList;
-//import java.util.HashMap;
-//import java.util.List;
-//import java.util.Map;
+//import java.util.*;
 //
 ///**
 // * 报表发送计划定时器
@@ -52,6 +52,9 @@
 //
 //	@Autowired
 //	private MailServerMapper mailServerMapper;
+//
+//    @Autowired
+//    private UserMapper userMapper;
 //
 //	@Autowired
 //	private ReportService reportService;
@@ -95,55 +98,121 @@
 //	}
 //
 //	@Override
-//	public void executeInternal(JobExecutionContext context, JobObject jobObject) throws Exception {
+//	public void executeInternal(JobExecutionContext context, JobObject jobObject) throws JobExecutionException {
 //		Long id = (Long) jobObject.getData("sendJobId");
 //		/** 根据id获取报表*/
-//		ReportSendJobVo sendJob = reportSendJobMapper.getJobBaseInfoById(id);
-//		List<ReportSendJobRelationVo> relatedReportList = reportSendJobMapper.getRelatedReportById(id);
-//		List<InputStream> reportIsList = null;
+////		ReportSendJobVo sendJob = reportSendJobMapper.getJobBaseInfoById(id);
+//        ReportSendJobVo sendJob = reportSendJobMapper.getJobById(id);
+//        List<ReportSendJobRelationVo> relatedReportList = sendJob.getReportList();
+////        List<ReportSendJobRelationVo> relatedReportList = reportSendJobMapper.getRelatedReportById(id);
+////		List<InputStream> reportIsList = null;
+//		Map<String,InputStream> reportMap = new HashMap<>();
 //		if(CollectionUtils.isNotEmpty(relatedReportList)){
-//			reportIsList = new ArrayList<>();
+////			reportIsList = new ArrayList<>();
 //			for(ReportSendJobRelationVo vo : relatedReportList){
 //				ReportVo report = reportMapper.getReportById(vo.getReportId());
 //				if(report != null){
 //					JSONObject paramObj = JSONObject.parseObject(vo.getCondition());
 //					ByteArrayOutputStream os = new ByteArrayOutputStream();
 //					Map<String, Long> timeMap = new HashMap<>();
-//					Map<String, Object> returnMap = reportService.getQueryResult(report.getId(), paramObj, timeMap, false);
-//					Map<String, Object> tmpMap = new HashMap<>();
+//                    Map<String, Object> returnMap = null;
+//                    try {
+//                        returnMap = reportService.getQueryResult(report.getId(), paramObj, timeMap, false);
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                    Map<String, Object> tmpMap = new HashMap<>();
 //					Map<String, Object> commonMap = new HashMap<>();
 //					tmpMap.put("report", returnMap);
 //					tmpMap.put("param", paramObj);
 //					tmpMap.put("common", commonMap);
-//					String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, report.getContent());
-//					ExportUtil.getWordFileByHtml(content, true, os);
-//					InputStream is = new ByteArrayInputStream(os.toByteArray());
-//					reportIsList.add(is);
+//                    String content = null;
+//                    try {
+//                        content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, report.getContent());
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                    try {
+//                        ExportUtil.getWordFileByHtml(content, true, os);
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                    InputStream is = new ByteArrayInputStream(os.toByteArray());
+////					reportIsList.add(is);
+//					reportMap.put(report.getName(),is);
 //				}
 //			}
 //		}
 //
-//		try {
+//		/** 获取收件人与抄送人 */
+//        List<String> scList = sendJob.getScList();
+//        List<String> ccList = sendJob.getCcList();
+//        List<String> scEmailList = new ArrayList<>();
+//        List<String> ccEmailList = new ArrayList<>();
+//        for(String s : scList){
+//            if(!s.contains("@")){
+//                UserVo user = userMapper.getUserBaseInfoByUuid(s);
+//                scEmailList.add(user.getEmail());
+//            }else{
+//                scEmailList.add(s);
+//            }
+//        }
+//        for(String s : ccList){
+//            if(!s.contains("@")){
+//                UserVo user = userMapper.getUserBaseInfoByUuid(s);
+//                ccEmailList.add(user.getEmail());
+//            }else{
+//                ccEmailList.add(s);
+//            }
+//        }
+//
+//        String sc = String.join(",",scEmailList);
+//        String cc = String.join(",",ccEmailList);
+//
+//        try {
 //			MailServerVo mailServerVo = mailServerMapper.getActiveMailServer();
 //			if (mailServerVo != null && StringUtils.isNotBlank(mailServerVo.getHost()) && mailServerVo.getPort() != null) {
-//				HtmlEmail se = new HtmlEmail();
-//				se.setHostName(mailServerVo.getHost());
-//				se.setSmtpPort(mailServerVo.getPort());
-//				if (StringUtils.isNotBlank(mailServerVo.getUserName()) && StringUtils.isNotBlank(mailServerVo.getPassword())) {
-//					se.setAuthentication(mailServerVo.getUserName(), mailServerVo.getPassword());
-//				}
-//				if (StringUtils.isNotBlank(mailServerVo.getFromAddress())) {
-//					se.setFrom(mailServerVo.getFromAddress(), mailServerVo.getName());
-//				}
+//                Properties props = new Properties();
+//                props.setProperty("mail.smtp.host", mailServerVo.getHost());
+//                props.setProperty("mail.smtp.port", mailServerVo.getPort().toString());
+//                props.put("mail.smtp.auth", "true");
+//                Session session = Session.getInstance(props, new Authenticator() {
+//                    protected PasswordAuthentication getPasswordAuthentication() {
+//                        return new PasswordAuthentication(mailServerVo.getUserName(), mailServerVo.getPassword());
+//                    }
+//                });
 //
-//				se.setSubject(sendJob.getEmailTitle());
-//				se.setMsg(sendJob.getEmailContent());
-//				InputStream is = new ByteArrayInputStream(new byte[]{});
-//				MimeBodyPart messageBodyPart = new MimeBodyPart();
-//				DataSource dataSource = new ByteArrayDataSource(is, "application/png");
-//				DataHandler dataHandler = new DataHandler(dataSource);
-//				messageBodyPart.setDataHandler(dataHandler);
-//				messageBodyPart.setFileName(MimeUtility.encodeText("aa.doc"));
+//                MimeMessage msg = new MimeMessage(session);
+//                msg.setFrom(new InternetAddress(mailServerVo.getFromAddress(), mailServerVo.getName()));
+//                /** 设置收件人 */
+//                msg.setRecipients(Message.RecipientType.TO,
+//                        InternetAddress.parse(sc, false));
+//                /** 设置抄送人 */
+//                msg.setRecipients(Message.RecipientType.CC,
+//                        InternetAddress.parse(cc, false));
+//                /** 设置邮件标题 */
+//                msg.setSubject(sendJob.getEmailTitle());
+//                msg.setSentDate(new Date());
+//
+//                MimeMultipart multipart = new MimeMultipart("mixed");
+//
+//                MimeBodyPart text = new MimeBodyPart();
+//                text.setContent(sendJob.getEmailContent(),"text/plain;charset=UTF-8");
+//                multipart.addBodyPart(text);
+//
+//                MimeBodyPart messageBodyPart = new MimeBodyPart();
+//
+//                for(Map.Entry<String,InputStream> entry : reportMap.entrySet()){
+//                    DataSource dataSource = new ByteArrayDataSource(entry.getValue(), "application/pdf");
+//                    DataHandler dataHandler = new DataHandler(dataSource);
+//                    messageBodyPart.setDataHandler(dataHandler);
+//                    messageBodyPart.setFileName(MimeUtility.encodeText(entry.getKey() + ".pdf"));
+//                    multipart.addBodyPart(messageBodyPart);
+//                }
+//                msg.setContent(multipart);
+//                msg.saveChanges();
+//
+//                Transport.send(msg);
 //			} else {
 //				throw new EmailServerNotFoundException();
 //			}
