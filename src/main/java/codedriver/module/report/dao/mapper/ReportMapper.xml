@@ -98,6 +98,37 @@
 		WHERE id = #{value}
 	</select>
 
+	<resultMap id="ReportAndParamMap" type="codedriver.module.report.dto.ReportVo">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<collection property="paramList" ofType="codedriver.module.report.dto.ReportParamVo">
+			<id property="id" column="paramId" />
+			<result property="reportId" column="reportId" />
+			<result property="name" column="paramName" />
+			<result property="type" column="type" />
+			<result property="label" column="label" />
+			<result property="config" column="config" />
+			<result property="width" column="width" />
+		</collection>
+	</resultMap>
+
+	<select id="getReportAndParamById" parameterType="java.lang.Long" resultMap="ReportAndParamMap">
+		SELECT
+		a.`id`,
+		a.`name`,
+		b.`id` AS paramId,
+		b.`report_id` as reportId,
+		b.`name` as paramName,
+		b.`type`,
+		b.`label`,
+		b.`config`,
+		b.`width`
+		FROM
+		`report` a
+		left join `report_param` b on a.`id` = b.`report_id`
+		WHERE a.`id` = #{value}
+	</select>
+
 	<select id="getReportAuthByReportId" parameterType="java.lang.Long" resultType="codedriver.module.report.dto.ReportAuthVo">
 		SELECT
 		`report_id` as reportId,

@@ -10,6 +10,8 @@ public class ReportSendJobRelationVo {
 	private Long reportId;
 	@EntityField(name = "条件配置", type = ApiParamType.STRING)
 	private String condition;
+	@EntityField(name = "报表定义")
+	private ReportVo report;
 
 	public Long getReportSendJobId() {
 		return reportSendJobId;
@@ -33,5 +35,13 @@ public class ReportSendJobRelationVo {
 
 	public void setCondition(String condition) {
 		this.condition = condition;
+	}
+
+	public ReportVo getReport() {
+		return report;
+	}
+
+	public void setReport(ReportVo report) {
+		this.report = report;
 	}
 }
