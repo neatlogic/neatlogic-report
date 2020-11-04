@@ -31,7 +31,7 @@ import java.util.List;
 
 /**
  * reportList结构形如：
- * [{"id":1555,"condition":{"beforeDay":{"value":"7&=&过去7天"},"taskStatus":{"value":"aborted&=&已取消"},"keyword":{"value":"a"}}},{"id":23333,"condition":{"beforeDay":{"value":"30&=&过去30天"},"taskStatus":{"value":"hang&=&已挂起"},"change":{"value":["操作系统&=&操作系统","中间件&=&中间件"]}}}]
+ * [{"id":167237352693760,"condition":{"beforeDay":"30","keyword":"a","change":["操作系统&=&操作系统","中间件&=&中间件"],"menu":"1000"}},{"id":158660705656832,"condition":{"beforeDay":"7"}}]
  */
 @Service
 @AuthAction(name = "REPORT_MODIFY")
