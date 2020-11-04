@@ -1,13 +1,11 @@
 package codedriver.module.report.schedule.plugin;
 
 import codedriver.framework.asynchronization.threadlocal.TenantContext;
-import codedriver.framework.dao.mapper.MailServerMapper;
 import codedriver.framework.dao.mapper.UserMapper;
-import codedriver.framework.dto.MailServerVo;
 import codedriver.framework.dto.UserVo;
-import codedriver.framework.notify.exception.EmailServerNotFoundException;
 import codedriver.framework.scheduler.core.JobBase;
 import codedriver.framework.scheduler.dto.JobObject;
+import codedriver.framework.util.EmailUtil;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dao.mapper.ReportSendJobMapper;
 import codedriver.module.report.dto.ReportReceiverVo;
@@ -28,11 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.mail.*;
-import javax.mail.internet.*;
-import javax.mail.util.ByteArrayDataSource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -51,9 +44,6 @@ public class ReportSendJob extends JobBase {
 
 	@Autowired
 	private ReportMapper reportMapper;
-
-	@Autowired
-	private MailServerMapper mailServerMapper;
 
     @Autowired
     private UserMapper userMapper;
@@ -103,7 +93,7 @@ public class ReportSendJob extends JobBase {
 		/** 获取报表发送计划*/
         ReportSendJobVo sendJob = reportSendJobMapper.getJobById(id);
         Map<String, InputStream> reportMap = null;
-        String sc = null;
+        String to = null;
         String cc = null;
         boolean canExec = false;
         if(sendJob != null && Objects.equals(sendJob.getIsActive(),1)) {
@@ -114,111 +104,46 @@ public class ReportSendJob extends JobBase {
             }
             /** 获取收件人与抄送人 */
             List<ReportReceiverVo> receiverList = sendJob.getReceiverList();
-            List<String> scEmailList = new ArrayList<>();
+            List<String> toEmailList = new ArrayList<>();
             List<String> ccEmailList = new ArrayList<>();
-            getReceiverList(receiverList, scEmailList, ccEmailList);
-            if(CollectionUtils.isNotEmpty(scEmailList)) {
-                sc = String.join(",", scEmailList);
+            getReceiverList(receiverList, toEmailList, ccEmailList);
+            if(CollectionUtils.isNotEmpty(toEmailList)) {
+                to = String.join(",", toEmailList);
             }
             if(CollectionUtils.isNotEmpty(ccEmailList)){
                 cc = String.join(",", ccEmailList);
             }
-            if(MapUtils.isNotEmpty(reportMap) && StringUtils.isNotBlank(sc)){
+            if(MapUtils.isNotEmpty(reportMap) && StringUtils.isNotBlank(to)){
                 canExec = true;
             }
         }
         if(canExec){
             /** 发送邮件 */
-            sendEmail(sendJob.getEmailTitle(),sendJob.getEmailContent(), reportMap, sc, cc);
+            EmailUtil.sendEmail(sendJob.getEmailTitle(),sendJob.getEmailContent(), reportMap, to, cc);
         }else{
             schedulerManager.unloadJob(jobObject);
         }
 	}
 
     /**
-     * 发送带附件的邮件
-     * @param title 邮件标题
-     * @param content 邮件正文
-     * @param attachmentMap 附件(key:文件名;value:流)
-     * @param sc 收件人
-     * @param cc 抄送人
-     */
-    private void sendEmail(String title,String content, Map<String, InputStream> attachmentMap, String sc, String cc) {
-        try {
-            MailServerVo mailServerVo = mailServerMapper.getActiveMailServer();
-            if (mailServerVo != null && StringUtils.isNotBlank(mailServerVo.getHost()) && mailServerVo.getPort() != null) {
-                /** 开启邮箱服务器连接会话 */
-                Properties props = new Properties();
-                props.setProperty("mail.smtp.host", mailServerVo.getHost());
-                props.setProperty("mail.smtp.port", mailServerVo.getPort().toString());
-                props.put("mail.smtp.auth", "true");
-                Session session = Session.getInstance(props, new Authenticator() {
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(mailServerVo.getUserName(), mailServerVo.getPassword());
-                    }
-                });
-
-                MimeMessage msg = new MimeMessage(session);
-                if(StringUtils.isNotBlank(mailServerVo.getFromAddress())){
-                    msg.setFrom(new InternetAddress(mailServerVo.getFromAddress(), mailServerVo.getName()));
-                }
-                /** 设置收件人 */
-                msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(sc, false));
-                /** 设置抄送人 */
-                if(StringUtils.isNotBlank(cc)){
-                    msg.setRecipients(Message.RecipientType.CC, InternetAddress.parse(cc, false));
-                }
-                /** 设置邮件标题 */
-                msg.setSubject(title);
-                msg.setSentDate(new Date());
-
-                MimeMultipart multipart = new MimeMultipart();
-                /** 设置邮件正文 */
-                MimeBodyPart text = new MimeBodyPart();
-                text.setContent(content, "text/plain;charset=UTF-8");
-                multipart.addBodyPart(text);
-                /** 设置附件 */
-                if(MapUtils.isNotEmpty(attachmentMap)){
-                    for (Map.Entry<String, InputStream> entry : attachmentMap.entrySet()) {
-                        MimeBodyPart messageBodyPart = new MimeBodyPart();
-                        DataSource dataSource = new ByteArrayDataSource(entry.getValue(), "application/pdf");
-                        DataHandler dataHandler = new DataHandler(dataSource);
-                        messageBodyPart.setDataHandler(dataHandler);
-                        messageBodyPart.setFileName(MimeUtility.encodeText(entry.getKey() + ".pdf"));
-                        multipart.addBodyPart(messageBodyPart);
-                    }
-                }
-                msg.setContent(multipart);
-//                msg.saveChanges();
-                /** 发送邮件 */
-                Transport.send(msg);
-            } else {
-                throw new EmailServerNotFoundException();
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    /**
      * 获取收件人与抄送人
      * receiverList包含收件人与抄送人的UUID或email
      * 此方法根据UUID找到用户的email
      * @param receiverList
-     * @param scEmailList
+     * @param toEmailList
      * @param ccEmailList
      */
-    private void getReceiverList(List<ReportReceiverVo> receiverList, List<String> scEmailList, List<String> ccEmailList) {
+    private void getReceiverList(List<ReportReceiverVo> receiverList, List<String> toEmailList, List<String> ccEmailList) {
         if(CollectionUtils.isNotEmpty(receiverList)){
             for (ReportReceiverVo vo : receiverList) {
-                if ("s".equals(vo.getType())) { //收件人
+                if ("to".equals(vo.getType())) { //收件人
                     if (!vo.getReceiver().contains("@")) {
                         UserVo user = userMapper.getUserBaseInfoByUuid(vo.getReceiver());
-                        scEmailList.add(user.getEmail());
+                        toEmailList.add(user.getEmail());
                     } else {
-                        scEmailList.add(vo.getReceiver());
+                        toEmailList.add(vo.getReceiver());
                     }
-                } else if ("c".equals(vo.getType())) { //抄送人
+                } else if ("cc".equals(vo.getType())) { //抄送人
                     if (!vo.getReceiver().contains("@")) {
                         UserVo user = userMapper.getUserBaseInfoByUuid(vo.getReceiver());
                         ccEmailList.add(user.getEmail());

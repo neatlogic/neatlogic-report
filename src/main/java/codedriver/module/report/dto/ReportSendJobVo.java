@@ -34,11 +34,11 @@ public class ReportSendJobVo extends BaseEditorVo {
 	@JSONField(serialize = false)
 	private List<ReportReceiverVo> receiverList;
 	@EntityField(name = "收件人列表", type = ApiParamType.JSONARRAY)
-	private List<String> scList;
+	private List<String> toList;
 	@EntityField(name = "抄送人列表", type = ApiParamType.JSONARRAY)
 	private List<String> ccList;
 	@EntityField(name = "收件人用户名或邮箱列表", type = ApiParamType.JSONARRAY)
-	private List<String> scNameList;
+	private List<String> toNameList;
 	@EntityField(name = "报表列表", type = ApiParamType.JSONARRAY)
 	private List<ReportSendJobRelationVo> reportList;
 
@@ -117,30 +117,30 @@ public class ReportSendJobVo extends BaseEditorVo {
 		this.receiverList = receiverList;
 	}
 
-	public List<String> getScList() {
-		if(CollectionUtils.isEmpty(scList) && CollectionUtils.isNotEmpty(receiverList)){
-			scList = new ArrayList<>();
+	public List<String> getToList() {
+		if(CollectionUtils.isEmpty(toList) && CollectionUtils.isNotEmpty(receiverList)){
+			toList = new ArrayList<>();
 			for(ReportReceiverVo vo : receiverList) {
-				if("s".equals(vo.getType())){
+				if("to".equals(vo.getType())){
 					if(!vo.getReceiver().contains("@")){
 						vo.setReceiver(GroupSearch.USER.getValuePlugin() + vo.getReceiver());
 					}
-					scList.add(vo.getReceiver());
+					toList.add(vo.getReceiver());
 				}
 			}
 		}
-		return scList;
+		return toList;
 	}
 
-	public void setScList(List<String> scList) {
-		this.scList = scList;
+	public void setToList(List<String> toList) {
+		this.toList = toList;
 	}
 
 	public List<String> getCcList() {
 		if(CollectionUtils.isEmpty(ccList) && CollectionUtils.isNotEmpty(receiverList)){
 			ccList = new ArrayList<>();
 			for(ReportReceiverVo vo : receiverList) {
-				if("c".equals(vo.getType())){
+				if("cc".equals(vo.getType())){
 					if(!vo.getReceiver().contains("@")){
 						vo.setReceiver(GroupSearch.USER.getValuePlugin() + vo.getReceiver());
 					}
@@ -155,12 +155,12 @@ public class ReportSendJobVo extends BaseEditorVo {
 		this.ccList = ccList;
 	}
 
-	public List<String> getScNameList() {
-		return scNameList;
+	public List<String> getToNameList() {
+		return toNameList;
 	}
 
-	public void setScNameList(List<String> scNameList) {
-		this.scNameList = scNameList;
+	public void setToNameList(List<String> toNameList) {
+		this.toNameList = toNameList;
 	}
 
 	public List<ReportSendJobRelationVo> getReportList() {

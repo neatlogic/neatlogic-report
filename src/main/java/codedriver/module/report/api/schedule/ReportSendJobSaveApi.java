@@ -66,7 +66,7 @@ public class ReportSendJobSaveApi extends PrivateApiComponentBase {
 			@Param(name = "emailContent", type = ApiParamType.STRING, desc = "邮件正文"),
 			@Param(name = "cron", type = ApiParamType.STRING, isRequired = true, desc = "corn表达式"),
 			@Param(name = "isActive", type = ApiParamType.ENUM, isRequired = true, rule = "0,1", desc = "是否激活(0:禁用，1：激活)"),
-			@Param(name = "scList", type = ApiParamType.JSONARRAY,isRequired = true, desc = "收件人列表，可填用户UUID或邮箱"),
+			@Param(name = "toList", type = ApiParamType.JSONARRAY,isRequired = true, desc = "收件人列表，可填用户UUID或邮箱"),
 			@Param(name = "ccList", type = ApiParamType.JSONARRAY,desc = "抄送人列表，可填用户UUID或邮箱"),
 			@Param(name = "reportList", type = ApiParamType.JSONARRAY,isRequired = true,desc = "报表列表")
 	})
@@ -82,13 +82,13 @@ public class ReportSendJobSaveApi extends PrivateApiComponentBase {
 			throw new ReportSendJobNameRepeatException(jobVo.getName());
 		}
 
-		JSONArray scArray = jsonObj.getJSONArray("scList");
+		JSONArray toArray = jsonObj.getJSONArray("toList");
 		JSONArray ccArray = jsonObj.getJSONArray("ccList");
 		JSONArray reportList = jsonObj.getJSONArray("reportList");
 		/** 读取收件人与抄送人 */
-		List<ReportReceiverVo> scVoList = new ArrayList<>();
+		List<ReportReceiverVo> toVoList = new ArrayList<>();
 		List<ReportReceiverVo> ccVoList = new ArrayList<>();
-		getScAndCcList(jobVo,scArray,ccArray,scVoList,ccVoList);
+		getToAndCcList(jobVo,toArray,ccArray,toVoList,ccVoList);
 		/** 读取关联的报表 */
 		List<ReportSendJobRelationVo> relationList = getRelations(jobVo, reportList);
 
@@ -103,8 +103,8 @@ public class ReportSendJobSaveApi extends PrivateApiComponentBase {
 			reportSendJobMapper.deleteReportRelation(jobVo.getId());
 		}
 		/**保存邮件接收人*/
-		if(CollectionUtils.isNotEmpty(scVoList)){
-			reportSendJobMapper.batchInsertReportReceiver(scVoList);
+		if(CollectionUtils.isNotEmpty(toVoList)){
+			reportSendJobMapper.batchInsertReportReceiver(toVoList);
 		}
 		if(CollectionUtils.isNotEmpty(ccVoList)){
 			reportSendJobMapper.batchInsertReportReceiver(ccVoList);
@@ -146,15 +146,15 @@ public class ReportSendJobSaveApi extends PrivateApiComponentBase {
 		return relationList;
 	}
 	/** 读取收件人与抄送人 */
-	private void getScAndCcList(ReportSendJobVo jobVo,JSONArray scArray,JSONArray ccArray,List<ReportReceiverVo> scVoList,List<ReportReceiverVo> ccVoList){
-		if(CollectionUtils.isNotEmpty(scArray)){
-			List<String> scList = scArray.toJavaList(String.class);
-			for(String s : scList){
+	private void getToAndCcList(ReportSendJobVo jobVo,JSONArray toArray,JSONArray ccArray,List<ReportReceiverVo> toVoList,List<ReportReceiverVo> ccVoList){
+		if(CollectionUtils.isNotEmpty(toArray)){
+			List<String> toList = toArray.toJavaList(String.class);
+			for(String s : toList){
 				ReportReceiverVo vo = new ReportReceiverVo();
 				vo.setReportSendJobId(jobVo.getId());
 				vo.setReceiver(s);
-				vo.setType("s");
-				scVoList.add(vo);
+				vo.setType("to");
+				toVoList.add(vo);
 			}
 		}
 		if(CollectionUtils.isNotEmpty(ccArray)){
@@ -163,7 +163,7 @@ public class ReportSendJobSaveApi extends PrivateApiComponentBase {
 				ReportReceiverVo vo = new ReportReceiverVo();
 				vo.setReportSendJobId(jobVo.getId());
 				vo.setReceiver(s);
-				vo.setType("c");
+				vo.setType("cc");
 				ccVoList.add(vo);
 			}
 		}

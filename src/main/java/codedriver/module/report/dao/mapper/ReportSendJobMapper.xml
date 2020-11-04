@@ -82,7 +82,7 @@
 		<result property="cron" column="cron" />
 		<result property="nextFireTime" column="nextFireTime" />
 		<result property="execCount" column="execCount" />
-		<collection property="scNameList" ofType="java.lang.String">
+		<collection property="toNameList" ofType="java.lang.String">
 			<result property="receiver" column="receiver" />
 		</collection>
 	</resultMap>
@@ -100,7 +100,7 @@
 		from `report_send_job` a
 		left join `report_receiver` b on a.`id` = b.`report_send_job_id`
 		left join `schedule_job_status` c on a.`id` = c.`job_name`
-		where 1=1 and b.`type` = 's'
+		where 1=1 and b.`type` = 'to'
 		<if test="keyword != null and keyword != ''">
 			and a.`name` LIKE CONCAT('%', #{keyword}, '%')
 		</if>
@@ -133,7 +133,7 @@
 		(IFNULL((SELECT `user_name` FROM `user` WHERE `uuid` = b.`receiver`),b.`receiver`)) as receiver
 		FROM `schedule_job_audit` a
 		left join `report_receiver` b on a.`job_uuid` = CONCAT(b.`report_send_job_id`,'')
-		WHERE a.`job_uuid` = #{jobUuid} and b.`type` = 's'
+		WHERE a.`job_uuid` = #{jobUuid} and b.`type` = 'to'
 		ORDER BY a.`start_time` DESC
 		<if test="needPage == true">
 			LIMIT #{startNum}, #{pageSize}
