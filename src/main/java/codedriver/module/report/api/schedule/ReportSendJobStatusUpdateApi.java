@@ -1,11 +1,15 @@
 package codedriver.module.report.api.schedule;
 
+import codedriver.framework.asynchronization.threadlocal.TenantContext;
 import codedriver.framework.asynchronization.threadlocal.UserContext;
 import codedriver.framework.auth.core.AuthAction;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.reminder.core.OperationTypeEnum;
 import codedriver.framework.restful.annotation.*;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
+import codedriver.framework.scheduler.core.IJob;
+import codedriver.framework.scheduler.core.SchedulerManager;
+import codedriver.framework.scheduler.dto.JobObject;
 import codedriver.module.report.dao.mapper.ReportSendJobMapper;
 import codedriver.module.report.dto.ReportSendJobVo;
 import codedriver.module.report.exception.ReportSendJobNotFoundException;
@@ -21,6 +25,9 @@ import org.springframework.stereotype.Service;
 public class ReportSendJobStatusUpdateApi extends PrivateApiComponentBase {
 	@Autowired
 	private ReportSendJobMapper reportSendJobMapper;
+
+	@Autowired
+	private SchedulerManager schedulerManager;
 
 	@Override
 	public String getToken() {
@@ -53,7 +60,14 @@ public class ReportSendJobStatusUpdateApi extends PrivateApiComponentBase {
 		} else {
 			reportSendJobMapper.updateJobStatus(jobVo);
 		}
-		// TODO 启动定时任务
+		IJob handler = SchedulerManager.getHandler("codedriver.module.report.schedule.plugin.ReportSendJob");
+		String tenantUuid = TenantContext.get().getTenantUuid();
+		JobObject newJobObject = new JobObject.Builder(job.getId().toString(), handler.getGroupName(), handler.getClassName(), tenantUuid).withCron(job.getCron()).addData("sendJobId",job.getId()).build();
+		if(jobVo.getIsActive().intValue() == 1){
+			schedulerManager.loadJob(newJobObject);
+		}else{
+			schedulerManager.unloadJob(newJobObject);
+		}
 
 		return null;
 	}

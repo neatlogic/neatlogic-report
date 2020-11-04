@@ -1,11 +1,15 @@
 package codedriver.module.report.api.schedule;
 
+import codedriver.framework.asynchronization.threadlocal.TenantContext;
 import codedriver.framework.asynchronization.threadlocal.UserContext;
 import codedriver.framework.auth.core.AuthAction;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.reminder.core.OperationTypeEnum;
 import codedriver.framework.restful.annotation.*;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
+import codedriver.framework.scheduler.core.IJob;
+import codedriver.framework.scheduler.core.SchedulerManager;
+import codedriver.framework.scheduler.dto.JobObject;
 import codedriver.framework.scheduler.exception.ScheduleIllegalParameterException;
 import codedriver.module.report.dao.mapper.ReportSendJobMapper;
 import codedriver.module.report.dto.ReportReceiverVo;
@@ -36,6 +40,9 @@ import java.util.List;
 public class ReportSendJobSaveApi extends PrivateApiComponentBase {
 	@Autowired
 	private ReportSendJobMapper reportSendJobMapper;
+
+	@Autowired
+	private SchedulerManager schedulerManager;
 
 	@Override
 	public String getToken() {
@@ -106,7 +113,15 @@ public class ReportSendJobSaveApi extends PrivateApiComponentBase {
 		if(CollectionUtils.isNotEmpty(relationList)){
 			reportSendJobMapper.batchInsertReportRelation(relationList);
 		}
-		// TODO 启动定时任务
+		/** 根据isActive启动或清除定时任务 */
+		IJob handler = SchedulerManager.getHandler("codedriver.module.report.schedule.plugin.ReportSendJob");
+		String tenantUuid = TenantContext.get().getTenantUuid();
+		JobObject newJobObject = new JobObject.Builder(jobVo.getId().toString(), handler.getGroupName(), handler.getClassName(), tenantUuid).withCron(jobVo.getCron()).addData("sendJobId",jobVo.getId()).build();
+		if(jobVo.getIsActive().intValue() == 1){
+			schedulerManager.loadJob(newJobObject);
+		}else{
+			schedulerManager.unloadJob(newJobObject);
+		}
 
 		JSONObject result = new JSONObject();
 		result.put("id",jobVo.getId());

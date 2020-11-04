@@ -134,7 +134,7 @@
 		FROM `schedule_job_audit` a
 		left join `report_receiver` b on a.`job_uuid` = CONCAT(b.`report_send_job_id`,'')
 		WHERE a.`job_uuid` = #{jobUuid} and b.`type` = 's'
-		ORDER BY a.`id` DESC
+		ORDER BY a.`start_time` DESC
 		<if test="needPage == true">
 			LIMIT #{startNum}, #{pageSize}
 		</if>
