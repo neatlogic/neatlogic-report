@@ -21,6 +21,8 @@ public interface ReportMapper {
 
 	public ReportVo getReportById(Long reportId);
 
+	public ReportVo getReportAndParamById(Long reportId);
+
 	public int updateReportActive(ReportVo reportVo);
 
 	public int updateReport(ReportVo reportVo);
