@@ -1,7 +1,15 @@
 package codedriver.module.report.api;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import codedriver.module.report.dto.SelectVo;
+import codedriver.module.report.util.ReportXmlUtil;
+import org.dom4j.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,6 +62,7 @@ public class GetReportApi extends PrivateApiComponentBase {
 		boolean hasAuth = AuthActionChecker.check("REPORT_MODIFY");
 
 		ReportVo reportVo = reportService.getReportDetailById(jsonObj.getLong("id"));
+		getTableList(reportVo);
 
 		if (!hasAuth) {
 			String userUuid = UserContext.get().getUserUuid(true);
@@ -84,5 +93,52 @@ public class GetReportApi extends PrivateApiComponentBase {
 			throw new PermissionDeniedException();
 		}
 		return reportVo;
+	}
+
+	private void getTableList(ReportVo reportVo) throws DocumentException {
+		/** 匹配表格 */
+		String content = reportVo.getContent();
+		Map<String,String> tables = new HashMap<>();
+//            List<String> tables = new ArrayList<>();
+		List<String> tableNames = new ArrayList<>();
+		/** 匹配表格Id */
+		Pattern pattern = Pattern.compile("drawTable.*\\)");
+		/** 匹配表格中文名 */
+		Pattern namePattern = Pattern.compile("title.*\"");
+		Matcher matcher = pattern.matcher(content);
+		/** 寻找是表格的图表id */
+		while (matcher.find()){
+			String e = matcher.group();
+//                tables.add(e);
+			Matcher m = namePattern.matcher(e);
+			if(m.find()){
+				String name = m.group();
+				name = name.substring(name.indexOf("\""),name.lastIndexOf("\""));
+				tableNames.add(name);
+				tables.put(e,name);
+			}else{
+				tables.put(e,null);
+			}
+		}
+		/** tableColumnsMapList中的key为表格ID与中文名的map,value为表格字段list */
+		List<Map<Map<String,String>,List<String>>> tableColumnsMapList = new ArrayList<>();
+		Map<String, Object> map = ReportXmlUtil.analyseSql(reportVo.getSql());
+		List<SelectVo> selectList = (List<SelectVo>)map.get("select");
+		for(Map.Entry<String,String> entry : tables.entrySet()){
+			for(SelectVo vo : selectList){
+				if(entry.getKey().contains(vo.getId())){
+					Map<String,String> nameMap = new HashMap<>();
+					nameMap.put(vo.getId(),entry.getValue());
+					Map<Map<String,String>,List<String>> tableMap = new HashMap<>();
+					tableMap.put(nameMap,vo.getResultMap().getPropertyList());
+//                        Map<String,List<String>> tableMap = new HashMap<>();
+//                        tableMap.put(vo.getId(),vo.getResultMap().getPropertyList());
+					tableColumnsMapList.add(tableMap);
+					break;
+				}
+			}
+		}
+
+		reportVo.setTableList(tableColumnsMapList);
 	}
 }
