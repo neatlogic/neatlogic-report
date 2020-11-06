@@ -39,8 +39,11 @@ public class ReportSendJobVo extends BaseEditorVo {
 	private List<String> ccList;
 	@EntityField(name = "收件人用户名或邮箱列表", type = ApiParamType.JSONARRAY)
 	private List<String> toNameList;
+	@EntityField(name = "报表配置列表", type = ApiParamType.JSONARRAY)
+	@JSONField(serialize = false)
+	private List<ReportSendJobRelationVo> reportRelationList;
 	@EntityField(name = "报表列表", type = ApiParamType.JSONARRAY)
-	private List<ReportSendJobRelationVo> reportList;
+	private List<ReportVo> reportList;
 
 	public Long getId() {
 		if (id == null) {
@@ -163,11 +166,19 @@ public class ReportSendJobVo extends BaseEditorVo {
 		this.toNameList = toNameList;
 	}
 
-	public List<ReportSendJobRelationVo> getReportList() {
+	public List<ReportSendJobRelationVo> getReportRelationList() {
+		return reportRelationList;
+	}
+
+	public void setReportRelationList(List<ReportSendJobRelationVo> reportRelationList) {
+		this.reportRelationList = reportRelationList;
+	}
+
+	public List<ReportVo> getReportList() {
 		return reportList;
 	}
 
-	public void setReportList(List<ReportSendJobRelationVo> reportList) {
+	public void setReportList(List<ReportVo> reportList) {
 		this.reportList = reportList;
 	}
 }
