@@ -91,6 +91,16 @@
 		<include refid="searchReportInstanceCondition"></include>
 	</select>
 
+	<select id="getReportInstanceTableColumnList" parameterType="java.lang.Long" resultType="codedriver.module.report.dto.ReportInstanceTableColumnVo">
+		SELECT
+		`table_id` AS tableId,
+		`column`,
+		`sort`
+		FROM
+		`reportinstance_table_column`
+		WHERE `reportinstance_id` = #{value}
+	</select>
+
 	<update id="updateReportInstance" parameterType="codedriver.module.report.dto.ReportInstanceVo">
 		UPDATE
 		`reportinstance`
@@ -150,10 +160,35 @@
 		)
 	</insert>
 
+	<insert id="batchInsertReportInstanceTableColumn" parameterType="java.util.List">
+		INSERT INTO `reportinstance_table_column`(
+		`reportinstance_id`,
+		`table_id`,
+		`column`,
+		`sort`
+		)
+		VALUES
+		<foreach collection="list" index="index" item="item" separator=",">
+			(
+			#{item.reportInstanceId},
+			#{item.tableId},
+			#{item.column},
+			#{item.sort}
+			)
+		</foreach>
+	</insert>
+
 	<delete id="deleteReportInstanceAuthByReportInstanceId" parameterType="java.lang.Long">
 		DELETE
 		FROM
 		`reportinstance_auth`
+		WHERE `reportinstance_id` = #{value}
+	</delete>
+
+	<delete id="deleteReportInstanceTableColumn" parameterType="java.lang.Long">
+		DELETE
+		FROM
+		`reportinstance_table_column`
 		WHERE `reportinstance_id` = #{value}
 	</delete>
 </mapper>

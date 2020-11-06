@@ -1,6 +1,5 @@
 package codedriver.module.report.api;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +8,8 @@ import java.util.regex.Pattern;
 
 import codedriver.module.report.dto.SelectVo;
 import codedriver.module.report.util.ReportXmlUtil;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dom4j.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,11 @@ import codedriver.module.report.service.ReportService;
 
 @Service
 public class GetReportApi extends PrivateApiComponentBase {
+
+	/** 匹配表格Id */
+	private static Pattern pattern = Pattern.compile("drawTable.*\\)");
+	/** 匹配表格中文名 */
+	private static Pattern namePattern = Pattern.compile("title.*\"");
 
 	@Autowired
 	private ReportService reportService;
@@ -62,6 +68,7 @@ public class GetReportApi extends PrivateApiComponentBase {
 		boolean hasAuth = AuthActionChecker.check("REPORT_MODIFY");
 
 		ReportVo reportVo = reportService.getReportDetailById(jsonObj.getLong("id"));
+		/** 查找表格 */
 		getTableList(reportVo);
 
 		if (!hasAuth) {
@@ -96,49 +103,41 @@ public class GetReportApi extends PrivateApiComponentBase {
 	}
 
 	private void getTableList(ReportVo reportVo) throws DocumentException {
-		/** 匹配表格 */
 		String content = reportVo.getContent();
-		Map<String,String> tables = new HashMap<>();
-//            List<String> tables = new ArrayList<>();
-		List<String> tableNames = new ArrayList<>();
-		/** 匹配表格Id */
-		Pattern pattern = Pattern.compile("drawTable.*\\)");
-		/** 匹配表格中文名 */
-		Pattern namePattern = Pattern.compile("title.*\"");
-		Matcher matcher = pattern.matcher(content);
-		/** 寻找是表格的图表id */
-		while (matcher.find()){
-			String e = matcher.group();
-//                tables.add(e);
-			Matcher m = namePattern.matcher(e);
-			if(m.find()){
-				String name = m.group();
-				name = name.substring(name.indexOf("\""),name.lastIndexOf("\""));
-				tableNames.add(name);
-				tables.put(e,name);
-			}else{
-				tables.put(e,null);
-			}
-		}
-		/** tableColumnsMapList中的key为表格ID与中文名的map,value为表格字段list */
-		List<Map<Map<String,String>,List<String>>> tableColumnsMapList = new ArrayList<>();
-		Map<String, Object> map = ReportXmlUtil.analyseSql(reportVo.getSql());
-		List<SelectVo> selectList = (List<SelectVo>)map.get("select");
-		for(Map.Entry<String,String> entry : tables.entrySet()){
-			for(SelectVo vo : selectList){
-				if(entry.getKey().contains(vo.getId())){
-					Map<String,String> nameMap = new HashMap<>();
-					nameMap.put(vo.getId(),entry.getValue());
-					Map<Map<String,String>,List<String>> tableMap = new HashMap<>();
-					tableMap.put(nameMap,vo.getResultMap().getPropertyList());
-//                        Map<String,List<String>> tableMap = new HashMap<>();
-//                        tableMap.put(vo.getId(),vo.getResultMap().getPropertyList());
-					tableColumnsMapList.add(tableMap);
-					break;
+		String sql = reportVo.getSql();
+		if(StringUtils.isNotBlank(content) && StringUtils.isNotBlank(sql)){
+			Map<String,String> tables = new HashMap<>();
+			Matcher matcher = pattern.matcher(content);
+			/** 寻找是表格的图表，生成包含id的字符串->title的map */
+			while (matcher.find()){
+				String e = matcher.group();
+				Matcher m = namePattern.matcher(e);
+				if(m.find()){
+					String name = m.group();
+					name = name.substring(name.indexOf("\""),name.lastIndexOf("\""));
+					tables.put(e,name);
+				}else{
+					tables.put(e,null);
 				}
 			}
+			/** tableColumnsMap中的key为表格ID与中文名组合而成的字符串("tableData-工单上报列表"),value为表格字段 */
+			Map<String,Object> tableColumnsMap = null;
+			if(MapUtils.isNotEmpty(tables)){
+				tableColumnsMap = new HashMap<>();
+				Map<String,Object> map = ReportXmlUtil.analyseSql(sql);
+				List<SelectVo> selectList = (List<SelectVo>)map.get("select");
+				for(Map.Entry<String,String> entry : tables.entrySet()){
+					for(SelectVo vo : selectList){
+						if(entry.getKey().contains(vo.getId())){
+							tableColumnsMap.put("id",vo.getId());
+							tableColumnsMap.put("title",entry.getValue());
+							tableColumnsMap.put("columnList",vo.getResultMap().getPropertyList());
+							break;
+						}
+					}
+				}
+			}
+			reportVo.setTableList(tableColumnsMap);
 		}
-
-		reportVo.setTableList(tableColumnsMapList);
 	}
 }

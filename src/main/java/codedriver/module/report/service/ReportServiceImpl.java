@@ -5,11 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.sql.DataSource;
 
@@ -146,6 +142,39 @@ public class ReportServiceImpl implements ReportService {
                             returnMap = wrapResultMapToMap(select.getResultMap(), resultMap, returnMap);
                         }
                     }
+
+                    /** select.getId() -> columnList */
+                    Map<String,List<String>> showColumnsMap = new HashMap<>();
+                    if(select.getId().equals("tableData")){
+                        List<String> columnList = new ArrayList<>();
+                        columnList.add("上报人");
+                        columnList.add("标题");
+                        showColumnsMap.put("tableData",columnList);
+                    }
+                    if(showColumnsMap.containsKey(select.getId())){
+                        List<String> showColumnList = showColumnsMap.get(select.getId());
+                        /** 筛选表格显示列 */
+                        for(Map<String, Object> map : tmpList){
+                            Iterator<Map.Entry<String, Object>> iterator = map.entrySet().iterator();
+                            while (iterator.hasNext()){
+                                if(!showColumnList.contains(iterator.next().getKey())){
+                                    iterator.remove();
+                                }
+                            }
+                        }
+                        /** 排序 */
+                        List<Map<String, Object>> sqList = new ArrayList<Map<String, Object>>();
+                        for(Map<String, Object> map : tmpList){
+                            Map<String,Object> map1 = new LinkedHashMap<>();
+                            for(String s : showColumnList){
+                                map1.put(s,map.get(s));
+                            }
+                            sqList.add(map1);
+                        }
+
+                        tmpList = sqList;
+                    }
+
                     if (select.getResultType() == SelectVo.RSEULT_TYPE_LIST) {
                         returnResultMap.put(select.getId(), tmpList);
                     } else {

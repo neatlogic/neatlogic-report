@@ -47,6 +47,8 @@ public class ReportInstanceVo extends BasePageVo {
 	private transient String searchMode = "user";
 	@EntityField(name = "报表参数列表", type = ApiParamType.JSONARRAY)
 	private List<ReportParamVo> paramList;
+	@EntityField(name = "表格列表", type = ApiParamType.JSONARRAY)
+	private List<ReportInstanceTableColumnVo> tableColumnList;
 
 	public Long getId() {
 		if (id == null) {
@@ -212,4 +214,11 @@ public class ReportInstanceVo extends BasePageVo {
 		this.paramList = paramList;
 	}
 
+	public List<ReportInstanceTableColumnVo> getTableColumnList() {
+		return tableColumnList;
+	}
+
+	public void setTableColumnList(List<ReportInstanceTableColumnVo> tableColumnList) {
+		this.tableColumnList = tableColumnList;
+	}
 }

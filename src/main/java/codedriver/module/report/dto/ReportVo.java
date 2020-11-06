@@ -48,7 +48,7 @@ public class ReportVo extends BasePageVo {
 	@EntityField(name = "参数列表", type = ApiParamType.JSONARRAY)
 	private List<ReportParamVo> paramList;
 	@EntityField(name = "表格列表", type = ApiParamType.JSONARRAY)
-	List<Map<Map<String,String>,List<String>>> tableList;
+	Map<String,Object> tableList;
 	@JSONField(serialize = false)//搜索模式，默认是按用户搜索，管理员页面无需检查用户权限
 	private transient String searchMode = "user";
 
@@ -189,11 +189,11 @@ public class ReportVo extends BasePageVo {
 		this.paramList = paramList;
 	}
 
-	public List<Map<Map<String, String>, List<String>>> getTableList() {
+	public Map<String, Object> getTableList() {
 		return tableList;
 	}
 
-	public void setTableList(List<Map<Map<String, String>, List<String>>> tableList) {
+	public void setTableList(Map<String, Object> tableList) {
 		this.tableList = tableList;
 	}
 

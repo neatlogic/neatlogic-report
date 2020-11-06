@@ -19,6 +19,7 @@ public class ReportInstanceServiceImpl implements ReportInstanceService {
 	public ReportInstanceVo getReportInstanceDetailById(Long reportInstanceId) {
 		ReportInstanceVo reportInstanceVo = reportInstanceMapper.getReportInstanceById(reportInstanceId);
 		reportInstanceVo.setReportInstanceAuthList(reportInstanceMapper.getReportInstanceAuthByReportInstanceId(reportInstanceId));
+		reportInstanceVo.setTableColumnList(reportInstanceMapper.getReportInstanceTableColumnList(reportInstanceId));
 		return reportInstanceVo;
 	}
 
