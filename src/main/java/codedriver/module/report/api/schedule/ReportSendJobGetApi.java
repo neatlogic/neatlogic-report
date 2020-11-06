@@ -6,17 +6,19 @@ import codedriver.framework.restful.annotation.*;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dao.mapper.ReportSendJobMapper;
+import codedriver.module.report.dto.ReportParamVo;
 import codedriver.module.report.dto.ReportSendJobRelationVo;
 import codedriver.module.report.dto.ReportSendJobVo;
 import codedriver.module.report.dto.ReportVo;
 import codedriver.module.report.exception.ReportSendJobNotFoundException;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -54,17 +56,31 @@ public class ReportSendJobGetApi extends PrivateApiComponentBase {
 			throw new ReportSendJobNotFoundException(id);
 		}
 		ReportSendJobVo job = reportSendJobMapper.getJobById(id);
-		List<ReportSendJobRelationVo> reportRelationList = job.getReportList();
-		if(CollectionUtils.isNotEmpty(reportRelationList)){
-			Map<Long,ReportSendJobRelationVo> reportRelationMap = new HashMap<>();
-			List<Long> reportIdList = new ArrayList<>();
+		/** 获取报表条件控件回显值 */
+		List<ReportSendJobRelationVo> reportRelationList = job.getReportRelationList();
+		List<ReportVo> reportList = job.getReportList();
+		if(CollectionUtils.isNotEmpty(reportRelationList) && CollectionUtils.isNotEmpty(reportList)){
+			Map<Long,String> configMap = new HashMap<>();
 			for(ReportSendJobRelationVo vo : reportRelationList){
-				reportRelationMap.put(vo.getReportId(),vo);
-				reportIdList.add(vo.getReportId());
+				configMap.put(vo.getReportId(),vo.getConfig());
 			}
-			for(Long reportId : reportIdList){
-				ReportVo report = reportMapper.getReportAndParamById(reportId);
-				reportRelationMap.get(reportId).setReport(report);
+			for(ReportVo vo : reportList){
+				List<ReportParamVo> paramList = reportMapper.getReportParamByReportId(vo.getId());
+				String config = configMap.get(vo.getId());
+				if(CollectionUtils.isNotEmpty(paramList) && StringUtils.isNotBlank(config)){
+					JSONObject paramObj = JSONObject.parseObject(config);
+					Iterator<ReportParamVo> it = paramList.iterator();
+					while (it.hasNext()) {
+						ReportParamVo param = it.next();
+						if (paramObj.containsKey(param.getName())) {
+							String value = paramObj.getString(param.getName());
+							if (param.getConfig() != null && StringUtils.isNotBlank(value)) {
+								param.getConfig().put("defaultValue", value);
+							}
+						}
+					}
+				}
+				vo.setParamList(paramList);
 			}
 		}
 

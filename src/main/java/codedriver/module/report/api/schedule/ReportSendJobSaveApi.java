@@ -31,7 +31,7 @@ import java.util.List;
 
 /**
  * reportList结构形如：
- * [{"id":167237352693760,"condition":{"beforeDay":"30","keyword":"a","change":["操作系统&=&操作系统","中间件&=&中间件"],"menu":"1000"}},{"id":158660705656832,"condition":{"beforeDay":"7"}}]
+ * [{"id":167237352693760,"condition":{"beforeDay":"30","keyword":"a"},"formValue":[{"beforeDay":"90&=&过去90天"}]},{"id":158660705656832,"condition":{"beforeDay":"7"}}]
  */
 @Service
 @AuthAction(name = "REPORT_MODIFY")
@@ -140,7 +140,7 @@ public class ReportSendJobSaveApi extends PrivateApiComponentBase {
 				vo.setReportSendJobId(jobVo.getId());
 				vo.setReportId(report.getLong("id"));
 				vo.setCondition(report.getString("condition"));
-				vo.setConfig(report.getString("formValueList"));
+				vo.setConfig(report.getString("formValue"));
 				relationList.add(vo);
 			}
 		}
