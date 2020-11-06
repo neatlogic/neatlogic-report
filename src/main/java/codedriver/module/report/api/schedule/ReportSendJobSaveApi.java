@@ -140,6 +140,7 @@ public class ReportSendJobSaveApi extends PrivateApiComponentBase {
 				vo.setReportSendJobId(jobVo.getId());
 				vo.setReportId(report.getLong("id"));
 				vo.setCondition(report.getString("condition"));
+				vo.setConfig(report.getString("formValueList"));
 				relationList.add(vo);
 			}
 		}
