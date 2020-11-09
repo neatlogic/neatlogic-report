@@ -48,6 +48,8 @@ public class ReportVo extends BasePageVo {
 	private List<ReportParamVo> paramList;
 	@JSONField(serialize = false)//搜索模式，默认是按用户搜索，管理员页面无需检查用户权限
 	private transient String searchMode = "user";
+	@JSONField(serialize = false)
+	private Integer sort;
 
 	public Long getId() {
 		if (id == null) {
@@ -194,4 +196,11 @@ public class ReportVo extends BasePageVo {
 		this.searchMode = searchMode;
 	}
 
+	public Integer getSort() {
+		return sort;
+	}
+
+	public void setSort(Integer sort) {
+		this.sort = sort;
+	}
 }

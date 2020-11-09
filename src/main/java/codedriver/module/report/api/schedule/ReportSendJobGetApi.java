@@ -17,10 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @OperationType(type = OperationTypeEnum.SEARCH)
@@ -58,7 +55,12 @@ public class ReportSendJobGetApi extends PrivateApiComponentBase {
 		ReportSendJobVo job = reportSendJobMapper.getJobById(id);
 		/** 获取报表条件控件回显值 */
 		List<ReportSendJobRelationVo> reportRelationList = job.getReportRelationList();
-		List<ReportVo> reportList = job.getReportList();
+		List<ReportVo> reportList = null;
+		if(CollectionUtils.isNotEmpty(job.getReportList())){
+			job.getReportList().sort(Comparator.comparing(ReportVo::getSort));
+			reportList = job.getReportList();
+		}
+//		List<ReportVo> reportList = job.getReportList();
 		if(CollectionUtils.isNotEmpty(reportRelationList) && CollectionUtils.isNotEmpty(reportList)){
 			Map<Long,String> configMap = new HashMap<>();
 			for(ReportSendJobRelationVo vo : reportRelationList){
