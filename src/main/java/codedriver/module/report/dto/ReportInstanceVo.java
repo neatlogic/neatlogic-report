@@ -3,6 +3,7 @@ package codedriver.module.report.dto;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -48,7 +49,7 @@ public class ReportInstanceVo extends BasePageVo {
 	@EntityField(name = "报表参数列表", type = ApiParamType.JSONARRAY)
 	private List<ReportParamVo> paramList;
 	@EntityField(name = "表格列表", type = ApiParamType.JSONARRAY)
-	private List<ReportInstanceTableColumnVo> tableColumnList;
+	private Map<String,List<String>> tableColumnsMap;
 
 	public Long getId() {
 		if (id == null) {
@@ -214,11 +215,11 @@ public class ReportInstanceVo extends BasePageVo {
 		this.paramList = paramList;
 	}
 
-	public List<ReportInstanceTableColumnVo> getTableColumnList() {
-		return tableColumnList;
+	public Map<String, List<String>> getTableColumnsMap() {
+		return tableColumnsMap;
 	}
 
-	public void setTableColumnList(List<ReportInstanceTableColumnVo> tableColumnList) {
-		this.tableColumnList = tableColumnList;
+	public void setTableColumnsMap(Map<String, List<String>> tableColumnsMap) {
+		this.tableColumnsMap = tableColumnsMap;
 	}
 }

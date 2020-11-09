@@ -175,7 +175,7 @@ public class ReportSendJob extends JobBase {
                         }
                         os = new ByteArrayOutputStream();
                         Map<String, Long> timeMap = new HashMap<>();
-                        Map<String, Object> returnMap = reportService.getQueryResult(report.getId(), paramObj, timeMap, false);
+                        Map<String, Object> returnMap = reportService.getQueryResult(report.getId(), paramObj, timeMap, false,null);
                         Map<String, Object> tmpMap = new HashMap<>();
                         Map<String, Object> commonMap = new HashMap<>();
                         tmpMap.put("report", returnMap);

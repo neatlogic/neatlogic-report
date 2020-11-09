@@ -1,5 +1,6 @@
 package codedriver.module.report.api;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,23 +122,25 @@ public class GetReportApi extends PrivateApiComponentBase {
 				}
 			}
 			/** tableColumnsMap中的key为表格ID与中文名组合而成的字符串("tableData-工单上报列表"),value为表格字段 */
-			Map<String,Object> tableColumnsMap = null;
+			List<Map<String,Object>> tableColumnsMapList = null;
 			if(MapUtils.isNotEmpty(tables)){
-				tableColumnsMap = new HashMap<>();
+				tableColumnsMapList = new ArrayList<>();
 				Map<String,Object> map = ReportXmlUtil.analyseSql(sql);
 				List<SelectVo> selectList = (List<SelectVo>)map.get("select");
 				for(Map.Entry<String,String> entry : tables.entrySet()){
 					for(SelectVo vo : selectList){
 						if(entry.getKey().contains(vo.getId())){
+							Map<String,Object> tableColumnsMap = new HashMap<>();
 							tableColumnsMap.put("id",vo.getId());
 							tableColumnsMap.put("title",entry.getValue());
 							tableColumnsMap.put("columnList",vo.getResultMap().getPropertyList());
+							tableColumnsMapList.add(tableColumnsMap);
 							break;
 						}
 					}
 				}
 			}
-			reportVo.setTableList(tableColumnsMap);
+			reportVo.setTableList(tableColumnsMapList);
 		}
 	}
 }
