@@ -142,13 +142,24 @@
 		a.`server_id` AS serverId,
 		a.`content_hash` AS contentHash,
 		(IFNULL((SELECT `user_name` FROM `user` WHERE `uuid` = b.`receiver`),b.`receiver`)) as receiver
-		FROM `schedule_job_audit` a
+		FROM
+		(
+			select
+			`id`,
+			`job_uuid`,
+			`start_time`,
+			`status`,
+			`server_id`,
+			`content_hash`
+			from `schedule_job_audit`
+			WHERE `job_uuid` = #{jobUuid}
+			ORDER BY `start_time` DESC
+			<if test="needPage == true">
+				LIMIT #{startNum}, #{pageSize}
+			</if>
+		) a
 		left join `report_receiver` b on a.`job_uuid` = CONCAT(b.`report_send_job_id`,'')
-		WHERE a.`job_uuid` = #{jobUuid} and b.`type` = 'to'
-		ORDER BY a.`start_time` DESC
-		<if test="needPage == true">
-			LIMIT #{startNum}, #{pageSize}
-		</if>
+		WHERE b.`type` = 'to'
 	</select>
 
 	<select id="getAllActiveJob" resultType="codedriver.module.report.dto.ReportSendJobVo">
