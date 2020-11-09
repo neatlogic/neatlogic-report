@@ -60,7 +60,6 @@ public class ReportSendJobGetApi extends PrivateApiComponentBase {
 			job.getReportList().sort(Comparator.comparing(ReportVo::getSort));
 			reportList = job.getReportList();
 		}
-//		List<ReportVo> reportList = job.getReportList();
 		if(CollectionUtils.isNotEmpty(reportRelationList) && CollectionUtils.isNotEmpty(reportList)){
 			Map<Long,String> configMap = new HashMap<>();
 			for(ReportSendJobRelationVo vo : reportRelationList){
