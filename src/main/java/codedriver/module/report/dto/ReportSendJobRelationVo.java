@@ -15,10 +15,6 @@ public class ReportSendJobRelationVo {
 	@EntityField(name = "配置", type = ApiParamType.STRING)
 	@JSONField(serialize = false)
 	private String config;
-	@EntityField(name = "控件回显值", type = ApiParamType.STRING)
-	private String formValueList;
-	@EntityField(name = "报表定义")
-	private ReportVo report;
 
 	public Long getReportSendJobId() {
 		return reportSendJobId;
@@ -52,16 +48,4 @@ public class ReportSendJobRelationVo {
 		this.config = config;
 	}
 
-	public String getFormValueList() {
-		this.formValueList = config;
-		return formValueList;
-	}
-
-	public ReportVo getReport() {
-		return report;
-	}
-
-	public void setReport(ReportVo report) {
-		this.report = report;
-	}
 }

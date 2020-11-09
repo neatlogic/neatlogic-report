@@ -97,7 +97,7 @@ public class ReportSendJob extends JobBase {
         String cc = null;
         boolean canExec = false;
         if(sendJob != null && Objects.equals(sendJob.getIsActive(),1)) {
-            List<ReportSendJobRelationVo> relatedReportList = sendJob.getReportList();
+            List<ReportSendJobRelationVo> relatedReportList = sendJob.getReportRelationList();
             /** 获取报表 */
             if(CollectionUtils.isNotEmpty(relatedReportList)) {
                 reportMap = getReport(relatedReportList);
