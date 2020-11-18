@@ -11,10 +11,13 @@ import codedriver.module.report.dto.ReportSendJobVo;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @OperationType(type = OperationTypeEnum.SEARCH)
@@ -72,6 +75,20 @@ public class ReportSendJobSearchApi extends PrivateApiComponentBase {
 			returnObj.put("pageCount", PageUtil.getPageCount(rowNum, vo.getPageSize()));
 		}
 		List<ReportSendJobVo> jobList = reportSendJobMapper.searchJob(vo);
+		/** 查询收件人 */
+		if(CollectionUtils.isNotEmpty(jobList)){
+			List<ReportSendJobVo> toList = reportSendJobMapper.getReportToList(jobList.stream().map(ReportSendJobVo::getId).collect(Collectors.toList()));
+			if(CollectionUtils.isNotEmpty(toList)){
+				for(ReportSendJobVo job : jobList){
+					for(ReportSendJobVo to : toList){
+						if(Objects.equals(job.getId(),to.getId())){
+							job.setToNameList(to.getToNameList());
+							break;
+						}
+					}
+				}
+			}
+		}
 		returnObj.put("jobList",jobList);
 		return returnObj;
 	}
