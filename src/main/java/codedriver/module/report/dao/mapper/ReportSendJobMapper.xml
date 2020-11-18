@@ -157,13 +157,13 @@
 			`content_hash`
 			from `schedule_job_audit`
 			WHERE `job_uuid` = #{jobUuid}
+			ORDER BY `start_time` DESC
 			<if test="needPage == true">
 				LIMIT #{startNum}, #{pageSize}
 			</if>
 		) a
 		left join `report_receiver` b on a.`job_uuid` = CONCAT(b.`report_send_job_id`,'')
 		WHERE b.`type` = 'to'
-		ORDER BY a.`start_time` DESC
 	</select>
 
 	<select id="getAllActiveJob" resultType="codedriver.module.report.dto.ReportSendJobVo">
