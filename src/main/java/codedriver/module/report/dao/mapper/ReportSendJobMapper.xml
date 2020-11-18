@@ -45,6 +45,7 @@
 		<collection property="reportList" ofType="codedriver.module.report.dto.ReportVo">
 			<result property="id" column="reportId" />
 			<result property="name" column="reportName" />
+			<result property="sort" column="sort" />
 		</collection>
 	</resultMap>
 
@@ -62,6 +63,7 @@
 -- 		c.`report_id` as reportId,
 		c.`condition`,
 		c.`config`,
+		c.`sort`,
 		d.`id` as reportId,
 		d.`name` as reportName
 		FROM `report_send_job` a
@@ -140,13 +142,24 @@
 		a.`server_id` AS serverId,
 		a.`content_hash` AS contentHash,
 		(IFNULL((SELECT `user_name` FROM `user` WHERE `uuid` = b.`receiver`),b.`receiver`)) as receiver
-		FROM `schedule_job_audit` a
+		FROM
+		(
+			select
+			`id`,
+			`job_uuid`,
+			`start_time`,
+			`status`,
+			`server_id`,
+			`content_hash`
+			from `schedule_job_audit`
+			WHERE `job_uuid` = #{jobUuid}
+			ORDER BY `start_time` DESC
+			<if test="needPage == true">
+				LIMIT #{startNum}, #{pageSize}
+			</if>
+		) a
 		left join `report_receiver` b on a.`job_uuid` = CONCAT(b.`report_send_job_id`,'')
-		WHERE a.`job_uuid` = #{jobUuid} and b.`type` = 'to'
-		ORDER BY a.`start_time` DESC
-		<if test="needPage == true">
-			LIMIT #{startNum}, #{pageSize}
-		</if>
+		WHERE b.`type` = 'to'
 	</select>
 
 	<select id="getAllActiveJob" resultType="codedriver.module.report.dto.ReportSendJobVo">
@@ -237,7 +250,8 @@
         `report_send_job_id`,
         `report_id`,
         `condition`,
-        `config`
+        `config`,
+        `sort`
         )
         VALUES
         <foreach collection="list" index="index" item="item" separator=",">
@@ -245,7 +259,8 @@
             #{item.reportSendJobId},
             #{item.reportId},
             #{item.condition},
-            #{item.config}
+            #{item.config},
+            #{item.sort}
             )
         </foreach>
     </insert>

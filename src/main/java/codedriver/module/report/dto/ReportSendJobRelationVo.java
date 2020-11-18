@@ -15,6 +15,9 @@ public class ReportSendJobRelationVo {
 	@EntityField(name = "配置", type = ApiParamType.STRING)
 	@JSONField(serialize = false)
 	private String config;
+	@EntityField(name = "排序", type = ApiParamType.INTEGER)
+	@JSONField(serialize = false)
+	private Integer sort;
 
 	public Long getReportSendJobId() {
 		return reportSendJobId;
@@ -48,4 +51,11 @@ public class ReportSendJobRelationVo {
 		this.config = config;
 	}
 
+	public Integer getSort() {
+		return sort;
+	}
+
+	public void setSort(Integer sort) {
+		this.sort = sort;
+	}
 }

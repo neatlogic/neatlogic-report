@@ -134,13 +134,14 @@ public class ReportSendJobSaveApi extends PrivateApiComponentBase {
 		List<ReportSendJobRelationVo> relationList = null;
 		if(CollectionUtils.isNotEmpty(reportList)){
 			relationList = new ArrayList<>();
-			for(Object o : reportList){
-				JSONObject report = JSONObject.parseObject(o.toString());
+			for(int i = 0;i < reportList.size();i++){
+				JSONObject report = JSONObject.parseObject(reportList.get(i).toString());
 				ReportSendJobRelationVo vo = new ReportSendJobRelationVo();
 				vo.setReportSendJobId(jobVo.getId());
 				vo.setReportId(report.getLong("id"));
 				vo.setCondition(report.getString("condition"));
 				vo.setConfig(report.getString("formValue"));
+				vo.setSort(i);
 				relationList.add(vo);
 			}
 		}

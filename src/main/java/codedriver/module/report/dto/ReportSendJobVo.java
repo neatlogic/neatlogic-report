@@ -1,7 +1,6 @@
 package codedriver.module.report.dto;
 
 import codedriver.framework.common.constvalue.ApiParamType;
-import codedriver.framework.common.constvalue.GroupSearch;
 import codedriver.framework.common.dto.BaseEditorVo;
 import codedriver.framework.restful.annotation.EntityField;
 import codedriver.framework.util.SnowflakeUtil;
@@ -125,9 +124,6 @@ public class ReportSendJobVo extends BaseEditorVo {
 			toList = new ArrayList<>();
 			for(ReportReceiverVo vo : receiverList) {
 				if("to".equals(vo.getType())){
-					if(!vo.getReceiver().contains("@")){
-						vo.setReceiver(GroupSearch.USER.getValuePlugin() + vo.getReceiver());
-					}
 					toList.add(vo.getReceiver());
 				}
 			}
@@ -144,9 +140,6 @@ public class ReportSendJobVo extends BaseEditorVo {
 			ccList = new ArrayList<>();
 			for(ReportReceiverVo vo : receiverList) {
 				if("cc".equals(vo.getType())){
-					if(!vo.getReceiver().contains("@")){
-						vo.setReceiver(GroupSearch.USER.getValuePlugin() + vo.getReceiver());
-					}
 					ccList.add(vo.getReceiver());
 				}
 			}
