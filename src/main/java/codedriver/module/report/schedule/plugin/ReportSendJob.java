@@ -119,7 +119,12 @@ public class ReportSendJob extends JobBase {
         }
         if(canExec){
             /** 发送邮件 */
-            EmailUtil.sendEmail(sendJob.getEmailTitle(),sendJob.getEmailContent(), reportMap, to, cc);
+            try{
+                EmailUtil.sendEmail(sendJob.getEmailTitle(),sendJob.getEmailContent(), reportMap, to, cc);
+            }catch (Exception e){
+                throw new JobExecutionException(e.getMessage());
+            }
+
         }else{
             schedulerManager.unloadJob(jobObject);
         }

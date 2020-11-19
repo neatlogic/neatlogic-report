@@ -24,6 +24,9 @@ public interface ReportSendJobMapper {
 
     public List<ReportSendJobVo> getAllActiveJob();
 
+    /** 根据发送计划ID列表查询收件人列表 */
+    public List<ReportSendJobVo> getReportToList(List<Long> list);
+
     public List<ReportSendJobAuditVo> searchReportSendJobAudit(JobAuditVo vo);
 
     public List<ReportSendJobRelationVo> getRelatedReportById(Long id);
