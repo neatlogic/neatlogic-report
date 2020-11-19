@@ -109,22 +109,28 @@ public class GetReportApi extends PrivateApiComponentBase {
 		if(StringUtils.isNotBlank(content) && StringUtils.isNotBlank(sql)){
 			Map<String,String> tables = new HashMap<>();
 			Matcher matcher = pattern.matcher(content);
-			/** 寻找是表格的图表，生成包含id的字符串->title的map */
+			/** 寻找是表格的图表，生成[包含id的字符串->title]的map */
 			while (matcher.find()){
 				String e = matcher.group();
 				Matcher m = namePattern.matcher(e);
+				/** 寻找表格title */
 				if(m.find()){
 					String name = m.group();
-					name = name.substring(name.indexOf("\""),name.lastIndexOf("\""));
+					name = name.substring(name.indexOf("\"") + 1,name.lastIndexOf("\""));
 					tables.put(e,name);
 				}else{
 					tables.put(e,null);
 				}
 			}
-			/** tableColumnsMap中的key为表格ID与中文名组合而成的字符串("tableData-工单上报列表"),value为表格字段 */
+			/** tableColumnsMap中的key为表格ID与中文名组合而成的字符串,value为表格字段
+			 * e.g:"tableData-工单上报列表"
+			 */
 			List<Map<String,Object>> tableColumnsMapList = null;
 			if(MapUtils.isNotEmpty(tables)){
 				tableColumnsMapList = new ArrayList<>();
+				/** 从SQL中获取所有图表
+				 * 从中寻找表格，记录下其id、title与column
+				 */
 				Map<String,Object> map = ReportXmlUtil.analyseSql(sql);
 				List<SelectVo> selectList = (List<SelectVo>)map.get("select");
 				for(Map.Entry<String,String> entry : tables.entrySet()){
