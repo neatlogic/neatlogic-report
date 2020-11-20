@@ -149,26 +149,7 @@ public class ReportServiceImpl implements ReportService {
                      * showColumnMap:key->表格ID;value->配置的表格显示列
                      */
                     if(MapUtils.isNotEmpty(showColumnsMap) && showColumnsMap.containsKey(select.getId())){
-                        List<String> showColumnList = showColumnsMap.get(select.getId());
-                        /** 筛选表格显示列 */
-                        for(Map<String, Object> map : tmpList){
-                            Iterator<Map.Entry<String, Object>> iterator = map.entrySet().iterator();
-                            while (iterator.hasNext()){
-                                if(!showColumnList.contains(iterator.next().getKey())){
-                                    iterator.remove();
-                                }
-                            }
-                        }
-                        /** 排序 */
-                        List<Map<String, Object>> sqList = new ArrayList<Map<String, Object>>();
-                        for(Map<String, Object> map : tmpList){
-                            Map<String,Object> _map = new LinkedHashMap<>();
-                            for(String s : showColumnList){
-                                _map.put(s,map.get(s));
-                            }
-                            sqList.add(_map);
-                        }
-
+                        List<Map<String, Object>> sqList = selectTableColumns(showColumnsMap, select, tmpList);
                         tmpList = sqList;
                     }
 
@@ -221,6 +202,29 @@ public class ReportServiceImpl implements ReportService {
             }
         }
         return showColumnsMap;
+    }
+
+    private List<Map<String, Object>> selectTableColumns(Map<String, List<String>> showColumnsMap, SelectVo select, List<Map<String, Object>> tmpList) {
+        List<String> showColumnList = showColumnsMap.get(select.getId());
+        /** 筛选表格显示列 */
+        for(Map<String, Object> map : tmpList){
+            Iterator<Map.Entry<String, Object>> iterator = map.entrySet().iterator();
+            while (iterator.hasNext()){
+                if(!showColumnList.contains(iterator.next().getKey())){
+                    iterator.remove();
+                }
+            }
+        }
+        /** 排序 */
+        List<Map<String, Object>> sqList = new ArrayList<>();
+        for(Map<String, Object> map : tmpList){
+            Map<String,Object> _map = new LinkedHashMap<>();
+            for(String s : showColumnList){
+                _map.put(s,map.get(s));
+            }
+            sqList.add(_map);
+        }
+        return sqList;
     }
 
     private Map<String, List> wrapResultMapToMap(ResultMapVo resultMapVo, Map<String, Object> result,

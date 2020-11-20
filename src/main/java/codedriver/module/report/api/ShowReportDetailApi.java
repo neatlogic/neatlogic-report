@@ -52,9 +52,7 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
 	@Override
 	public Object myDoService(JSONObject paramObj, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Long reportId = paramObj.getLong("id");
-		// TODO 前端要传报表实例ID，后端查询是否存在表格显示列的配置
-//		Long reportInstanceId = paramObj.getLong("reportInstanceId");
-		Long reportInstanceId = 167237595963392L;
+		Long reportInstanceId = paramObj.getLong("reportInstanceId");
 		// 统计使用次数
 		reportMapper.updateReportVisitCount(reportId);
 
