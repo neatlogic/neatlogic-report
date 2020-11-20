@@ -608,6 +608,112 @@ public class ReportXmlUtil {
 		return returnMap;
 	}
 
+	public static Map<String, Object> analyseSql(String xml) throws DocumentException{
+		Document document = DocumentHelper.parseText(xml);
+		Element root = document.getRootElement();
+		List<Element> resultMapNodeList = root.elements("resultMap");
+		List<Element> sqlNodeList = root.elements("select");
+		List<Element> restNodeList = root.elements("rest");
+		String regex_param = "\\#\\{([^\\}]+?)\\}";
+//		String regex_dollarparam = "\\$\\{([^\\}]+?)\\}";
+		String[] replace_regex = new String[] { "<[/]?if[^>]*?>", "<[/]?rest[^>]*?>", "<[/]?select[^>]*?>", "<[/]?forEach[^>]*?>", "<[/]?ifNotNull[^>]*?>", "<[/]?ifNull[^>]*?>", "<[/]?forEach[^>]*?>", "\\<\\!\\[CDATA\\[", "\\]\\]\\>" };
+		Map<String, Object> returnMap = new HashMap<String, Object>();
+		List<SelectVo> selectList = new ArrayList<SelectVo>();
+		List<RestVo> restList = new ArrayList<RestVo>();
+		returnMap.put("select", selectList);
+		returnMap.put("rest", restList);
+		Map<String, ResultMapVo> resultMap = new HashMap<String, ResultMapVo>();
+		Map<String, Integer> resultTypeMap = new HashMap<String, Integer>();
+
+		if (restNodeList != null && restNodeList.size() > 0) {
+			for (Element element : restNodeList) {
+				RestVo restVo = new RestVo();
+				restVo.setId(element.attributeValue("id"));
+				String lazyLoad = element.attributeValue("lazyload") == null ? "false" : element.attributeValue("lazyload");
+				restVo.setLazyLoad(Boolean.parseBoolean(lazyLoad));
+				restVo.setAuthType(element.attributeValue("authtype") == null ? "" : element.attributeValue("authtype"));
+				restVo.setUsername(element.attributeValue("username") == null ? "" : element.attributeValue("username"));
+				restVo.setPassword(element.attributeValue("password") == null ? "" : element.attributeValue("password"));
+				//restVo.setMethod(element.attributeValue("method") == null ? "POST" : element.attributeValue("method"));
+				restVo.setTimeout(element.attributeValue("timeout") == null ? 60000 : Integer.parseInt(element.attributeValue("timeout")));
+				restVo.setUrl(element.attributeValue("url"));
+				String result = element.asXML();
+				result = HtmlUtil.decodeHtml(result);
+				StringBuffer temp = null;
+				Pattern pattern = null;
+				Matcher matcher = null;
+				for (String regex : replace_regex) {
+					temp = new StringBuffer();
+					pattern = Pattern.compile(regex, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+					matcher = pattern.matcher(result);
+					while (matcher.find()) {
+						matcher.appendReplacement(temp, "");
+					}
+					matcher.appendTail(temp);
+					result = temp.toString();
+				}
+
+				temp = new StringBuffer();
+				pattern = Pattern.compile(regex_param, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+				matcher = pattern.matcher(result);
+				while (matcher.find()) {
+					String key = matcher.group(1);
+					if (key.indexOf("#") > -1) {
+						key = key.substring(0, key.lastIndexOf("#"));
+					}
+				}
+				matcher.appendTail(temp);
+				JSONObject payload = JSONObject.parseObject(temp.toString());
+				restVo.setPayload(payload);
+				restList.add(restVo);
+			}
+		}
+
+		for (Element element : resultMapNodeList) {
+			resultMap.put(element.attributeValue("id"), analyseResultMap(element));
+			if (element.attributeValue("resultType") != null && element.attributeValue("resultType").equals("Map")) {
+				resultTypeMap.put(element.attributeValue("id"), 1);
+			} else {
+				resultTypeMap.put(element.attributeValue("id"), 0);
+			}
+		}
+
+		sql: for (Element element : sqlNodeList) {
+			if (resultMap.get(element.attributeValue("resultMap")) == null) {// 如果没有resultMap,跳出循环
+				continue;
+			}
+			SelectVo selectVo = new SelectVo();
+			String sqlId = element.attributeValue("id");
+			String lazyLoad = element.attributeValue("lazyload") == null ? "false" : element.attributeValue("lazyload");
+			Integer datasource = element.attributeValue("datasource") == null ? 0 : Integer.parseInt(element.attributeValue("datasource"));
+			Integer queryTimeout = element.attributeValue("timeout") == null ? 30 : Integer.parseInt(element.attributeValue("timeout"));
+			selectVo.setId(sqlId);
+			selectVo.setQueryTimeout(queryTimeout);
+			selectVo.setLazyLoad(Boolean.parseBoolean(lazyLoad));
+			selectVo.setDatasource(datasource);
+			String result = element.asXML();
+			StringBuffer temp = null;
+			Pattern pattern = null;
+			Matcher matcher = null;
+			for (String regex : replace_regex) {
+				temp = new StringBuffer();
+				pattern = Pattern.compile(regex, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+				matcher = pattern.matcher(result);
+				while (matcher.find()) {
+					matcher.appendReplacement(temp, "");
+				}
+				matcher.appendTail(temp);
+				result = temp.toString();
+			}
+
+			selectVo.setResultMap(resultMap.get(element.attributeValue("resultMap")));
+			selectVo.setResultType(resultTypeMap.get(element.attributeValue("resultMap")));
+			selectList.add(selectVo);
+		}
+
+		return returnMap;
+	}
+
 	// public static void main(String[] argv) throws DocumentException {
 	// String sql = "<sql>";
 	// sql += "<resultMap id=\"lala\"><id column=\"user_id\"

@@ -5,14 +5,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
+import codedriver.module.report.dao.mapper.ReportInstanceMapper;
+import codedriver.module.report.dto.*;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +23,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 import codedriver.module.report.dao.mapper.ReportMapper;
-import codedriver.module.report.dto.ReportAuthVo;
-import codedriver.module.report.dto.ReportVo;
-import codedriver.module.report.dto.RestVo;
-import codedriver.module.report.dto.ResultMapVo;
-import codedriver.module.report.dto.SelectVo;
 import codedriver.module.report.util.ReportXmlUtil;
 import codedriver.module.report.util.RestUtil;
 
@@ -36,6 +32,9 @@ public class ReportServiceImpl implements ReportService {
 
     @Autowired
     private ReportMapper reportMapper;
+
+    @Autowired
+    private ReportInstanceMapper reportInstanceMapper;
 
     @Autowired
     private DataSource dataSource;
@@ -68,7 +67,7 @@ public class ReportServiceImpl implements ReportService {
      * 返回所有数据源结果
      */
     public Map<String, Object> getQueryResult(Long reportId, JSONObject paramMap, Map<String, Long> timeMap,
-        boolean isFirst) throws Exception {
+        boolean isFirst,Map<String, List<String>> showColumnsMap) throws Exception {
         ReportVo reportConfig = getReportDetailById(reportId);
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -146,6 +145,14 @@ public class ReportServiceImpl implements ReportService {
                             returnMap = wrapResultMapToMap(select.getResultMap(), resultMap, returnMap);
                         }
                     }
+                    /** 如果存在表格且存在表格显示列的配置，则筛选显示列并排序
+                     * showColumnMap:key->表格ID;value->配置的表格显示列
+                     */
+                    if(MapUtils.isNotEmpty(showColumnsMap) && showColumnsMap.containsKey(select.getId())){
+                        List<Map<String, Object>> sqList = selectTableColumns(showColumnsMap, select, tmpList);
+                        tmpList = sqList;
+                    }
+
                     if (select.getResultType() == SelectVo.RSEULT_TYPE_LIST) {
                         returnResultMap.put(select.getId(), tmpList);
                     } else {
@@ -175,8 +182,52 @@ public class ReportServiceImpl implements ReportService {
         return returnResultMap;
     }
 
-    private Map<String, List> wrapResultMapToMap(ResultMapVo resultMapVo, Map<String, Object> result,
-        Map<String, List> returnMap) {
+    /**
+     * 查询报表实例的表格显示列配置
+     * @param reportInstanceId
+     * @return
+     */
+    @Override
+    public Map<String, List<String>> getShowColumnsMap(Long reportInstanceId) {
+        Map<String, List<String>> showColumnsMap = new HashMap<>();
+        /** 查询表格显示列配置 */
+        List<ReportInstanceTableColumnVo> columnList = reportInstanceMapper.getReportInstanceTableColumnList(reportInstanceId);
+        if(CollectionUtils.isNotEmpty(columnList)){
+            /** 根据tableId分组 */
+            Map<String, List<ReportInstanceTableColumnVo>> columnMap = columnList.stream().collect(Collectors.groupingBy(ReportInstanceTableColumnVo::getTableId));
+            /** 根据sort排序并取出字段名，组装成tableId与字段列表的map */
+            for(Map.Entry<String,List<ReportInstanceTableColumnVo>> entry : columnMap.entrySet()){
+                List<String> columns = entry.getValue().stream().sorted(Comparator.comparing(ReportInstanceTableColumnVo::getSort)).map(ReportInstanceTableColumnVo::getColumn).collect(Collectors.toList());
+                showColumnsMap.put(entry.getKey(),columns);
+            }
+        }
+        return showColumnsMap;
+    }
+
+    private List<Map<String, Object>> selectTableColumns(Map<String, List<String>> showColumnsMap, SelectVo select, List<Map<String, Object>> tmpList) {
+        List<String> showColumnList = showColumnsMap.get(select.getId());
+        /** 筛选表格显示列 */
+        for(Map<String, Object> map : tmpList){
+            Iterator<Map.Entry<String, Object>> iterator = map.entrySet().iterator();
+            while (iterator.hasNext()){
+                if(!showColumnList.contains(iterator.next().getKey())){
+                    iterator.remove();
+                }
+            }
+        }
+        /** 排序 */
+        List<Map<String, Object>> sqList = new ArrayList<>();
+        for(Map<String, Object> map : tmpList){
+            Map<String,Object> _map = new LinkedHashMap<>();
+            for(String s : showColumnList){
+                _map.put(s,map.get(s));
+            }
+            sqList.add(_map);
+        }
+        return sqList;
+    }
+
+    private Map<String, List> wrapResultMapToMap(ResultMapVo resultMapVo, Map<String, Object> result, Map<String, List> returnMap) {
         String key = "";
         List<Map<String, Object>> resultList = null;
         if (resultMapVo.getGroupByList() != null && resultMapVo.getGroupByList().size() > 0) {

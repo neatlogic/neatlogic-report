@@ -57,16 +57,21 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
         return null;
     }
 
-    @Input({@Param(name = "id", desc = "报表id", type = ApiParamType.LONG, isRequired = true),
-        @Param(name = "type", desc = "文件类型", type = ApiParamType.ENUM, rule = "pdf,word,excel", isRequired = true)})
+    @Input({
+            @Param(name = "id", desc = "报表id", type = ApiParamType.LONG, isRequired = true),
+            @Param(name = "reportInstanceId", desc = "报表实例id", type = ApiParamType.LONG),
+            @Param(name = "type", desc = "文件类型", type = ApiParamType.ENUM, rule = "pdf,word,excel", isRequired = true)})
     @Description(desc = "导出报表接口")
     @Override
     public Object myDoService(JSONObject paramObj, HttpServletRequest request, HttpServletResponse response)
         throws Exception {
         Long reportId = paramObj.getLong("id");
         String type = paramObj.getString("type");
+        Long reportInstanceId = paramObj.getLong("reportInstanceId");
         // 统计使用次数
         reportMapper.updateReportVisitCount(reportId);
+        /** 获取表格显示列配置 */
+        Map<String, List<String>> showColumnsMap = reportService.getShowColumnsMap(reportInstanceId);
 
         OutputStream os = null;
         try {
@@ -75,7 +80,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
                 throw new ReportNotFoundException(reportId);
             }
             Map<String, Long> timeMap = new HashMap<>();
-            Map<String, Object> returnMap = reportService.getQueryResult(reportId, paramObj, timeMap, false);
+            Map<String, Object> returnMap = reportService.getQueryResult(reportId, paramObj, timeMap, false,showColumnsMap);
             Map<String, Object> tmpMap = new HashMap<>();
             Map<String, Object> commonMap = new HashMap<>();
             tmpMap.put("report", returnMap);
