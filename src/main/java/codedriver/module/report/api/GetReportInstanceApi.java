@@ -3,6 +3,7 @@ package codedriver.module.report.api;
 import java.util.Iterator;
 import java.util.List;
 
+import codedriver.module.report.auth.label.REPORT_MODIFY;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -59,7 +60,7 @@ public class GetReportInstanceApi extends PrivateApiComponentBase {
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
         // 权限判断：如果是管理员
-        boolean hasAuth = AuthActionChecker.check("REPORT_MODIFY");
+        boolean hasAuth = AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName());
         Long reportInstanceId = jsonObj.getLong("id");
         ReportInstanceVo reportInstanceVo = reportInstanceService.getReportInstanceDetailById(reportInstanceId);
 

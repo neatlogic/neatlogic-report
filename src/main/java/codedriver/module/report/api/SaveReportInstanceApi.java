@@ -1,5 +1,6 @@
 package codedriver.module.report.api;
 
+import codedriver.module.report.auth.label.REPORT_MODIFY;
 import codedriver.module.report.dto.ReportInstanceTableColumnVo;
 import com.alibaba.fastjson.JSONArray;
 import org.apache.commons.collections4.CollectionUtils;
@@ -56,7 +57,7 @@ public class SaveReportInstanceApi extends PrivateApiComponentBase {
 	@Override
 	public Object myDoService(JSONObject jsonObj) throws Exception {
 		// 权限判断：如果是管理员
-		boolean hasAuth = AuthActionChecker.check("REPORT_MODIFY");
+		boolean hasAuth = AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName());
 		if (!hasAuth) {
 			throw new PermissionDeniedException();
 		}

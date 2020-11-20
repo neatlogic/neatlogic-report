@@ -3,6 +3,7 @@ package codedriver.module.report.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import codedriver.module.report.auth.label.REPORT_MODIFY;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -59,7 +60,7 @@ public class SearchReportInstanceApi extends PrivateApiComponentBase {
         ReportInstanceVo reportInstanceVo = JSONObject.toJavaObject(jsonObj, ReportInstanceVo.class);
         String userUuid = UserContext.get().getUserUuid(true);
         // 权限判断：如果是管理员
-        boolean hasAuth = AuthActionChecker.check("REPORT_MODIFY");
+        boolean hasAuth = AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName());
         if (!hasAuth) {
             // 如果不是管理员，则校验报表权限
             reportInstanceVo.setSearchMode("user");

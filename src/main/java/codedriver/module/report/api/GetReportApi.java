@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import codedriver.module.report.auth.label.REPORT_MODIFY;
 import codedriver.module.report.dto.SelectVo;
 import codedriver.module.report.util.ReportXmlUtil;
 import org.apache.commons.collections4.MapUtils;
@@ -66,7 +67,7 @@ public class GetReportApi extends PrivateApiComponentBase {
 	@Override
 	public Object myDoService(JSONObject jsonObj) throws Exception {
 		// 权限判断：如果是管理员
-		boolean hasAuth = AuthActionChecker.check("REPORT_MODIFY");
+		boolean hasAuth = AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName());
 
 		ReportVo reportVo = reportService.getReportDetailById(jsonObj.getLong("id"));
 		/** 查找表格 */
