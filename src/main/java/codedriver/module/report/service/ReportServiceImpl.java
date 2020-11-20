@@ -227,8 +227,7 @@ public class ReportServiceImpl implements ReportService {
         return sqList;
     }
 
-    private Map<String, List> wrapResultMapToMap(ResultMapVo resultMapVo, Map<String, Object> result,
-                                                 Map<String, List> returnMap) {
+    private Map<String, List> wrapResultMapToMap(ResultMapVo resultMapVo, Map<String, Object> result, Map<String, List> returnMap) {
         String key = "";
         List<Map<String, Object>> resultList = null;
         if (resultMapVo.getGroupByList() != null && resultMapVo.getGroupByList().size() > 0) {
