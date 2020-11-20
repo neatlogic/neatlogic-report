@@ -117,7 +117,11 @@ public class GetReportApi extends PrivateApiComponentBase {
 				/** 寻找表格title */
 				if(m.find()){
 					String name = m.group();
-					name = name.substring(name.indexOf("\"") + 1,name.lastIndexOf("\""));
+					if(name.contains(",")){
+						name = name.substring(name.indexOf("\"") + 1,name.indexOf(",") - 1);
+					}else{
+						name = name.substring(name.indexOf("\"") + 1,name.lastIndexOf("\""));
+					}
 					tables.put(e,name);
 				}else{
 					tables.put(e,null);
