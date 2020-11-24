@@ -6,6 +6,8 @@ import codedriver.framework.common.util.PageUtil;
 import codedriver.framework.reminder.core.OperationTypeEnum;
 import codedriver.framework.restful.annotation.*;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
+import codedriver.framework.scheduler.dao.mapper.SchedulerMapper;
+import codedriver.framework.scheduler.dto.JobAuditVo;
 import codedriver.module.report.dao.mapper.ReportSendJobMapper;
 import codedriver.module.report.dto.ReportSendJobVo;
 import com.alibaba.fastjson.JSON;
@@ -24,6 +26,9 @@ import java.util.stream.Collectors;
 public class ReportSendJobSearchApi extends PrivateApiComponentBase {
 	@Autowired
 	private ReportSendJobMapper reportSendJobMapper;
+
+	@Autowired
+	private SchedulerMapper schedulerMapper;
 
 	@Override
 	public String getToken() {
@@ -75,12 +80,15 @@ public class ReportSendJobSearchApi extends PrivateApiComponentBase {
 			returnObj.put("pageCount", PageUtil.getPageCount(rowNum, vo.getPageSize()));
 		}
 		List<ReportSendJobVo> jobList = reportSendJobMapper.searchJob(vo);
-		/** 查询收件人 */
+		/** 查询发送次数与收件人 */
 		if(CollectionUtils.isNotEmpty(jobList)){
 			List<ReportSendJobVo> toList = reportSendJobMapper.getReportToList(jobList.stream().map(ReportSendJobVo::getId).collect(Collectors.toList()));
 			if(CollectionUtils.isNotEmpty(toList)){
 				for(ReportSendJobVo job : jobList){
 					for(ReportSendJobVo to : toList){
+						JobAuditVo jobAuditVo = new JobAuditVo();
+						jobAuditVo.setJobUuid(job.getId().toString());
+						job.setExecCount(schedulerMapper.searchJobAuditCount(jobAuditVo));
 						if(Objects.equals(job.getId(),to.getId())){
 							job.setToNameList(to.getToNameList());
 							break;

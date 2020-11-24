@@ -92,8 +92,7 @@
 		a.`email_title` as emailTitle,
 		a.`cron` as cron,
 		a.`is_active` as isActive,
-		(select `next_fire_time` from `schedule_job_status` where `job_name` = CONCAT(a.`id`,'')) as nextFireTime,
-		(select count(1) from `schedule_job_audit` where `job_uuid` = a.`id`) as execCount
+		(select `next_fire_time` from `schedule_job_status` where `job_name` = CONCAT(a.`id`,'')) as nextFireTime
 		from `report_send_job` a
 		where 1=1
 		<if test="keyword != null and keyword != ''">
