@@ -92,10 +92,8 @@
 		a.`email_title` as emailTitle,
 		a.`cron` as cron,
 		a.`is_active` as isActive,
-		b.`next_fire_time` as nextFireTime,
-		b.`exec_count` as execCount
+		(select `next_fire_time` from `schedule_job_status` where `job_name` = CONCAT(a.`id`,'')) as nextFireTime
 		from `report_send_job` a
-		left join `schedule_job_status` b on a.`id` = b.`job_name`
 		where 1=1
 		<if test="keyword != null and keyword != ''">
 			and a.`name` LIKE CONCAT('%', #{keyword}, '%')
