@@ -2,14 +2,11 @@ package codedriver.module.report.widget;
 
 import java.awt.Color;
 import java.awt.Paint;
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.net.util.Base64;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.LegendItem;
 import org.jfree.chart.StandardChartTheme;
@@ -24,7 +21,6 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import com.alibaba.fastjson.JSONObject;
 
-import codedriver.module.report.config.ReportConfig;
 import codedriver.module.report.util.JfreeChartUtil;
 import freemarker.template.SimpleHash;
 import freemarker.template.SimpleNumber;
@@ -35,8 +31,9 @@ import freemarker.template.TemplateModelException;
 public class DrawLine implements TemplateMethodModelEx {
 	private static final Log logger = LogFactory.getLog(DrawLine.class);
 
-	@Override
-	public Object exec(List arguments) throws TemplateModelException {
+	@SuppressWarnings({"unchecked", "unused"})
+    @Override
+	public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
 		boolean canReturn = true;
 		int width = 1000;
 		int height = 400;
@@ -95,6 +92,7 @@ public class DrawLine implements TemplateMethodModelEx {
 				}
 			} catch (Exception ex) {
 				// 非json格式
+			    logger.error(ex.getMessage(), ex);
 			}
 		}
 
@@ -123,12 +121,8 @@ public class DrawLine implements TemplateMethodModelEx {
 			axis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);// 倾斜45度
 			ValueAxis yAxis = p.getRangeAxis();// 对Y轴做操作 q
 			yAxis.setAutoRange(true); // 设置y轴自动获取范围
-			try {
-				byte[] bytes = ChartUtils.encodeAsPNG(chart.createBufferedImage(width, height));
-				return "<img class='img-responsive' src=\"data:image/png;base64," + Base64.encodeBase64String(bytes) + "\">";
-			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
-			}
+			
+			return JfreeChartUtil.getChartAsSVG(chart, width, height);
 		}
 		return "";
 	}

@@ -18,8 +18,9 @@ import freemarker.template.TemplateModelException;
 public class DrawTable implements TemplateMethodModelEx {
 	// private static final Log logger = LogFactory.getLog(DrawTable.class);
 
-	@Override
-	public Object exec(List arguments) throws TemplateModelException {
+	@SuppressWarnings("unchecked")
+    @Override
+	public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
 		String title = null, header = null, column = null;
 		SimpleSequence ss = null;
 		List<String> keyList = new ArrayList<String>();
@@ -30,7 +31,7 @@ public class DrawTable implements TemplateMethodModelEx {
 			if (ss != null && ss.size() > 0) {
 				// 取得第一行数据，得到表格列名
 				SimpleHash sm = (SimpleHash) ss.get(0);
-				Map colMap = sm.toMap();
+				Map<String, Object> colMap = sm.toMap();
 				Iterator<Map.Entry<String, Object>> iter = colMap.entrySet().iterator();
 				while (iter.hasNext()) {
 					Map.Entry<String, Object> entry = iter.next();

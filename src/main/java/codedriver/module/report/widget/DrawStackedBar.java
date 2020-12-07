@@ -2,15 +2,12 @@ package codedriver.module.report.widget;
 
 import java.awt.Color;
 import java.awt.Paint;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.net.util.Base64;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.LegendItem;
 import org.jfree.chart.StandardChartTheme;
@@ -40,7 +37,8 @@ import freemarker.template.TemplateModelException;
 public class DrawStackedBar implements TemplateMethodModelEx {
 	private static final Log logger = LogFactory.getLog(DrawStackedBar.class);
 
-	@Override
+	@SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
 	public Object exec(List arguments) throws TemplateModelException {
 		boolean canReturn = true;
 		int width = 1000;
@@ -119,6 +117,7 @@ public class DrawStackedBar implements TemplateMethodModelEx {
 				}
 			} catch (Exception ex) {
 				// 非json格式
+			    logger.error(ex.getMessage(), ex);
 			}
 		}
 
@@ -147,13 +146,8 @@ public class DrawStackedBar implements TemplateMethodModelEx {
 					}
 				}
 			}
+			return JfreeChartUtil.getChartAsSVG(chart, width, height);
 
-			try {
-				byte[] bytes = ChartUtils.encodeAsPNG(chart.createBufferedImage(width, height));
-				return "<img src=\"data:image/png;base64," + Base64.encodeBase64String(bytes) + "\">";
-			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
-			}
 		}
 		return "";
 	}
@@ -168,7 +162,7 @@ public class DrawStackedBar implements TemplateMethodModelEx {
 		public CustomRenderer() {
 			this.setBarPainter(new StandardBarPainter());
 			this.setShadowVisible(false);
-			this.setDefaultShadowsVisible(false);
+			super.setDefaultShadowsVisible(false);
 			this.setDefaultItemLabelsVisible(true);
 			this.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
 			this.setDefaultPositiveItemLabelPosition(new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BASELINE_CENTER));

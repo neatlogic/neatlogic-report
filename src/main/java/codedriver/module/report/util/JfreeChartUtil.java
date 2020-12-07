@@ -3,13 +3,16 @@ package codedriver.module.report.util;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Paint;
+import java.awt.Rectangle;
 
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.plot.DefaultDrawingSupplier;
 import org.jfree.chart.plot.PieLabelLinkStyle;
 import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.ui.RectangleInsets;
+import org.jfree.graphics2d.svg.SVGGraphics2D;
 
 public class JfreeChartUtil {
 
@@ -70,5 +73,19 @@ public class JfreeChartUtil {
 		standardChartTheme.setThermometerPaint(Color.white);// 温度计
 
 		return standardChartTheme;
+	}
+	
+	/**
+	* @Author lvzk
+	* @Time 2020年12月7日  
+	* @Description: chart转svg
+	* @Param 
+	* @return
+	 */
+	public static String getChartAsSVG(JFreeChart chart,int width,int height) {
+	    SVGGraphics2D g2 = new SVGGraphics2D(width, height);
+        Rectangle r = new Rectangle(0, 0, width, height);
+        chart.draw(g2, r);
+        return g2.getSVGElement();
 	}
 }

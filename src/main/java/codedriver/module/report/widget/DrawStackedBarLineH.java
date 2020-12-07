@@ -3,15 +3,10 @@ package codedriver.module.report.widget;
 import java.awt.Color;
 import java.awt.Paint;
 import java.awt.geom.Ellipse2D;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.net.util.Base64;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.LegendItem;
 import org.jfree.chart.StandardChartTheme;
@@ -44,10 +39,10 @@ import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 
 public class DrawStackedBarLineH implements TemplateMethodModelEx {
-    private static final Log logger = LogFactory.getLog(DrawStackedBarLineH.class);
+    //private static final Log logger = LogFactory.getLog(DrawStackedBarLineH.class);
 
     @Override
-    public Object exec(List arguments) throws TemplateModelException {
+    public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
         boolean canReturn = true;
         int width = 1000;
         int height = 600;
@@ -204,12 +199,7 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
             p.setRenderer(1, lineAndShapeRenderer);
             p.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
 
-            try {
-                byte[] bytes = ChartUtils.encodeAsPNG(chart.createBufferedImage(width, height));
-                return "<img src=\"data:image/png;base64," + Base64.encodeBase64String(bytes) + "\">";
-            } catch (IOException e) {
-                logger.error(e.getMessage(), e);
-            }
+            return JfreeChartUtil.getChartAsSVG(chart, width, height);
         }
         return "";
     }
@@ -220,7 +210,7 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
 
         public CustomRenderer() {
             this.setBarPainter(new StandardBarPainter());
-            this.setDefaultShadowsVisible(false);
+            super.setDefaultShadowsVisible(false);
             this.setDefaultItemLabelsVisible(true);
             this.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
             this.setDefaultPositiveItemLabelPosition(
