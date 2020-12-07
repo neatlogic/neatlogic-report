@@ -110,7 +110,7 @@
 		`is_active` = #{isActive},
 		`config` = #{configStr},
 		`lcu` = #{lcu},
-		`lcd` = NOW()
+		`lcd` = NOW(3)
 		WHERE `id` = #{id}
 	</update>
 
@@ -156,7 +156,7 @@
 		#{isActive},
 		#{configStr},
 		#{fcu},
-		NOW()
+		NOW(3)
 		)
 	</insert>
 

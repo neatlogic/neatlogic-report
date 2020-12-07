@@ -190,7 +190,7 @@
 		`cron` = #{cron},
 		`is_active` = #{isActive},
 		`lcu` = #{lcu},
-		`lcd` = now()
+		`lcd` = now(3)
 		WHERE
 		`id` = #{id}
 	</update>
@@ -200,7 +200,7 @@
 		set
 		`is_active` = #{isActive},
 		`lcu` = #{lcu},
-		`lcd` = now()
+		`lcd` = now(3)
 		WHERE `id` = #{id}
 	</update>
 
@@ -224,10 +224,10 @@
 		#{emailContent},
 		#{cron},
 		#{isActive},
-		now(),
+		now(3),
 		#{fcu},
 		#{lcu},
-		now()
+		now(3)
 		)
 	</insert>
 
