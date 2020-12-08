@@ -35,8 +35,13 @@ import freemarker.template.TemplateModelException;
 
 public class DrawBarH implements TemplateMethodModelEx {
 	private static final Log logger = LogFactory.getLog(DrawBarH.class);
+	private String actionType;
+	
+	public DrawBarH(String actionType) {
+	    this.actionType = actionType;
+	}
 
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     @Override
 	public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
 		boolean canReturn = true;
@@ -125,7 +130,7 @@ public class DrawBarH implements TemplateMethodModelEx {
 				}
 			}
 
-			return JfreeChartUtil.getChartAsSVG(chart, width, height);
+			return JfreeChartUtil.getChartString(actionType, chart, width, height);
 		}
 		return "";
 	}

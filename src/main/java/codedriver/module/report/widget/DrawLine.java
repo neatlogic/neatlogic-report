@@ -30,7 +30,11 @@ import freemarker.template.TemplateModelException;
 
 public class DrawLine implements TemplateMethodModelEx {
 	private static final Log logger = LogFactory.getLog(DrawLine.class);
+	private String actionType ;
 
+    public DrawLine(String actionType) {
+        this.actionType = actionType ;
+    }
 	@SuppressWarnings({"unchecked", "unused"})
     @Override
 	public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
@@ -122,7 +126,7 @@ public class DrawLine implements TemplateMethodModelEx {
 			ValueAxis yAxis = p.getRangeAxis();// 对Y轴做操作 q
 			yAxis.setAutoRange(true); // 设置y轴自动获取范围
 			
-			return JfreeChartUtil.getChartAsSVG(chart, width, height);
+			return JfreeChartUtil.getChartString(actionType, chart, width, height);
 		}
 		return "";
 	}

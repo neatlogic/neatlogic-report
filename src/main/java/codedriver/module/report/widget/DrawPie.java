@@ -28,7 +28,11 @@ import freemarker.template.TemplateModelException;
 
 public class DrawPie implements TemplateMethodModelEx {
 	private static final Log logger = LogFactory.getLog(DrawPie.class);
+	private String actionType ;
 
+    public DrawPie(String actionType) {
+        this.actionType = actionType ;
+    }
 	@Override
 	public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
 		boolean canReturn = true;
@@ -78,11 +82,11 @@ public class DrawPie implements TemplateMethodModelEx {
 			standardChartTheme.apply(chart);
 			chart.getLegend().setFrame(new BlockBorder(Color.white));
 			PiePlot p = (PiePlot) chart.getPlot();
-
+			p.setBackgroundAlpha(0.0f);
 			CustomRenderer renderer = new CustomRenderer();
 			renderer.setColor(p, dataset);
 			
-			return JfreeChartUtil.getChartAsSVG(chart, width, height);
+			return JfreeChartUtil.getChartString(actionType, chart, width, height);
             
 		}
 		return "";

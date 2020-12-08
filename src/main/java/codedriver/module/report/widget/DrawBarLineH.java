@@ -40,7 +40,11 @@ import freemarker.template.TemplateModelException;
 @Deprecated
 public class DrawBarLineH implements TemplateMethodModelEx {
 	//private static final Log logger = LogFactory.getLog(DrawBarLineH.class);
+    private String actionType ;
 
+    public DrawBarLineH(String actionType) {
+        this.actionType = actionType ;
+    }
 	@Override
 	public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
 		boolean canReturn = true;
@@ -206,7 +210,7 @@ public class DrawBarLineH implements TemplateMethodModelEx {
 			// 表示后面的图在前者后面
 			categoryPlot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
 
-			return JfreeChartUtil.getChartAsSVG(chart, width, height);
+			return JfreeChartUtil.getChartString(actionType, chart, width, height);
 		}
 		return "";
 	}

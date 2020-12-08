@@ -6,6 +6,7 @@ import codedriver.framework.dto.UserVo;
 import codedriver.framework.scheduler.core.JobBase;
 import codedriver.framework.scheduler.dto.JobObject;
 import codedriver.framework.util.EmailUtil;
+import codedriver.module.report.constvalue.ActionType;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dao.mapper.ReportSendJobMapper;
 import codedriver.module.report.dto.ReportReceiverVo;
@@ -186,7 +187,7 @@ public class ReportSendJob extends JobBase {
                         tmpMap.put("report", returnMap);
                         tmpMap.put("param", paramObj);
                         tmpMap.put("common", commonMap);
-                        String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, report.getContent());
+                        String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, report.getContent(),ActionType.VIEW.getValue());
                         ExportUtil.getPdfFileByHtml(content, true, os);
                         InputStream is = new ByteArrayInputStream(os.toByteArray());
                         reportMap.put(report.getName(), is);

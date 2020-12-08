@@ -6,6 +6,7 @@ import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.Param;
 import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
 import codedriver.framework.util.ExcelUtil;
+import codedriver.module.report.constvalue.ActionType;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportVo;
 import codedriver.module.report.exception.ReportNotFoundException;
@@ -87,7 +88,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             tmpMap.put("param", paramObj);
             tmpMap.put("common", commonMap);
 
-            String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, reportVo.getContent());
+            String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, reportVo.getContent(),ActionType.EXPORT.getValue());
             if ("pdf".equals(type)) {
                 os = response.getOutputStream();
                 response.setContentType("application/pdf");

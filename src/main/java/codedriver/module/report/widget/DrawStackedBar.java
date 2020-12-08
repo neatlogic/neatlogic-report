@@ -36,7 +36,11 @@ import freemarker.template.TemplateModelException;
 
 public class DrawStackedBar implements TemplateMethodModelEx {
 	private static final Log logger = LogFactory.getLog(DrawStackedBar.class);
+	private String actionType ;
 
+    public DrawStackedBar(String actionType) {
+        this.actionType = actionType ;
+    }
 	@SuppressWarnings({"unchecked", "rawtypes"})
     @Override
 	public Object exec(List arguments) throws TemplateModelException {
@@ -146,7 +150,7 @@ public class DrawStackedBar implements TemplateMethodModelEx {
 					}
 				}
 			}
-			return JfreeChartUtil.getChartAsSVG(chart, width, height);
+			return JfreeChartUtil.getChartString(actionType, chart, width, height);
 
 		}
 		return "";

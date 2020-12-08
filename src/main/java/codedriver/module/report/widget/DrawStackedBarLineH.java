@@ -40,7 +40,11 @@ import freemarker.template.TemplateModelException;
 
 public class DrawStackedBarLineH implements TemplateMethodModelEx {
     //private static final Log logger = LogFactory.getLog(DrawStackedBarLineH.class);
+    private String actionType ;
 
+    public DrawStackedBarLineH(String actionType) {
+        this.actionType = actionType ;
+    }
     @Override
     public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
         boolean canReturn = true;
@@ -199,7 +203,7 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
             p.setRenderer(1, lineAndShapeRenderer);
             p.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
 
-            return JfreeChartUtil.getChartAsSVG(chart, width, height);
+            return JfreeChartUtil.getChartString(actionType, chart, width, height);
         }
         return "";
     }

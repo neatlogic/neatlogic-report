@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import codedriver.module.report.constvalue.ActionType;
 import codedriver.module.report.widget.DrawBar;
 import codedriver.module.report.widget.DrawBarH;
 import codedriver.module.report.widget.DrawLine;
@@ -58,13 +59,13 @@ public class ReportFreemarkerUtil {
 				cfg.setTemplateLoader(stringLoader);
 				Template temp;
 				paramMap.put("drawTable", new DrawTable());
-				paramMap.put("drawBar", new DrawBar());
-				paramMap.put("drawBarH", new DrawBarH());
-				paramMap.put("drawLine", new DrawLine());
-				paramMap.put("drawPie", new DrawPie());
-				paramMap.put("drawStackedBar", new DrawStackedBar());
-				paramMap.put("drawStackedBarH", new DrawStackedBarH());
-				paramMap.put("drawStackedBarLineH", new DrawStackedBarLineH());
+				paramMap.put("drawBar", new DrawBar(ActionType.VIEW.getValue()));
+				paramMap.put("drawBarH", new DrawBarH(ActionType.VIEW.getValue()));
+				paramMap.put("drawLine", new DrawLine(ActionType.VIEW.getValue()));
+				paramMap.put("drawPie", new DrawPie(ActionType.VIEW.getValue()));
+				paramMap.put("drawStackedBar", new DrawStackedBar(ActionType.VIEW.getValue()));
+				paramMap.put("drawStackedBarH", new DrawStackedBarH(ActionType.VIEW.getValue()));
+				paramMap.put("drawStackedBarLineH", new DrawStackedBarLineH(ActionType.VIEW.getValue()));
 
 				try {
 					temp = cfg.getTemplate("template", "utf-8");
@@ -85,7 +86,7 @@ public class ReportFreemarkerUtil {
 	/*
 	 * "string":获取htm "print":下载
 	 */
-	public static String getFreemarkerExportContent(Map<String, Object> paramMap, String content) throws IOException {
+	public static String getFreemarkerExportContent(Map<String, Object> paramMap, String content,String actionType) throws IOException {
 		StringWriter out = new StringWriter();
 		out.write("<html xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\" xmlns:x=\"urn:schemas-microsoft-com:office:excel\" xmlns=\"http://www.w3.org/TR/REC-html40\">\n");
 		out.write("<head>\n");
@@ -111,13 +112,13 @@ public class ReportFreemarkerUtil {
 				cfg.setTemplateLoader(stringLoader);
 				Template temp;
 				paramMap.put("drawTable", new DrawTable());
-				paramMap.put("drawBar", new DrawBar());
-				paramMap.put("drawBarH", new DrawBarH());
-				paramMap.put("drawLine", new DrawLine());
-				paramMap.put("drawPie", new DrawPie());
-				paramMap.put("drawStackedBar", new DrawStackedBar());
-				paramMap.put("drawStackedBarH", new DrawStackedBarH());
-				paramMap.put("drawStackedBarLineH", new DrawStackedBarLineH());
+				paramMap.put("drawBar", new DrawBar(actionType));
+				paramMap.put("drawBarH", new DrawBarH(actionType));
+				paramMap.put("drawLine", new DrawLine(actionType));
+				paramMap.put("drawPie", new DrawPie(actionType));
+				paramMap.put("drawStackedBar", new DrawStackedBar(actionType));
+				paramMap.put("drawStackedBarH", new DrawStackedBarH(actionType));
+				paramMap.put("drawStackedBarLineH", new DrawStackedBarLineH(actionType));
 
 				try {
 					temp = cfg.getTemplate("template", "utf-8");
