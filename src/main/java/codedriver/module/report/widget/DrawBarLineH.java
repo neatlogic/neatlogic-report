@@ -31,6 +31,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DatasetUtils;
 
 import codedriver.module.report.util.JfreeChartUtil;
+import codedriver.module.report.util.JfreeChartUtil.ChartColor;
 import freemarker.template.SimpleHash;
 import freemarker.template.SimpleNumber;
 import freemarker.template.SimpleSequence;
@@ -157,11 +158,11 @@ public class DrawBarLineH implements TemplateMethodModelEx {
 		}
 
 		if (canReturn) {
-			StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme();
+			StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme(actionType);
 
 			JFreeChart chart = ChartFactory.createBarChart(title, xLabel, yLabel, datasetColumn, PlotOrientation.HORIZONTAL, true, false, false);
 			standardChartTheme.apply(chart);
-			chart.getLegend().setFrame(new BlockBorder(Color.white));
+			chart.getLegend().setFrame(new BlockBorder(ChartColor.CHART_BACKGROUND_COLOR.getColor(actionType)));
 
 			// CategoryPlot p = chart.getCategoryPlot();
 			// CategoryItemRenderer renderer = new DrawBarLineH.CustomRenderer();
@@ -180,9 +181,9 @@ public class DrawBarLineH implements TemplateMethodModelEx {
 			// 设置图形上竖线是否显示
 			categoryPlot.setDomainGridlinesVisible(false);
 			// 设置图形上竖线的颜色
-			categoryPlot.setDomainGridlinePaint(Color.GRAY);
+			//categoryPlot.setDomainGridlinePaint(Color.GRAY);
 			// 设置图形上横线的颜色
-			categoryPlot.setRangeGridlinePaint(Color.GRAY);
+			//categoryPlot.setRangeGridlinePaint(Color.GRAY);
 
 			// 设置柱状图的Y轴显示样式
 			setNumberAxisToColumn(categoryPlot);
@@ -266,14 +267,14 @@ public class DrawBarLineH implements TemplateMethodModelEx {
 		private static final long serialVersionUID = 3946096994457346387L;
 		private Paint[] colors;
 
-		public CustomRenderer() {
+		public CustomRenderer(String actionType) {
 			this.setBarPainter(new StandardBarPainter());
 			super.setDefaultShadowsVisible(false);
 			this.setDefaultItemLabelsVisible(true);
 			this.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
 			this.setDefaultPositiveItemLabelPosition(new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BASELINE_CENTER));
 			this.setItemLabelAnchorOffset(-10D);
-			this.colors = JfreeChartUtil.CHART_COLORS;
+			this.colors = JfreeChartUtil.getCharColors(actionType);
 			// this.setDefaultItemLabelFont(new Font("黑体", Font.PLAIN,
 			// ReportConfig.JFREECHART_FONTSIZE + 2));
 		}

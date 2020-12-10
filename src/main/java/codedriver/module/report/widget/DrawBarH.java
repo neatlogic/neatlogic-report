@@ -105,14 +105,14 @@ public class DrawBarH implements TemplateMethodModelEx {
 		}
 
 		if (canReturn) {
-			StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme();
+			StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme(actionType);
 
 			JFreeChart chart = ChartFactory.createBarChart(title, xLabel, yLabel, dataset, PlotOrientation.HORIZONTAL, true, false, false);
 			standardChartTheme.apply(chart);
-			chart.getLegend().setFrame(new BlockBorder(Color.white));
+			chart.getLegend().setFrame(new BlockBorder(new Color(10, 10, 10)));
 
 			CategoryPlot p = chart.getCategoryPlot();
-			CategoryItemRenderer renderer = new DrawBarH.CustomRenderer();
+			CategoryItemRenderer renderer = new DrawBarH.CustomRenderer(actionType);
 			renderer.setDefaultItemLabelsVisible(isShowValue);
 			p.setRenderer(renderer);
 			p.setOutlinePaint(Color.white);
@@ -142,7 +142,7 @@ public class DrawBarH implements TemplateMethodModelEx {
 		private static final long serialVersionUID = 2435957652029996238L;
 		private Paint[] colors;
 
-		public CustomRenderer() {
+		public CustomRenderer(String actionType) {
 			this.setBarPainter(new StandardBarPainter());
 			this.setShadowVisible(false);
 			super.setDefaultShadowsVisible(false);
@@ -150,7 +150,7 @@ public class DrawBarH implements TemplateMethodModelEx {
 			this.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
 			this.setDefaultPositiveItemLabelPosition(new ItemLabelPosition(ItemLabelAnchor.OUTSIDE3, TextAnchor.BASELINE_RIGHT));
 			this.setItemLabelAnchorOffset(30D);
-			this.colors = JfreeChartUtil.CHART_COLORS;
+			this.colors = JfreeChartUtil.getCharColors(actionType);
 			// this.setDefaultItemLabelFont(new Font("黑体", Font.PLAIN,
 			// ReportConfig.JFREECHART_FONTSIZE + 2));
 		}

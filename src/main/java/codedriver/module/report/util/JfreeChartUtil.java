@@ -22,25 +22,25 @@ import org.jfree.graphics2d.svg.SVGGraphics2D;
 
 import codedriver.module.report.constvalue.ActionType;
 
-
 public class JfreeChartUtil {
     private static final Log logger = LogFactory.getLog(JfreeChartUtil.class);
+
     private JfreeChartUtil() {
 
     }
 
     private static Font FONT = new Font("黑体", Font.PLAIN, 12);
     private static Font FONT_TITLE = new Font("黑体", Font.PLAIN, 14);
-    public static Color[] CHART_COLORS = {new Color(31, 129, 188), new Color(92, 92, 97), new Color(144, 237, 125),
-        new Color(255, 188, 117), new Color(153, 158, 255), new Color(255, 117, 153), new Color(253, 236, 109),
-        new Color(128, 133, 232), new Color(158, 90, 102), new Color(255, 204, 102)};// 颜色
+    public static ChartColor[] CHART_COLOR_ARRAY =
+        {ChartColor.COLOR1, ChartColor.COLOR2, ChartColor.COLOR3, ChartColor.COLOR4, ChartColor.COLOR5,
+            ChartColor.COLOR6, ChartColor.COLOR7, ChartColor.COLOR8, ChartColor.COLOR9, ChartColor.COLOR10};
 
     /**
      * 获取主题
      * 
      * @return
      */
-    public static StandardChartTheme getStandardChartTheme() {
+    public static StandardChartTheme getStandardChartTheme(String actionType) {
         StandardChartTheme standardChartTheme = new StandardChartTheme("CN");
 
         // 设置标题字体
@@ -50,39 +50,41 @@ public class JfreeChartUtil {
         // 设置轴向的字体
         standardChartTheme.setLargeFont(FONT);
         standardChartTheme.setSmallFont(FONT);
-        standardChartTheme.setTitlePaint(new Color(51, 51, 51));
-        standardChartTheme.setSubtitlePaint(new Color(85, 85, 85));
+        standardChartTheme.setTitlePaint(ChartColor.TITLE_COLOR.getColor(actionType));// 标题字体颜色
+        // standardChartTheme.setSubtitlePaint(new Color(2, 2, 2));
 
-        standardChartTheme.setLegendBackgroundPaint(Color.WHITE);// 设置标注
-        standardChartTheme.setLegendItemPaint(Color.BLACK);//
-        standardChartTheme.setChartBackgroundPaint(Color.WHITE);
+        standardChartTheme.setLegendBackgroundPaint(ChartColor.LEGEND_BACKGROUND_COLOR.getColor(actionType));// 设置标注颜色
+        standardChartTheme.setLegendItemPaint(ChartColor.LEGEND_ITEM_COLOR.getColor(actionType));// 标注字体颜色
+        standardChartTheme.setChartBackgroundPaint(ChartColor.CHART_BACKGROUND_COLOR.getColor(actionType));// 背景颜色
         // 绘制颜色绘制颜色.轮廓供应商
         // paintSequence,outlinePaintSequence,strokeSequence,outlineStrokeSequence,shapeSequence
 
         Paint[] OUTLINE_PAINT_SEQUENCE = new Paint[] {Color.WHITE};
         // 绘制器颜色源
-        DefaultDrawingSupplier drawingSupplier = new DefaultDrawingSupplier(CHART_COLORS, CHART_COLORS,
+        Color[] chartColors = getCharColors(actionType);
+        DefaultDrawingSupplier drawingSupplier = new DefaultDrawingSupplier(chartColors, chartColors,
             OUTLINE_PAINT_SEQUENCE, DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
             DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE, DefaultDrawingSupplier.DEFAULT_SHAPE_SEQUENCE);
         standardChartTheme.setDrawingSupplier(drawingSupplier);
 
-        standardChartTheme.setPlotBackgroundPaint(Color.WHITE);// 绘制区域
-        standardChartTheme.setPlotOutlinePaint(Color.WHITE);// 绘制区域外边框
-        standardChartTheme.setLabelLinkPaint(new Color(8, 55, 114));// 链接标签颜色
+        standardChartTheme.setPlotBackgroundPaint(ChartColor.PLOT_BACKGROUND_COLOR.getColor(actionType));// 绘制区域颜色
+        standardChartTheme.setPlotOutlinePaint(ChartColor.PLOT_OUTLINE_COLOR.getColor(actionType));// 绘制区域外边框颜色
+        standardChartTheme.setLabelLinkPaint(ChartColor.LABEL_LINK_COLOR.getColor(actionType));// 链接标签颜色
         standardChartTheme.setLabelLinkStyle(PieLabelLinkStyle.CUBIC_CURVE);
 
         standardChartTheme.setAxisOffset(new RectangleInsets(5, 12, 5, 12));
-        standardChartTheme.setDomainGridlinePaint(new Color(192, 208, 224));// X坐标轴垂直网格颜色
+        standardChartTheme.setDomainGridlinePaint(ChartColor.DOMAIN_GRID_LINE_COLOR.getColor(actionType));// X坐标轴垂直网格颜色
         standardChartTheme.setRangeGridlinePaint(new Color(192, 192, 192));// Y坐标轴水平网格颜色
 
         standardChartTheme.setBaselinePaint(Color.WHITE);
         standardChartTheme.setCrosshairPaint(Color.BLUE);// 不确定含义
-        standardChartTheme.setAxisLabelPaint(new Color(51, 51, 51));// 坐标轴标题文字颜色
-        standardChartTheme.setTickLabelPaint(new Color(67, 67, 72));// 刻度数字
+
+        standardChartTheme.setAxisLabelPaint(ChartColor.AXIS_LABEL_COLOR.getColor(actionType));// 坐标轴标题文字颜色
+        standardChartTheme.setTickLabelPaint(ChartColor.TICK_LABEL_COLOR.getColor(actionType));// 刻度数字
         standardChartTheme.setBarPainter(new StandardBarPainter());// 设置柱状图渲染
         standardChartTheme.setXYBarPainter(new StandardXYBarPainter());// XYBar 渲染
 
-        standardChartTheme.setItemLabelPaint(Color.black);
+        standardChartTheme.setItemLabelPaint(Color.WHITE);
         standardChartTheme.setThermometerPaint(Color.white);// 温度计
 
         return standardChartTheme;
@@ -99,15 +101,21 @@ public class JfreeChartUtil {
         SVGGraphics2D g2 = new SVGGraphics2D(width, height);
         Rectangle r = new Rectangle(0, 0, width, height);
         chart.draw(g2, r);
-        return g2.getSVGElement();
+        String element = g2.getSVGElement();
+        // 替换样式
+        for (ChartColor type : ChartColor.values()) {
+            element = element.replaceAll(String.format("style=\"fill: rgb\\(%d,%d,%d\\);", type.getColorIndex(),
+                type.getColorIndex(), type.getColorIndex()), String.format(" class=\"%s\" style=\"", type.getValue()));
+        }
+        return element;
     }
 
     /**
-    * @Author 89770
-    * @Time 2020年12月8日  
-    * @Description: chart转png 
-    * @Param 
-    * @return
+     * @Author 89770
+     * @Time 2020年12月8日
+     * @Description: chart转png
+     * @Param
+     * @return
      */
     private static String getChartAsPNG(JFreeChart chart, int width, int height) {
         try {
@@ -118,19 +126,123 @@ public class JfreeChartUtil {
         }
         return StringUtils.EMPTY;
     }
+
+    /**
+     * @Author 89770
+     * @Time 2020年12月8日
+     * @Description: 获取chart String, 查看、发邮件获取svg，导出获取png
+     * @Param
+     * @return
+     */
+    public static String getChartString(String actionType, JFreeChart chart, int width, int height) {
+        if (ActionType.VIEW.getValue().equals(actionType)) {
+            return getChartAsSVG(chart, width, height);
+        } else {
+            return getChartAsPNG(chart, width, height);
+        }
+    }
     
     /**
+     * 
     * @Author 89770
-    * @Time 2020年12月8日  
-    * @Description: 获取chart String, 查看、发邮件获取svg，导出获取png
+    * @Time 2020年12月10日  
+    * @Description: 获取颜色板 
     * @Param 
     * @return
      */
-    public static String getChartString(String actionType,JFreeChart chart, int width, int height) {
-        if(ActionType.VIEW.getValue().equals(actionType)) {
-            return getChartAsSVG(chart,width,height);
-        }else {
-            return getChartAsPNG(chart,width,height);
+    public static Color[] getCharColors(String actionType){
+        Color[] chartColors = new Color[10];
+        int i = 0;
+        for(ChartColor c :CHART_COLOR_ARRAY) {
+            chartColors[i] = c.getColor(actionType);
+            i++;
         }
+        return chartColors;
+    }
+
+    public enum ChartColor {
+
+        TITLE_COLOR("titleColor", "标题字体颜色", 1, new Color(51, 51, 51)),
+        LEGEND_BACKGROUND_COLOR("legendBackgroundColor", "设置标注颜色", 2, Color.WHITE),
+        LEGEND_ITEM_COLOR("legendItemColor", "标注字体颜色", 3, Color.BLACK),
+        CHART_BACKGROUND_COLOR("chartBackgroundColor", "背景颜色", 4, Color.WHITE),
+        PLOT_BACKGROUND_COLOR("plotBackgroundColor", "绘制区域颜色", 5, Color.WHITE),
+        PLOT_OUTLINE_COLOR("plotOutlineColor", "绘制区域外边框颜色", 6, Color.WHITE),
+        LABEL_LINK_COLOR("labelLinkColor", "链接标签颜色", 7, new Color(8, 55, 114)),
+        DOMAIN_GRID_LINE_COLOR("domainGridlineColor", "X坐标轴垂直网格颜色", 8, new Color(192, 208, 224)),
+        RANG_GRID_LINE_COLOR("rangeGridlineColor", "Y坐标轴水平网格颜色", 9, new Color(192, 192, 192)),
+        AXIS_LABEL_COLOR("axisLabelColor", "坐标轴标题文字颜色", 10, new Color(51, 51, 51)),
+        TICK_LABEL_COLOR("tickLabelColor", "刻度数字", 11, new Color(67, 67, 72)),
+
+        // 色板
+        COLOR1("color1", "颜色1", 12, new Color(31, 129, 188)), COLOR2("color2", "颜色2", 13, new Color(92, 92, 97)),
+        COLOR3("color3", "颜色3", 14, new Color(144, 237, 125)), COLOR4("color4", "颜色4", 15, new Color(255, 188, 117)),
+        COLOR5("color5", "颜色5", 16, new Color(153, 158, 255)), COLOR6("color6", "颜色6", 17, new Color(255, 117, 153)),
+        COLOR7("color7", "颜色7", 18, new Color(253, 236, 109)), COLOR8("color8", "颜色8", 19, new Color(128, 133, 232)),
+        COLOR9("color9", "颜色9", 20, new Color(158, 90, 102)), COLOR10("color10", "颜色10", 21, new Color(255, 204, 102));
+
+        private String value;
+        private String text;
+        private int colorIndex;
+        private Color exportColor;
+
+        private ChartColor(String value, String text, int colorIndex, Color exportColor) {
+            this.value = value;
+            this.text = text;
+            this.colorIndex = colorIndex;
+            this.exportColor = exportColor;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public Color getViewColor() {
+            return new Color(colorIndex, colorIndex, colorIndex);
+        }
+
+        public int getColorIndex() {
+            return colorIndex;
+        }
+
+        public Color getExportColor() {
+            return exportColor;
+        }
+
+        public Color getColor(String actionType) {
+            if (ActionType.VIEW.getValue().equals(actionType)) {
+                return new Color(colorIndex, colorIndex, colorIndex);
+            } else {
+                return exportColor;
+            }
+        }
+
+        public static String getText(String _value) {
+            for (ChartColor type : values()) {
+                if (type.getValue().equals(_value)) {
+                    return type.getText();
+                }
+            }
+            return null;
+        }
+
+        public static Color getColor(String value, String actionType) {
+            for (ChartColor type : values()) {
+                if (type.getValue().equals(value)) {
+                    if (ActionType.VIEW.getValue().equals(actionType)) {
+                        return type.getViewColor();
+                    } else {
+                        return type.getExportColor();
+                    }
+
+                }
+            }
+            return null;
+        }
+
     }
 }

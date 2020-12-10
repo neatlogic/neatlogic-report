@@ -22,6 +22,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import com.alibaba.fastjson.JSONObject;
 
 import codedriver.module.report.util.JfreeChartUtil;
+import codedriver.module.report.util.JfreeChartUtil.ChartColor;
 import freemarker.template.SimpleHash;
 import freemarker.template.SimpleNumber;
 import freemarker.template.SimpleSequence;
@@ -101,13 +102,13 @@ public class DrawLine implements TemplateMethodModelEx {
 		}
 
 		if (canReturn) {
-			StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme();
+			StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme(actionType);
 
 			JFreeChart chart = ChartFactory.createLineChart(title, xLabel, yLabel, dataset);
 			standardChartTheme.apply(chart);
-			chart.getLegend().setFrame(new BlockBorder(Color.white));
+			chart.getLegend().setFrame(new BlockBorder(ChartColor.CHART_BACKGROUND_COLOR.getColor(actionType)));
 			CategoryPlot p = chart.getCategoryPlot();
-			CategoryItemRenderer render = new DrawLine.CustomRenderer();
+			CategoryItemRenderer render = new DrawLine.CustomRenderer(actionType);
 			render.setDefaultItemLabelsVisible(isShowValue);
 			p.setRenderer(render);
 			p.setOutlinePaint(null);
@@ -138,8 +139,8 @@ public class DrawLine implements TemplateMethodModelEx {
 		private static final long serialVersionUID = 2892093102930999651L;
 		private Paint[] colors;
 
-		public CustomRenderer() {
-			this.colors = JfreeChartUtil.CHART_COLORS;
+		public CustomRenderer(String actionType) {
+			this.colors = JfreeChartUtil.getCharColors(actionType);
 		}
 
 		public Paint getItemPaint(final int row, final int column) {

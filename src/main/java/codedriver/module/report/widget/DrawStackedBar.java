@@ -28,6 +28,7 @@ import org.jfree.data.general.DatasetUtils;
 import com.alibaba.fastjson.JSONObject;
 
 import codedriver.module.report.util.JfreeChartUtil;
+import codedriver.module.report.util.JfreeChartUtil.ChartColor;
 import freemarker.template.SimpleHash;
 import freemarker.template.SimpleNumber;
 import freemarker.template.SimpleSequence;
@@ -126,14 +127,14 @@ public class DrawStackedBar implements TemplateMethodModelEx {
 		}
 
 		if (canReturn) {
-			StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme();
+			StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme(actionType);
 
 			JFreeChart chart = ChartFactory.createStackedBarChart(title, xLabel, yLabel, dataset);
 			standardChartTheme.apply(chart);
-			chart.getLegend().setFrame(new BlockBorder(Color.white));
+			chart.getLegend().setFrame(new BlockBorder(ChartColor.CHART_BACKGROUND_COLOR.getColor(actionType)));
 
 			CategoryPlot p = chart.getCategoryPlot();
-			CategoryItemRenderer renderer = new DrawStackedBar.CustomRenderer();
+			CategoryItemRenderer renderer = new DrawStackedBar.CustomRenderer(actionType);
 			renderer.setDefaultItemLabelsVisible(isShowValue);
 			p.setRenderer(renderer);
 			p.setOutlinePaint(Color.white);
@@ -163,7 +164,7 @@ public class DrawStackedBar implements TemplateMethodModelEx {
 		private static final long serialVersionUID = 3946096994457346387L;
 		private Paint[] colors;
 
-		public CustomRenderer() {
+		public CustomRenderer(String actionType) {
 			this.setBarPainter(new StandardBarPainter());
 			this.setShadowVisible(false);
 			super.setDefaultShadowsVisible(false);
@@ -171,7 +172,7 @@ public class DrawStackedBar implements TemplateMethodModelEx {
 			this.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
 			this.setDefaultPositiveItemLabelPosition(new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BASELINE_CENTER));
 			this.setItemLabelAnchorOffset(-10D);
-			this.colors = JfreeChartUtil.CHART_COLORS;
+			this.colors = JfreeChartUtil.getCharColors(actionType);
 			// this.setDefaultItemLabelFont(new Font("黑体", Font.PLAIN,
 			// ReportConfig.JFREECHART_FONTSIZE + 2));
 		}

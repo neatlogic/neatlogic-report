@@ -32,6 +32,7 @@ import org.jfree.data.general.DatasetUtils;
 
 import codedriver.module.report.config.ReportConfig;
 import codedriver.module.report.util.JfreeChartUtil;
+import codedriver.module.report.util.JfreeChartUtil.ChartColor;
 import freemarker.template.SimpleHash;
 import freemarker.template.SimpleNumber;
 import freemarker.template.SimpleSequence;
@@ -160,15 +161,15 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
         }
 
         if (canReturn) {
-            StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme();
+            StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme(actionType);
 
             JFreeChart chart = ChartFactory.createStackedBarChart(title, xLabel, yLabel, dataset,
                 PlotOrientation.HORIZONTAL, true, false, false);
             standardChartTheme.apply(chart);
-            chart.getLegend().setFrame(new BlockBorder(Color.white));
+            chart.getLegend().setFrame(new BlockBorder(ChartColor.CHART_BACKGROUND_COLOR.getColor(actionType)));
 
             CategoryPlot p = chart.getCategoryPlot();
-            CategoryItemRenderer renderer = new DrawStackedBarLineH.CustomRenderer();
+            CategoryItemRenderer renderer = new DrawStackedBarLineH.CustomRenderer(actionType);
             p.setRenderer(renderer);
             p.setOutlinePaint(Color.white);
 
@@ -178,7 +179,7 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
             p.setDataset(1, dataSetLine);// 设置数据集索引
             p.mapDatasetToRangeAxis(1, 1);// 将该索引映射到axis
 
-            CategoryItemRenderer Linerenderer = new DrawStackedBarLineH.CustomRenderer(); // 设置方形数据点
+            CategoryItemRenderer Linerenderer = new DrawStackedBarLineH.CustomRenderer(actionType); // 设置方形数据点
             p.setRenderer(Linerenderer);
             p.setOutlinePaint(Color.white);
 
@@ -212,7 +213,7 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
         private static final long serialVersionUID = 8646461953824971641L;
         private Paint[] colors;
 
-        public CustomRenderer() {
+        public CustomRenderer(String actionType) {
             this.setBarPainter(new StandardBarPainter());
             super.setDefaultShadowsVisible(false);
             this.setDefaultItemLabelsVisible(true);
@@ -220,7 +221,7 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
             this.setDefaultPositiveItemLabelPosition(
                 new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BASELINE_CENTER));
             this.setItemLabelAnchorOffset(-10D);
-            this.colors = JfreeChartUtil.CHART_COLORS;
+            this.colors = JfreeChartUtil.getCharColors(actionType);
             // this.setDefaultItemLabelFont(new Font("黑体", Font.PLAIN,
             // ReportConfig.JFREECHART_FONTSIZE + 2));
         }

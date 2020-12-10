@@ -1,6 +1,5 @@
 package codedriver.module.report.widget;
 
-import java.awt.Color;
 import java.awt.Rectangle;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -20,6 +19,7 @@ import org.jfree.data.general.DefaultPieDataset;
 import com.alibaba.fastjson.JSONObject;
 
 import codedriver.module.report.util.JfreeChartUtil;
+import codedriver.module.report.util.JfreeChartUtil.ChartColor;
 import freemarker.template.SimpleHash;
 import freemarker.template.SimpleNumber;
 import freemarker.template.SimpleSequence;
@@ -77,10 +77,10 @@ public class DrawPie implements TemplateMethodModelEx {
 		if (canReturn) {
 		   
 		    
-			StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme();
+			StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme(actionType);
 			JFreeChart chart = ChartFactory.createPieChart(title, dataset);
 			standardChartTheme.apply(chart);
-			chart.getLegend().setFrame(new BlockBorder(Color.white));
+			chart.getLegend().setFrame(new BlockBorder(ChartColor.CHART_BACKGROUND_COLOR.getColor(actionType)));
 			PiePlot p = (PiePlot) chart.getPlot();
 			p.setBackgroundAlpha(0.0f);
 			CustomRenderer renderer = new CustomRenderer();
