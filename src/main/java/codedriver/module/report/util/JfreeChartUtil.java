@@ -5,6 +5,8 @@ import java.awt.Font;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -102,13 +104,70 @@ public class JfreeChartUtil {
         Rectangle r = new Rectangle(0, 0, width, height);
         chart.draw(g2, r);
         String element = g2.getSVGElement();
-        // 替换样式
-        for (ChartColor type : ChartColor.values()) {
-            element = element.replaceAll(String.format("style=\"fill: rgb\\(%d,%d,%d\\);", type.getColorIndex(),
-                type.getColorIndex(), type.getColorIndex()), String.format(" class=\"%s\" style=\"", type.getValue()));
-        }
+        element = replaceFill(element);
+        element = relaceStroke(element);
         return element;
     }
+    
+    /**
+    * @Author 89770
+    * @Time 2020年12月14日  
+    * @Description: 替换fill 颜色
+    * @Param 
+    * @return
+     */
+    private static String replaceFill(String svgStr) {
+        for (ChartColor type : ChartColor.values()) {
+            svgStr = svgStr.replaceAll(String.format("style=\"fill: rgb\\(%d,%d,%d\\);", type.getColorIndex(),
+                type.getColorIndex(), type.getColorIndex()), String.format(" class=\"%s\" style=\"", type.getValue()));
+        }
+        return svgStr;
+    }
+    
+    /**
+     * @Author 89770
+     * @Time 2020年12月14日  
+     * @Description: 替换stroke 颜色
+     * @Param 
+     * @return
+      */
+     private static String relaceStroke(String svgStr) {
+         for (ChartColor type : ChartColor.values()) {
+             String strokeStr = StringUtils.EMPTY;
+             String classStr = StringUtils.EMPTY;
+             Pattern p = Pattern.compile(String.format("class=\"([^\"]+)\" (style=\"((?!stroke:)(?!><).)+;)stroke: rgb\\(%d,%d,%d\\);", type.getColorIndex(),type.getColorIndex(), type.getColorIndex()));
+             Matcher m = p.matcher(svgStr);
+             StringBuffer sb = new StringBuffer();
+             //int i = 0;
+             boolean result = m.find();
+             //如果不存在class
+             if(!result) {
+                 p = Pattern.compile(String.format("(style=\"((?!stroke:)(?!><).)+;)stroke: rgb\\(%d,%d,%d\\);", type.getColorIndex(),type.getColorIndex(), type.getColorIndex()));
+                 m = p.matcher(svgStr);
+                 sb = new StringBuffer();
+                 result = m.find();
+                 classStr = type.getValue()+"Stroke";
+                 if(result) {
+                     strokeStr = m.group(1);
+                 }
+             }else {
+                 classStr = String.format("%s %sStroke", m.group(1) ,type.getValue());
+                 strokeStr = m.group(2);
+             }
+             while (result) {
+                 //i++;
+                 //System.out.println(m.group());
+                 //System.out.println(m.group(1));
+                 m.appendReplacement(sb, String.format(" class=\"%s\" %s",classStr, strokeStr));
+                 //System.out.println("第" + i + "次匹配后 sb 的内容是：" + sb);
+                 result = m.find();
+             }
+             m.appendTail(sb);
+             svgStr = sb.toString();
+         }
+         return svgStr;
+        //System.out.println("调用 m.appendTail(sb) 后 sb 的最终内容是 :" + sb.toString());
+     }
 
     /**
      * @Author 89770
@@ -167,7 +226,7 @@ public class JfreeChartUtil {
         LEGEND_ITEM_COLOR("legendItemColor", "标注字体颜色", 3, Color.BLACK),
         CHART_BACKGROUND_COLOR("chartBackgroundColor", "背景颜色", 4, Color.WHITE),
         PLOT_BACKGROUND_COLOR("plotBackgroundColor", "绘制区域颜色", 5, Color.WHITE),
-        PLOT_OUTLINE_COLOR("plotOutlineColor", "绘制区域外边框颜色", 6, Color.WHITE),
+        PLOT_OUTLINE_COLOR("plotOutlineColor", "绘制区域外边框颜色", 6, Color.WHITE,"stroke"),
         LABEL_LINK_COLOR("labelLinkColor", "链接标签颜色", 7, new Color(8, 55, 114)),
         DOMAIN_GRID_LINE_COLOR("domainGridlineColor", "X坐标轴垂直网格颜色", 8, new Color(192, 208, 224)),
         RANG_GRID_LINE_COLOR("rangeGridlineColor", "Y坐标轴水平网格颜色", 9, new Color(192, 192, 192)),
@@ -185,12 +244,22 @@ public class JfreeChartUtil {
         private String text;
         private int colorIndex;
         private Color exportColor;
+        private String type;
 
+        private ChartColor(String value, String text, int colorIndex, Color exportColor,String type) {
+            this.value = value;
+            this.text = text;
+            this.colorIndex = colorIndex;
+            this.exportColor = exportColor;
+            this.type = type;
+        }
+        
         private ChartColor(String value, String text, int colorIndex, Color exportColor) {
             this.value = value;
             this.text = text;
             this.colorIndex = colorIndex;
             this.exportColor = exportColor;
+            this.type = "fill";
         }
 
         public String getValue() {
@@ -199,6 +268,10 @@ public class JfreeChartUtil {
 
         public String getText() {
             return text;
+        }
+        
+        public String getType() {
+            return type;
         }
 
         public Color getViewColor() {
@@ -243,6 +316,9 @@ public class JfreeChartUtil {
             }
             return null;
         }
+        
 
     }
+    
+    
 }

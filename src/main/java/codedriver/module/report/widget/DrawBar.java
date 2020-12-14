@@ -1,5 +1,6 @@
 package codedriver.module.report.widget;
 
+import java.awt.Color;
 import java.awt.Paint;
 import java.util.List;
 
@@ -41,13 +42,12 @@ public class DrawBar implements TemplateMethodModelEx {
         this.actionType = actionType ;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
 	public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
 		boolean canReturn = true;
 		int width = 1000;
-		int height = 400;
-		int tick = 0;
+		int height = 500;
+		//int tick = 0;
 		boolean isShowValue = true;
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 		String title = "", xLabel = "", yLabel = "";
@@ -94,7 +94,7 @@ public class DrawBar implements TemplateMethodModelEx {
 				if (configObj.getIntValue("height") > 0) {
 					height = configObj.getIntValue("height");
 				}
-				tick = configObj.getIntValue("tick");
+				//tick = configObj.getIntValue("tick");
 				if (configObj.containsKey("isShowValue")) {
 					isShowValue = configObj.getBooleanValue("isShowValue");
 				}
@@ -114,9 +114,9 @@ public class DrawBar implements TemplateMethodModelEx {
 			CategoryPlot p = chart.getCategoryPlot();
 			CategoryItemRenderer renderer = new DrawBar.CustomRenderer(actionType);
 			renderer.setDefaultItemLabelsVisible(isShowValue);
+			renderer.setDefaultItemLabelPaint(JfreeChartUtil.ChartColor.LABEL_LINK_COLOR.getColor(actionType));
 			p.setRenderer(renderer);
 			p.setOutlinePaint(null);
-
 			//X坐标轴
 			CategoryAxis axis = p.getDomainAxis();
 			axis.setLowerMargin(0);
@@ -124,19 +124,21 @@ public class DrawBar implements TemplateMethodModelEx {
 			axis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);// 倾斜45度
 			axis.setAxisLinePaint(JfreeChartUtil.ChartColor.TICK_LABEL_COLOR.getColor(ActionType.EXPORT.getValue()));
 			axis.setTickMarkPaint(JfreeChartUtil.ChartColor.TICK_LABEL_COLOR.getColor(ActionType.EXPORT.getValue()));
-			if (tick > 0) {
-				List<String> xLables = dataset.getColumnKeys();
-				for (int k = 0; k < xLables.size(); k++) {
-					if (k % tick != 0) {
-						//axis.setTickLabelPaint(xLables.get(k), Color.WHITE);
-					}
-				}
-			}
+            /*if (tick > 0) {
+            	List<String> xLables = dataset.getColumnKeys();
+            	for (int k = 0; k < xLables.size(); k++) {
+            		if (k % tick != 0) {
+            			axis.setTickLabelPaint(xLables.get(k), Color.WHITE);
+            		}
+            	}
+            }*/
 			
 			//y坐标轴
 			ValueAxis yXis = p.getRangeAxis();
 			yXis.setAxisLinePaint(JfreeChartUtil.ChartColor.TICK_LABEL_COLOR.getColor(ActionType.EXPORT.getValue()));
 			yXis.setTickMarkPaint(JfreeChartUtil.ChartColor.TICK_LABEL_COLOR.getColor(ActionType.EXPORT.getValue()));
+			yXis.setLabelPaint(Color.WHITE);
+			yXis.setTickLabelPaint(Color.WHITE);
 			return JfreeChartUtil.getChartString(actionType, chart, width, height);
 		}
 		return "";

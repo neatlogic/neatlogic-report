@@ -84,8 +84,7 @@ public class DrawPie implements TemplateMethodModelEx {
 			PiePlot p = (PiePlot) chart.getPlot();
 			p.setBackgroundAlpha(0.0f);
 			CustomRenderer renderer = new CustomRenderer();
-			renderer.setColor(p, dataset);
-			
+			renderer.setColor(p, dataset,actionType);
 			return JfreeChartUtil.getChartString(actionType, chart, width, height);
             
 		}
@@ -99,7 +98,7 @@ public class DrawPie implements TemplateMethodModelEx {
 			// this.colors = JfreeChartUtil.CHART_COLORS;
 		}
 
-		public void setColor(PiePlot plot, DefaultPieDataset dataset) {
+		public void setColor(PiePlot plot, DefaultPieDataset dataset,String actionType) {
 
 			plot.setNoDataMessage("数据加载失败");
 			plot.setInsets(new RectangleInsets(10, 10, 5, 10));
@@ -116,6 +115,7 @@ public class DrawPie implements TemplateMethodModelEx {
 			piePlot.setLabelShadowPaint(null);// 去掉阴影
 			piePlot.setLabelOutlinePaint(null);// 去掉边框
 			piePlot.setShadowPaint(null);
+			piePlot.setLabelPaint(ChartColor.LABEL_LINK_COLOR.getColor(actionType));
 			piePlot.setLegendLabelGenerator(new StandardPieSectionLabelGenerator("{0}：{1}({2})"));// 设置legend显示格式
 			piePlot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}({2})", NumberFormat.getNumberInstance(), new DecimalFormat("0.00%")));// 设置标签带%
 
