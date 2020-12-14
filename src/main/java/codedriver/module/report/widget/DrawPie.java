@@ -15,6 +15,7 @@ import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.data.general.PieDataset;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -118,7 +119,14 @@ public class DrawPie implements TemplateMethodModelEx {
 			piePlot.setLabelPaint(ChartColor.LABEL_LINK_COLOR.getColor(actionType));
 			piePlot.setLegendLabelGenerator(new StandardPieSectionLabelGenerator("{0}：{1}({2})"));// 设置legend显示格式
 			piePlot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}({2})", NumberFormat.getNumberInstance(), new DecimalFormat("0.00%")));// 设置标签带%
-
+			PieDataset pieDataset = piePlot.getDataset();
+		    if (pieDataset != null)
+		    {
+		        for (int i = 0; i < pieDataset.getItemCount(); i++)
+		        {
+		            piePlot.setSectionOutlinesVisible(false);//去掉扇区border
+		        }
+		    }
 		}
 	}
 
