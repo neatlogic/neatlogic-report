@@ -18,6 +18,7 @@ import codedriver.module.report.constvalue.ActionType;
 import codedriver.module.report.widget.DrawBar;
 import codedriver.module.report.widget.DrawBarH;
 import codedriver.module.report.widget.DrawLine;
+import codedriver.module.report.widget.DrawPagination;
 import codedriver.module.report.widget.DrawPie;
 import codedriver.module.report.widget.DrawStackedBar;
 import codedriver.module.report.widget.DrawStackedBarH;
@@ -66,6 +67,7 @@ public class ReportFreemarkerUtil {
 				paramMap.put("drawStackedBar", new DrawStackedBar(ActionType.VIEW.getValue()));
 				paramMap.put("drawStackedBarH", new DrawStackedBarH(ActionType.VIEW.getValue()));
 				paramMap.put("drawStackedBarLineH", new DrawStackedBarLineH(ActionType.VIEW.getValue()));
+				paramMap.put("drawPagination", new DrawPagination(true));
 
 				try {
 					temp = cfg.getTemplate("template", "utf-8");
@@ -119,7 +121,7 @@ public class ReportFreemarkerUtil {
 				paramMap.put("drawStackedBar", new DrawStackedBar(actionType));
 				paramMap.put("drawStackedBarH", new DrawStackedBarH(actionType));
 				paramMap.put("drawStackedBarLineH", new DrawStackedBarLineH(actionType));
-
+				paramMap.put("drawPagination", new DrawPagination(false));
 				try {
 					temp = cfg.getTemplate("template", "utf-8");
 					temp.process(paramMap, out);
