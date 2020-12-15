@@ -16,6 +16,8 @@ public class SelectVo {
 	private String template;
 	private int queryTimeout = 30;
 	private int resultType = 0;
+    private boolean needPage = false;
+    private int pageSize = 10;
 	private Map<String, Object> paramMap;
 	private List<Object> paramList;
 	private List<Map<String, Object>> resultList;
@@ -130,4 +132,37 @@ public class SelectVo {
 	public void setParamList(List<Object> paramList) {
 		this.paramList = paramList;
 	}
+
+    public boolean isNeedPage() {
+        return needPage;
+    }
+
+    public void setNeedPage(boolean needPage) {
+        this.needPage = needPage;
+    }
+    
+    public void setNeedPage(String _needPage) {
+        try {
+            this.needPage = Boolean.parseBoolean(_needPage);
+        } catch (Exception ex) {
+            this.needPage = false;
+        }
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+    
+    public void setPageSize(String _pageSize) {
+        try {
+            this.pageSize = Integer.parseInt(_pageSize);
+        } catch (Exception ex) {
+            this.pageSize = 10;
+        }
+    }
+	
 }

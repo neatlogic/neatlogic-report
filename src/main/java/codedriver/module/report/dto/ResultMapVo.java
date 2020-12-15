@@ -12,6 +12,10 @@ public class ResultMapVo {
 	//private List<ResultVo> resultList;
 	private Map<String, ResultMapVo> resultMap;
 	
+	//param
+	private String key;
+	private int index;
+	
 	public List<Map<String, Object>> getResultList() {
 		return resultList;
 	}
@@ -84,4 +88,20 @@ public class ResultMapVo {
 	public void setResultMap(Map<String, ResultMapVo> resultMap) {
 		this.resultMap = resultMap;
 	}
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
 }

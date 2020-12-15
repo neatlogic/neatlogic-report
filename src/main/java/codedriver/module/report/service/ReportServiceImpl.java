@@ -5,13 +5,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import codedriver.module.report.dao.mapper.ReportInstanceMapper;
-import codedriver.module.report.dto.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
@@ -22,7 +26,15 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
+import codedriver.framework.common.util.PageUtil;
+import codedriver.module.report.dao.mapper.ReportInstanceMapper;
 import codedriver.module.report.dao.mapper.ReportMapper;
+import codedriver.module.report.dto.ReportAuthVo;
+import codedriver.module.report.dto.ReportInstanceTableColumnVo;
+import codedriver.module.report.dto.ReportVo;
+import codedriver.module.report.dto.RestVo;
+import codedriver.module.report.dto.ResultMapVo;
+import codedriver.module.report.dto.SelectVo;
 import codedriver.module.report.util.ReportXmlUtil;
 import codedriver.module.report.util.RestUtil;
 
@@ -66,8 +78,13 @@ public class ReportServiceImpl implements ReportService {
     /**
      * 返回所有数据源结果
      */
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public Map<String, Object> getQueryResult(Long reportId, JSONObject paramMap, Map<String, Long> timeMap,
         boolean isFirst,Map<String, List<String>> showColumnsMap) throws Exception {
+        Boolean needPage = true;
+        if (paramMap.containsKey("NOPAGE")) {
+            needPage = false;
+        }
         ReportVo reportConfig = getReportDetailById(reportId);
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -75,6 +92,7 @@ public class ReportServiceImpl implements ReportService {
         Map<String, Object> returnResultMap = new HashMap<String, Object>();
         List<SelectVo> selectList = null;
         List<RestVo> restList = null;
+        Map<String, JSONObject> pageMap = new HashMap<>();
         try {
             Map<String, Object> analyseMap = ReportXmlUtil.analyseSql(reportConfig.getSql(), paramMap);
             restList = (List<RestVo>)analyseMap.get("rest");
@@ -131,30 +149,55 @@ public class ReportServiceImpl implements ReportService {
                         columns[i - 1] = metaData.getColumnLabel(i);
                     }
 
-                    List<Map<String, Object>> tmpList = new ArrayList<Map<String, Object>>();
+                    List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
                     Map<String, Map<String, Object>> checkMap = new HashMap<String, Map<String, Object>>();
                     Map<String, List> returnMap = new HashMap<String, List>();
+                    int start = -1, end = -1;
+                    Integer index = 0;
+                    int currentPage = 1;
+                    if (needPage && select.isNeedPage() && select.getPageSize() > 0) {
+
+                        if (paramMap.containsKey(select.getId() + ".currentpage")) {
+                            currentPage = Integer.parseInt(paramMap.get(select.getId() + ".currentpage").toString());
+                        }
+
+                        start = Math.max((currentPage - 1) * select.getPageSize(), 0);
+                        end = start + select.getPageSize()-1;
+                    }
                     while (resultSet.next()) {
+                        ResultMapVo  tmpResultMapVo = select.getResultMap();
                         Map<String, Object> resultMap = new HashMap<String, Object>();
                         for (int i = 1; i <= count; i++) {
                             resultMap.put(metaData.getColumnLabel(i), resultSet.getObject(i));
                         }
+                        tmpResultMapVo.setIndex(index);
                         if (select.getResultType() == SelectVo.RSEULT_TYPE_LIST) {
-                            tmpList = resultMapRecursion(select.getResultMap(), tmpList, resultMap, checkMap);
+                            resultList = resultMapRecursion(tmpResultMapVo, resultList, resultMap, checkMap);
                         } else {
-                            returnMap = wrapResultMapToMap(select.getResultMap(), resultMap, returnMap);
+                            returnMap = wrapResultMapToMap(tmpResultMapVo, resultMap, returnMap);
                         }
+                        index = tmpResultMapVo.getIndex();
                     }
+                    if (needPage && select.isNeedPage() && select.getPageSize() > 0) {
+                        JSONObject pageObj = new JSONObject();
+                        pageObj.put("rowNum", index);
+                        pageObj.put("currentPage", currentPage);
+                        pageObj.put("pageSize", select.getPageSize());
+                        pageObj.put("pageCount", PageUtil.getPageCount(index, select.getPageSize()));
+                        pageObj.put("needPage", true);
+                        pageMap.put(select.getId(), pageObj);
+                    }
+                    returnResultMap.put("page", pageMap);
                     /** 如果存在表格且存在表格显示列的配置，则筛选显示列并排序
                      * showColumnMap:key->表格ID;value->配置的表格显示列
                      */
                     if(MapUtils.isNotEmpty(showColumnsMap) && showColumnsMap.containsKey(select.getId())){
-                        List<Map<String, Object>> sqList = selectTableColumns(showColumnsMap, select, tmpList);
-                        tmpList = sqList;
+                        List<Map<String, Object>> sqList = selectTableColumns(showColumnsMap, select, resultList);
+                        resultList = sqList;
                     }
 
                     if (select.getResultType() == SelectVo.RSEULT_TYPE_LIST) {
-                        returnResultMap.put(select.getId(), tmpList);
+                        returnResultMap.put(select.getId(), resultList.subList(start, end));
                     } else {
                         returnResultMap.put(select.getId(), returnMap);
                     }
@@ -227,6 +270,7 @@ public class ReportServiceImpl implements ReportService {
         return sqList;
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private Map<String, List> wrapResultMapToMap(ResultMapVo resultMapVo, Map<String, Object> result, Map<String, List> returnMap) {
         String key = "";
         List<Map<String, Object>> resultList = null;
@@ -256,9 +300,16 @@ public class ReportServiceImpl implements ReportService {
         resultList.add(newResult);
         return returnMap;
     }
-
-    private List<Map<String, Object>> resultMapRecursion(ResultMapVo resultMapVo, List<Map<String, Object>> resultList,
-        Map<String, Object> result, Map<String, Map<String, Object>> checkMap) {
+    
+    /**
+    * @Author 89770
+    * @Time 2020年12月16日  
+    * @Description: 判断这一条数据是否已经存在 
+    * @Param 
+    * @return
+     */
+    private Boolean  isExists(ResultMapVo resultMapVo,List<Map<String, Object>> resultList, Map<String, Object> result, Map<String, Map<String, Object>> checkMap) {
+        boolean isExists = false;
         String key = "";
         if (resultList == null) {
             resultList = new ArrayList<Map<String, Object>>();
@@ -278,13 +329,21 @@ public class ReportServiceImpl implements ReportService {
                 }
             }
         }
-        boolean isExists = false;
-        Map<String, Object> newResult = null;
+      
+        //System.out.println(key);
         if (!key.equals("") && checkMap.containsKey(key)) {
             isExists = true;
-            newResult = checkMap.get(key);
         }
+        resultMapVo.setKey(key);
+        return isExists;
+    }
 
+    @SuppressWarnings({"unused", "unchecked"})
+    private List<Map<String, Object>> resultMapRecursion(ResultMapVo resultMapVo, List<Map<String, Object>> resultList,
+        Map<String, Object> result, Map<String, Map<String, Object>> checkMap) {
+        boolean isExists = isExists(resultMapVo, resultList,result, checkMap);
+        String key = resultMapVo.getKey();
+        Map<String, Object> newResult = null;
         if (!isExists) {
             Iterator<Map.Entry<String, Object>> iter = result.entrySet().iterator();
             newResult = new HashMap<String, Object>();
@@ -338,7 +397,9 @@ public class ReportServiceImpl implements ReportService {
             if (!isAllColumnEmpty) {
                 resultList.add(newResult);
             }
+            resultMapVo.setIndex(resultMapVo.getIndex()+1);
         } else {
+            newResult = checkMap.get(key);
             if (resultMapVo.getResultMap() != null) {
                 Iterator<Map.Entry<String, ResultMapVo>> resultIter = resultMapVo.getResultMap().entrySet().iterator();
                 while (resultIter.hasNext()) {
