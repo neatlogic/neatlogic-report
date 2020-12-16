@@ -155,6 +155,7 @@ public class ReportServiceImpl implements ReportService {
                     int start = -1, end = -1;
                     Integer index = 0;
                     int currentPage = 1;
+                    int pageCount = 0;
                     if (needPage && select.isNeedPage() && select.getPageSize() > 0) {
 
                         if (paramMap.containsKey(select.getId() + ".currentpage")) {
@@ -162,7 +163,7 @@ public class ReportServiceImpl implements ReportService {
                         }
 
                         start = Math.max((currentPage - 1) * select.getPageSize(), 0);
-                        end = start + select.getPageSize()-1;
+                        end = start + select.getPageSize();
                     }
                     while (resultSet.next()) {
                         ResultMapVo  tmpResultMapVo = select.getResultMap();
@@ -179,11 +180,12 @@ public class ReportServiceImpl implements ReportService {
                         index = tmpResultMapVo.getIndex();
                     }
                     if (needPage && select.isNeedPage() && select.getPageSize() > 0) {
+                        pageCount = PageUtil.getPageCount(index, select.getPageSize());
                         JSONObject pageObj = new JSONObject();
                         pageObj.put("rowNum", index);
                         pageObj.put("currentPage", currentPage);
                         pageObj.put("pageSize", select.getPageSize());
-                        pageObj.put("pageCount", PageUtil.getPageCount(index, select.getPageSize()));
+                        pageObj.put("pageCount", pageCount);
                         pageObj.put("needPage", true);
                         pageMap.put(select.getId(), pageObj);
                     }
@@ -197,7 +199,7 @@ public class ReportServiceImpl implements ReportService {
                     }
 
                     if (select.getResultType() == SelectVo.RSEULT_TYPE_LIST) {
-                        returnResultMap.put(select.getId(), resultList.subList(start, end));
+                        returnResultMap.put(select.getId(), resultList.subList(start, end == pageCount*select.getPageSize()?(end-1):end));
                     } else {
                         returnResultMap.put(select.getId(), returnMap);
                     }
