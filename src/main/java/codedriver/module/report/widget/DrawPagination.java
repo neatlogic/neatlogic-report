@@ -102,7 +102,7 @@ public class DrawPagination implements TemplateMethodModelEx {
                 }
                 for (int k = startPage; k <= currentPage; k++) {
                     if (currentPage == k) {
-                        str += "<li title=\"1\" class=\"ivu-page-item ivu-page-item-active\"><a>"+k+"</a></li>";
+                        str += "<li title=\""+k+"\" class=\"ivu-page-item ivu-page-item-active\"><a>"+k+"</a></li>";
                     } else {
                         str += "<li title=\""+k+"\" class=\"ivu-page-item\" onclick=\"window.REPORT_CHANGE_PAGE('"+selectId+"', "+k+")\" ><a>"+k+"</a></li>";
                     }
@@ -134,12 +134,17 @@ public class DrawPagination implements TemplateMethodModelEx {
                     "                 <div class=\"ivu-select ivu-select-single ivu-select-small\">" + 
                     "                     <div tabindex=\"0\" class=\"ivu-select-selection\"><input type=\"hidden\" value=\"20\"> " + 
                     "                         <div class=\"\">" + 
-                    "                             <select onchange=\"window.REPORT_CHANGE_PAGESIZE('"+selectId+"', 20)\">"+
-                    "                               <option>10 条/页</option>" +
-                    "                               <option>20 条/页</option>" +
-                    "                               <option>30 条/页</option>" +
-                    "                               <option>40 条/页</option>" +
-                    "                             </select> " + 
+                    "                             <select id=\""+selectId+"PageSelect\" onchange=\"window.REPORT_CHANGE_PAGESIZE('"+selectId+"', this.options[this.selectedIndex].value)\">";
+                for(int i =1;i<5;i++) {
+                    int tmpPageSize = i*10;
+                    String defaultSeclect = StringUtils.EMPTY;
+                    if(pageSize == tmpPageSize) {
+                        defaultSeclect = "selected";
+                    }
+                    str += "<option value='"+tmpPageSize+"' "+defaultSeclect+">"+tmpPageSize+" 条/页</option>";
+                }
+                   
+                str += "                          </select> " + 
                     "                             <i class=\"ivu-icon ivu-icon-ios-arrow-down ivu-select-arrow\"></i>" + 
                     "                         </div>" + 
                     "                     </div> " + 

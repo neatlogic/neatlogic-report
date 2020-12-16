@@ -161,6 +161,10 @@ public class ReportServiceImpl implements ReportService {
                         if (paramMap.containsKey(select.getId() + ".currentpage")) {
                             currentPage = Integer.parseInt(paramMap.get(select.getId() + ".currentpage").toString());
                         }
+                        
+                        if (paramMap.containsKey(select.getId() + ".pagesize")) {
+                            select.setPageSize(Integer.parseInt(paramMap.get(select.getId() + ".pagesize").toString()));
+                        }
 
                         start = Math.max((currentPage - 1) * select.getPageSize(), 0);
                         end = start + select.getPageSize();
@@ -181,6 +185,11 @@ public class ReportServiceImpl implements ReportService {
                     }
                     if (needPage && select.isNeedPage() && select.getPageSize() > 0) {
                         pageCount = PageUtil.getPageCount(index, select.getPageSize());
+                        if(pageCount < currentPage) {//异常处理
+                            start =1;
+                            end = start + select.getPageSize();
+                            currentPage = 1;
+                        }
                         JSONObject pageObj = new JSONObject();
                         pageObj.put("rowNum", index);
                         pageObj.put("currentPage", currentPage);
@@ -200,7 +209,7 @@ public class ReportServiceImpl implements ReportService {
 
                     if (select.getResultType() == SelectVo.RSEULT_TYPE_LIST) {
                         if(needPage && select.isNeedPage()) {
-                            resultList = resultList.subList(start, end == pageCount*select.getPageSize()?(end-1):end);
+                            resultList = resultList.subList(start, (pageCount == currentPage)?resultList.size():end);
                         }
                         returnResultMap.put(select.getId(), resultList);
                     } else {
