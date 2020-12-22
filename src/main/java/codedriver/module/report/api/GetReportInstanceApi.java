@@ -3,6 +3,8 @@ package codedriver.module.report.api;
 import java.util.Iterator;
 import java.util.List;
 
+import codedriver.framework.reminder.core.OperationTypeEnum;
+import codedriver.framework.restful.annotation.*;
 import codedriver.module.report.auth.label.REPORT_MODIFY;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +17,6 @@ import codedriver.framework.auth.core.AuthActionChecker;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.dao.mapper.TeamMapper;
 import codedriver.framework.exception.type.PermissionDeniedException;
-import codedriver.framework.restful.annotation.Description;
-import codedriver.framework.restful.annotation.Input;
-import codedriver.framework.restful.annotation.Output;
-import codedriver.framework.restful.annotation.Param;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
 import codedriver.module.report.dto.ReportInstanceAuthVo;
 import codedriver.module.report.dto.ReportInstanceVo;
@@ -28,6 +26,7 @@ import codedriver.module.report.service.ReportInstanceService;
 import codedriver.module.report.service.ReportService;
 
 @Service
+@OperationType(type = OperationTypeEnum.SEARCH)
 public class GetReportInstanceApi extends PrivateApiComponentBase {
 
     @Autowired

@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import codedriver.framework.reminder.core.OperationTypeEnum;
+import codedriver.framework.restful.annotation.*;
 import codedriver.module.report.auth.label.REPORT_MODIFY;
 import codedriver.module.report.dto.SelectVo;
 import codedriver.module.report.util.ReportXmlUtil;
@@ -23,16 +25,13 @@ import codedriver.framework.auth.core.AuthActionChecker;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.dao.mapper.TeamMapper;
 import codedriver.framework.exception.type.PermissionDeniedException;
-import codedriver.framework.restful.annotation.Description;
-import codedriver.framework.restful.annotation.Input;
-import codedriver.framework.restful.annotation.Output;
-import codedriver.framework.restful.annotation.Param;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
 import codedriver.module.report.dto.ReportAuthVo;
 import codedriver.module.report.dto.ReportVo;
 import codedriver.module.report.service.ReportService;
 
 @Service
+@OperationType(type = OperationTypeEnum.SEARCH)
 public class GetReportApi extends PrivateApiComponentBase {
 
 	/** 匹配表格Id */
