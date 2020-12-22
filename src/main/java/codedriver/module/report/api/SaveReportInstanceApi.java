@@ -1,5 +1,8 @@
 package codedriver.module.report.api;
 
+import codedriver.framework.auth.core.AuthAction;
+import codedriver.framework.reminder.core.OperationTypeEnum;
+import codedriver.framework.restful.annotation.*;
 import codedriver.module.report.auth.label.REPORT_MODIFY;
 import codedriver.module.report.dto.ReportInstanceTableColumnVo;
 import com.alibaba.fastjson.JSONArray;
@@ -13,10 +16,6 @@ import com.alibaba.fastjson.JSONObject;
 import codedriver.framework.auth.core.AuthActionChecker;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.exception.type.PermissionDeniedException;
-import codedriver.framework.restful.annotation.Description;
-import codedriver.framework.restful.annotation.Input;
-import codedriver.framework.restful.annotation.Output;
-import codedriver.framework.restful.annotation.Param;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
 import codedriver.module.report.dao.mapper.ReportInstanceMapper;
 import codedriver.module.report.dto.ReportInstanceAuthVo;
@@ -26,6 +25,8 @@ import codedriver.module.report.dto.ReportVo;
 import java.util.ArrayList;
 import java.util.List;
 
+@AuthAction(action = REPORT_MODIFY.class)
+@OperationType(type = OperationTypeEnum.OPERATE)
 @Service
 @Transactional
 public class SaveReportInstanceApi extends PrivateApiComponentBase {

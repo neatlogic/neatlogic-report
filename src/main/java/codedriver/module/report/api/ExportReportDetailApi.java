@@ -1,8 +1,10 @@
 package codedriver.module.report.api;
 
 import codedriver.framework.common.constvalue.ApiParamType;
+import codedriver.framework.reminder.core.OperationTypeEnum;
 import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
+import codedriver.framework.restful.annotation.OperationType;
 import codedriver.framework.restful.annotation.Param;
 import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
 import codedriver.framework.util.ExcelUtil;
@@ -33,6 +35,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+@OperationType(type = OperationTypeEnum.SEARCH)
 @Service
 public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
     private static final Log logger = LogFactory.getLog(ExportReportDetailApi.class);

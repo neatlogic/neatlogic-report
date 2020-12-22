@@ -2,6 +2,8 @@ package codedriver.module.report.api;
 
 import java.util.List;
 
+import codedriver.framework.reminder.core.OperationTypeEnum;
+import codedriver.framework.restful.annotation.OperationType;
 import codedriver.module.report.auth.label.REPORT_MODIFY;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportTypeVo;
 
 @Service
+@OperationType(type = OperationTypeEnum.SEARCH)
 public class GetReportTypeApi extends PrivateApiComponentBase {
 
 	@Autowired
