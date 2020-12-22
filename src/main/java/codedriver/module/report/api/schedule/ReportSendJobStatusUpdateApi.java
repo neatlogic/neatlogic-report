@@ -10,6 +10,7 @@ import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
 import codedriver.framework.scheduler.core.IJob;
 import codedriver.framework.scheduler.core.SchedulerManager;
 import codedriver.framework.scheduler.dto.JobObject;
+import codedriver.module.report.auth.label.REPORT_MODIFY;
 import codedriver.module.report.dao.mapper.ReportSendJobMapper;
 import codedriver.module.report.dto.ReportSendJobVo;
 import codedriver.module.report.exception.ReportSendJobNotFoundException;
@@ -20,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-@AuthAction(name = "REPORT_MODIFY")
+@AuthAction(action = REPORT_MODIFY.class)
 @OperationType(type = OperationTypeEnum.UPDATE)
 public class ReportSendJobStatusUpdateApi extends PrivateApiComponentBase {
 	@Autowired

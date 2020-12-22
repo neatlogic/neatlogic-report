@@ -1,5 +1,6 @@
 package codedriver.module.report.api;
 
+import codedriver.module.report.auth.label.REPORT_MODIFY;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,7 @@ import codedriver.module.report.dao.mapper.ReportInstanceMapper;
 import codedriver.module.report.dto.ReportInstanceVo;
 
 @Service
-@AuthAction(name = "REPORT_MODIFY")
+@AuthAction(action = REPORT_MODIFY.class)
 @OperationType(type = OperationTypeEnum.UPDATE)
 public class UpdateReportInstanceActiveApi extends PrivateApiComponentBase {
 

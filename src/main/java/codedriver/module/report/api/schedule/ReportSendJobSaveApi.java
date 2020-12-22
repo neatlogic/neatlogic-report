@@ -11,6 +11,7 @@ import codedriver.framework.scheduler.core.IJob;
 import codedriver.framework.scheduler.core.SchedulerManager;
 import codedriver.framework.scheduler.dto.JobObject;
 import codedriver.framework.scheduler.exception.ScheduleIllegalParameterException;
+import codedriver.module.report.auth.label.REPORT_MODIFY;
 import codedriver.module.report.dao.mapper.ReportSendJobMapper;
 import codedriver.module.report.dto.ReportReceiverVo;
 import codedriver.module.report.dto.ReportSendJobRelationVo;
@@ -34,7 +35,7 @@ import java.util.List;
  * [{"id":167237352693760,"condition":{"beforeDay":"30","keyword":"a"},"formValue":[{"beforeDay":"90&=&过去90天"}]},{"id":158660705656832,"condition":{"beforeDay":"7"}}]
  */
 @Service
-@AuthAction(name = "REPORT_MODIFY")
+@AuthAction(action = REPORT_MODIFY.class)
 @Transactional
 @OperationType(type = OperationTypeEnum.CREATE)
 public class ReportSendJobSaveApi extends PrivateApiComponentBase {
