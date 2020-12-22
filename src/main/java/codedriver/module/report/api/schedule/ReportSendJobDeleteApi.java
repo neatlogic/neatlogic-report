@@ -10,6 +10,7 @@ import codedriver.framework.scheduler.core.IJob;
 import codedriver.framework.scheduler.core.SchedulerManager;
 import codedriver.framework.scheduler.dao.mapper.SchedulerMapper;
 import codedriver.framework.scheduler.dto.JobObject;
+import codedriver.module.report.auth.label.REPORT_MODIFY;
 import codedriver.module.report.dao.mapper.ReportSendJobMapper;
 import codedriver.module.report.dto.ReportSendJobVo;
 import codedriver.module.report.exception.ReportSendJobNotFoundException;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@AuthAction(name = "REPORT_MODIFY")
+@AuthAction(action = REPORT_MODIFY.class)
 @Transactional
 @OperationType(type = OperationTypeEnum.DELETE)
 public class ReportSendJobDeleteApi extends PrivateApiComponentBase {
