@@ -1,7 +1,7 @@
 package codedriver.module.report.api;
 
 import codedriver.framework.auth.core.AuthAction;
-import codedriver.framework.reminder.core.OperationTypeEnum;
+import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.annotation.*;
 import codedriver.module.report.auth.label.REPORT_MODIFY;
 import org.apache.commons.collections4.CollectionUtils;
