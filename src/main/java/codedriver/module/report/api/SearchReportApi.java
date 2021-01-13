@@ -3,7 +3,7 @@ package codedriver.module.report.api;
 import java.util.ArrayList;
 import java.util.List;
 
-import codedriver.framework.reminder.core.OperationTypeEnum;
+import codedriver.framework.restful.core.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.annotation.*;
 import codedriver.module.report.auth.label.REPORT_MODIFY;
 import org.springframework.beans.factory.annotation.Autowired;

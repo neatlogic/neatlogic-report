@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import codedriver.framework.reminder.core.OperationTypeEnum;
+import codedriver.framework.restful.core.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.annotation.*;
 import codedriver.module.report.auth.label.REPORT_MODIFY;
 import codedriver.module.report.dto.SelectVo;
