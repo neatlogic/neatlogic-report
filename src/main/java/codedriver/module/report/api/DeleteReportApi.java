@@ -8,7 +8,7 @@ import codedriver.module.report.dao.mapper.ReportInstanceMapper;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dao.mapper.ReportSendJobMapper;
 import codedriver.module.report.exception.ReportHasBeenQuotedByJobException;
-import codedriver.module.report.exception.ReportHasBeenQuotedByReportInstanceException;
+import codedriver.module.report.exception.ReportHasInstanceException;
 import codedriver.module.report.exception.ReportNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -62,7 +62,7 @@ public class DeleteReportApi extends PrivateApiComponentBase {
 		}
 		/** 检查是否被报表实例引用 **/
 		if(reportInstanceMapper.checkReportInstanceExistsByReportId(reportId) > 0){
-			throw new ReportHasBeenQuotedByReportInstanceException(report.getName());
+			throw new ReportHasInstanceException(report.getName());
 		}
 		/** 检查是否被报表发送计划引用 **/
 		if(reportSendJobMapper.checkJobExistsByReportId(reportId) > 0){
