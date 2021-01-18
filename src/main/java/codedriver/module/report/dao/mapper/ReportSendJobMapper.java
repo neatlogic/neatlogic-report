@@ -31,6 +31,15 @@ public interface ReportSendJobMapper {
 
     public List<ReportSendJobRelationVo> getRelatedReportById(Long id);
 
+    /**
+     * @Description: 检查id为reportId是否有job引用
+     * @Author: laiwt
+     * @Date: 2021/1/18 12:03
+     * @Params: [reportId]
+     * @Returns: int
+    **/
+    public int checkJobExistsByReportId(Long reportId);
+
     public int updateJob(ReportSendJobVo job);
 
     public int updateJobStatus(ReportSendJobVo job);

@@ -181,6 +181,13 @@
 		where `report_send_job_id` = #{value}
 	</select>
 
+	<select id="checkJobExistsByReportId" parameterType="java.lang.Long" resultType="int">
+		select
+		count(1)
+		from `report_send_job_relation`
+		where `report_id` = #{value}
+	</select>
+
     <update id="updateJob" parameterType="codedriver.module.report.dto.ReportSendJobVo">
 		UPDATE `report_send_job`
 		SET
