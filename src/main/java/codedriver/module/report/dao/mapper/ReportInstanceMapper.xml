@@ -101,6 +101,13 @@
 		WHERE `reportinstance_id` = #{value}
 	</select>
 
+	<select id="checkReportInstanceExistsByReportId" parameterType="java.lang.Long" resultType="int">
+		select
+		count(1)
+		from `reportinstance`
+		where `report_id` = #{value}
+	</select>
+
 	<update id="updateReportInstance" parameterType="codedriver.module.report.dto.ReportInstanceVo">
 		UPDATE
 		`reportinstance`
@@ -190,5 +197,12 @@
 		FROM
 		`reportinstance_table_column`
 		WHERE `reportinstance_id` = #{value}
+	</delete>
+
+	<delete id="deleteReportInstanceById" parameterType="java.lang.Long">
+		DELETE
+		FROM
+		`reportinstance`
+		WHERE `id` = #{value}
 	</delete>
 </mapper>

@@ -17,6 +17,15 @@ public interface ReportInstanceMapper {
 
 	public List<ReportInstanceTableColumnVo> getReportInstanceTableColumnList(Long reportInstanceId);
 
+	/**
+	 * @Description: 检查id为reportId的报表是否被报表实例引用
+	 * @Author: laiwt
+	 * @Date: 2021/1/18 11:52
+	 * @Params: [reportId]
+	 * @Returns: int
+	**/
+	public int checkReportInstanceExistsByReportId(Long reportId);
+
 	public int insertReportInstance(ReportInstanceVo reportInstanceVo);
 
 	public int insertReportInstanceAuth(ReportInstanceAuthVo reportInstanceAuthVo);
@@ -30,5 +39,7 @@ public interface ReportInstanceMapper {
 	public int deleteReportInstanceAuthByReportInstanceId(Long reportInstanceId);
 
 	public int deleteReportInstanceTableColumn(Long reportInstanceId);
+
+	public int deleteReportInstanceById(Long reportInstanceId);
 
 }
