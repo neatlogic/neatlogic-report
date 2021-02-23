@@ -1,8 +1,8 @@
 package codedriver.module.report.exception;
 
-import codedriver.framework.exception.core.ApiRuntimeException;
+import codedriver.framework.exception.core.ApiFieldValidRuntimeException;
 
-public class ReportSendJobNameRepeatException extends ApiRuntimeException {
+public class ReportSendJobNameRepeatException extends ApiFieldValidRuntimeException {
 
 	private static final long serialVersionUID = 3237715905744130211L;
 

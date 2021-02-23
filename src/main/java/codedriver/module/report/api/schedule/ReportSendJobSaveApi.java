@@ -4,8 +4,10 @@ import codedriver.framework.asynchronization.threadlocal.TenantContext;
 import codedriver.framework.asynchronization.threadlocal.UserContext;
 import codedriver.framework.auth.core.AuthAction;
 import codedriver.framework.common.constvalue.ApiParamType;
+import codedriver.framework.dto.FieldValidResultVo;
 import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.annotation.*;
+import codedriver.framework.restful.core.IValid;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
 import codedriver.framework.scheduler.core.IJob;
 import codedriver.framework.scheduler.core.SchedulerManager;
@@ -128,6 +130,16 @@ public class ReportSendJobSaveApi extends PrivateApiComponentBase {
 		result.put("id",jobVo.getId());
 
 		return result;
+	}
+
+	public IValid name() {
+		return value -> {
+			ReportSendJobVo jobVo = JSON.toJavaObject(value, ReportSendJobVo.class);
+			if (reportSendJobMapper.checkNameIsRepeat(jobVo) > 0) {
+				return new FieldValidResultVo(new ReportSendJobNameRepeatException(jobVo.getName()));
+			}
+			return new FieldValidResultVo();
+		};
 	}
 
 	/** 读取关联的报表 */
