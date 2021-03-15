@@ -7,6 +7,6 @@ public class ReportSendJobNameRepeatException extends ApiFieldValidRuntimeExcept
 	private static final long serialVersionUID = 3237715905744130211L;
 
 	public ReportSendJobNameRepeatException(String name) {
-		super("报表发送计划：" + name + "已存在");
+		super("报表发送计划：'" + name + "'已存在");
 	}
 }
