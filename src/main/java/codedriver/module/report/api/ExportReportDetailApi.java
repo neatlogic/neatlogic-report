@@ -13,7 +13,7 @@ import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportVo;
 import codedriver.module.report.exception.ReportNotFoundException;
 import codedriver.module.report.service.ReportService;
-import codedriver.module.report.util.ExportUtil;
+import codedriver.framework.util.ExportUtil;
 import codedriver.module.report.util.ReportFreemarkerUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections4.CollectionUtils;
