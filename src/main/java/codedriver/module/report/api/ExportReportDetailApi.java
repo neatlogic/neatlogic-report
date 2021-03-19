@@ -7,6 +7,7 @@ import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.OperationType;
 import codedriver.framework.restful.annotation.Param;
 import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
+import codedriver.framework.util.DocType;
 import codedriver.framework.util.ExcelUtil;
 import codedriver.module.report.constvalue.ActionType;
 import codedriver.module.report.dao.mapper.ReportMapper;
@@ -92,19 +93,19 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             tmpMap.put("common", commonMap);
 
             String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, reportVo.getContent(),ActionType.EXPORT.getValue());
-            if ("pdf".equals(type)) {
+            if (DocType.PDF.getValue().equals(type)) {
                 os = response.getOutputStream();
                 response.setContentType("application/pdf");
                 response.setHeader("Content-Disposition",
                     "attachment;filename=\"" + URLEncoder.encode(reportVo.getName(), "utf-8") + ".pdf\"");
                 ExportUtil.getPdfFileByHtml(content, true, os);
-            } else if ("word".equals(type)) {
+            } else if (DocType.WORD.getValue().equals(type)) {
                 os = response.getOutputStream();
                 response.setContentType("application/x-download");
                 response.setHeader("Content-Disposition",
                     "attachment;filename=\"" + URLEncoder.encode(reportVo.getName(), "utf-8") + ".docx\"");
                 ExportUtil.getWordFileByHtml(content, true, os);
-            }else if("excel".equals(type)){
+            }else if(DocType.EXCEL.getValue().equals(type)){
                 List<List<Map<String, Object>>> tableList = getTableListByHtml(content);
                 if(CollectionUtils.isNotEmpty(tableList)){
                     HSSFWorkbook workbook = new HSSFWorkbook();
