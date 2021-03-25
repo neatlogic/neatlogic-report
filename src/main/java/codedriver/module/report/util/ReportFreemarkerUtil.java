@@ -1,33 +1,23 @@
 package codedriver.module.report.util;
 
+import codedriver.module.report.constvalue.ActionType;
+import codedriver.module.report.widget.*;
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Iterator;
 import java.util.Map;
-
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import codedriver.module.report.constvalue.ActionType;
-import codedriver.module.report.widget.DrawBar;
-import codedriver.module.report.widget.DrawBarH;
-import codedriver.module.report.widget.DrawLine;
-import codedriver.module.report.widget.DrawPagination;
-import codedriver.module.report.widget.DrawPie;
-import codedriver.module.report.widget.DrawStackedBar;
-import codedriver.module.report.widget.DrawStackedBarH;
-import codedriver.module.report.widget.DrawStackedBarLineH;
-import codedriver.module.report.widget.DrawTable;
-import freemarker.cache.StringTemplateLoader;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
 
 public class ReportFreemarkerUtil {
 	private static final Log logger = LogFactory.getLog(ReportFreemarkerUtil.class);
@@ -49,39 +39,33 @@ public class ReportFreemarkerUtil {
 		return false;
 	}
 
-	public static void getFreemarkerContent(Map<String, Object> paramMap, String content, Writer out) throws Exception {
-		try {
-			if (StringUtils.isNotBlank(content)) {
-				Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
-				cfg.setNumberFormat("0.##");
-				cfg.setClassicCompatible(true);
-				StringTemplateLoader stringLoader = new StringTemplateLoader();
-				stringLoader.putTemplate("template", content);
-				cfg.setTemplateLoader(stringLoader);
-				Template temp;
-				paramMap.put("drawTable", new DrawTable());
-				paramMap.put("drawBar", new DrawBar(ActionType.VIEW.getValue()));
-				paramMap.put("drawBarH", new DrawBarH(ActionType.VIEW.getValue()));
-				paramMap.put("drawLine", new DrawLine(ActionType.VIEW.getValue()));
-				paramMap.put("drawPie", new DrawPie(ActionType.VIEW.getValue()));
-				paramMap.put("drawStackedBar", new DrawStackedBar(ActionType.VIEW.getValue()));
-				paramMap.put("drawStackedBarH", new DrawStackedBarH(ActionType.VIEW.getValue()));
-				paramMap.put("drawStackedBarLineH", new DrawStackedBarLineH(ActionType.VIEW.getValue()));
-				paramMap.put("drawPagination", new DrawPagination(true));
 
-				try {
-					temp = cfg.getTemplate("template", "utf-8");
-					temp.process(paramMap, out);
-				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
-					throw e;
-				} catch (TemplateException e) {
-					logger.error(e.getMessage(), e);
-					throw e;
-				}
+	public static void getFreemarkerContent(Map<String, Object> paramMap, String content, Writer out) throws Exception {
+		if (StringUtils.isNotBlank(content)) {
+			Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
+			cfg.setNumberFormat("0.##");
+			cfg.setClassicCompatible(true);
+			StringTemplateLoader stringLoader = new StringTemplateLoader();
+			stringLoader.putTemplate("template", content);
+			cfg.setTemplateLoader(stringLoader);
+			Template temp;
+			paramMap.put("drawTable", new DrawTable());
+			paramMap.put("drawBar", new DrawBar(ActionType.VIEW.getValue()));
+			paramMap.put("drawBarH", new DrawBarH(ActionType.VIEW.getValue()));
+			paramMap.put("drawLine", new DrawLine(ActionType.VIEW.getValue()));
+			paramMap.put("drawPie", new DrawPie(ActionType.VIEW.getValue()));
+			paramMap.put("drawStackedBar", new DrawStackedBar(ActionType.VIEW.getValue()));
+			paramMap.put("drawStackedBarH", new DrawStackedBarH(ActionType.VIEW.getValue()));
+			paramMap.put("drawStackedBarLineH", new DrawStackedBarLineH(ActionType.VIEW.getValue()));
+			paramMap.put("drawPagination", new DrawPagination(true));
+
+			try {
+				temp = cfg.getTemplate("template", "utf-8");
+				temp.process(paramMap, out);
+			} catch (IOException | TemplateException e) {
+				logger.error(e.getMessage(), e);
+				throw e;
 			}
-		} catch (Exception ex) {
-			throw ex;
 		}
 	}
 
@@ -125,10 +109,7 @@ public class ReportFreemarkerUtil {
 				try {
 					temp = cfg.getTemplate("template", "utf-8");
 					temp.process(paramMap, out);
-				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
-					throw e;
-				} catch (TemplateException e) {
+				} catch (IOException | TemplateException e) {
 					logger.error(e.getMessage(), e);
 					throw e;
 				}

@@ -75,7 +75,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
         Long reportInstanceId = paramObj.getLong("reportInstanceId");
         // 统计使用次数
         reportMapper.updateReportVisitCount(reportId);
-        /** 获取表格显示列配置 */
+        /* 获取表格显示列配置 */
         Map<String, List<String>> showColumnsMap = reportService.getShowColumnsMap(reportInstanceId);
 
         OutputStream os = null;
