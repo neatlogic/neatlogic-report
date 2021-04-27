@@ -1,5 +1,15 @@
 package codedriver.module.report.util;
 
+import codedriver.framework.dto.RestVo;
+import codedriver.framework.util.HtmlUtil;
+import codedriver.module.report.dto.ResultMapVo;
+import codedriver.module.report.dto.SelectVo;
+import com.alibaba.fastjson.JSONObject;
+import org.dom4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -9,22 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
-import org.dom4j.Node;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
-
-import com.alibaba.fastjson.JSONObject;
-
-import codedriver.framework.util.HtmlUtil;
-import codedriver.module.report.dto.RestVo;
-import codedriver.module.report.dto.ResultMapVo;
-import codedriver.module.report.dto.SelectVo;
 
 public class ReportXmlUtil {
     static Logger logger = LoggerFactory.getLogger(ReportXmlUtil.class);
