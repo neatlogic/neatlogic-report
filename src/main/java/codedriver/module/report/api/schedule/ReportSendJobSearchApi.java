@@ -1,5 +1,6 @@
 package codedriver.module.report.api.schedule;
 
+import codedriver.framework.auth.core.AuthAction;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.common.dto.BaseEditorVo;
 import codedriver.framework.common.util.PageUtil;
@@ -8,6 +9,7 @@ import codedriver.framework.restful.annotation.*;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
 import codedriver.framework.scheduler.dao.mapper.SchedulerMapper;
 import codedriver.framework.scheduler.dto.JobAuditVo;
+import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.dao.mapper.ReportSendJobMapper;
 import codedriver.module.report.dto.ReportSendJobVo;
 import com.alibaba.fastjson.JSON;
@@ -22,6 +24,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
+@AuthAction(action = REPORT_BASE.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
 public class ReportSendJobSearchApi extends PrivateApiComponentBase {
 	@Autowired
