@@ -1,7 +1,6 @@
 package codedriver.module.report.api.schedule;
 
 import codedriver.framework.auth.core.AuthAction;
-import codedriver.framework.auth.label.FRAMEWORK_BASE;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.common.util.PageUtil;
 import codedriver.framework.restful.constvalue.OperationTypeEnum;
@@ -9,6 +8,7 @@ import codedriver.framework.restful.annotation.*;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
 import codedriver.framework.scheduler.dao.mapper.SchedulerMapper;
 import codedriver.framework.scheduler.dto.JobAuditVo;
+import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.dao.mapper.ReportSendJobMapper;
 import codedriver.module.report.dto.ReportSendJobAuditVo;
 import codedriver.module.report.exception.ReportSendJobNotFoundException;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@AuthAction(action = FRAMEWORK_BASE.class)
+@AuthAction(action = REPORT_BASE.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
 public class ReportSendJobAuditSearchApi extends PrivateApiComponentBase {
 	@Autowired
