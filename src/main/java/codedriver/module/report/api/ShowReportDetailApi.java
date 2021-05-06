@@ -1,11 +1,13 @@
 package codedriver.module.report.api;
 
-import codedriver.framework.restful.constvalue.OperationTypeEnum;
+import codedriver.framework.auth.core.AuthAction;
 import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.OperationType;
 import codedriver.framework.restful.annotation.Param;
+import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
+import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportVo;
 import codedriver.module.report.exception.ReportNotFoundException;
@@ -22,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@AuthAction(action = REPORT_BASE.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
 @Service
 public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {

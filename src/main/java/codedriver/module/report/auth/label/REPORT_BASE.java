@@ -2,16 +2,16 @@ package codedriver.module.report.auth.label;
 
 import codedriver.framework.auth.core.AuthBase;
 
-public class REPORT_MODIFY extends AuthBase {
+public class REPORT_BASE extends AuthBase {
 
 	@Override
 	public String getAuthDisplayName() {
-		return "报表管理员权限";
+		return "报表基础权限";
 	}
 
 	@Override
 	public String getAuthIntroduction() {
-		return "可以查看所有报表并对报表进行修改操作";
+		return "查看报表";
 	}
 
 	@Override
@@ -21,6 +21,6 @@ public class REPORT_MODIFY extends AuthBase {
 
 	@Override
 	public Integer sort() {
-		return 2;
+		return 1;
 	}
 }
