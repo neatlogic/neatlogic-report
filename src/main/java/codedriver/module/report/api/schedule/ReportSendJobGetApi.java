@@ -1,5 +1,7 @@
 package codedriver.module.report.api.schedule;
 
+import codedriver.framework.auth.core.AuthAction;
+import codedriver.framework.auth.label.FRAMEWORK_BASE;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.annotation.*;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
+@AuthAction(action = FRAMEWORK_BASE.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
 public class ReportSendJobGetApi extends PrivateApiComponentBase {
 	@Autowired
