@@ -99,13 +99,13 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
                 os = response.getOutputStream();
                 response.setContentType("application/pdf");
                 response.setHeader("Content-Disposition",
-                    "attachment;filename=\"" + URLEncoder.encode(reportVo.getName(), "utf-8") + ".pdf\"");
+                    " attachment; filename=\"" + URLEncoder.encode(reportVo.getName(), "utf-8") + ".pdf\"");
                 ExportUtil.getPdfFileByHtml(content, true, os);
             } else if (DocType.WORD.getValue().equals(type)) {
                 os = response.getOutputStream();
                 response.setContentType("application/x-download");
                 response.setHeader("Content-Disposition",
-                    "attachment;filename=\"" + URLEncoder.encode(reportVo.getName(), "utf-8") + ".docx\"");
+                    " attachment; filename=\"" + URLEncoder.encode(reportVo.getName(), "utf-8") + ".docx\"");
                 ExportUtil.getWordFileByHtml(content, true, os);
             }else if(DocType.EXCEL.getValue().equals(type)){
                 List<List<Map<String, Object>>> tableList = getTableListByHtml(content);
@@ -130,7 +130,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
                         fileNameEncode = new String(fileNameEncode.replace(" ", "").getBytes(StandardCharsets.UTF_8), "ISO8859-1");
                     }
                     response.setContentType("application/vnd.ms-excel;charset=utf-8");
-                    response.setHeader("Content-Disposition", "attachment;fileName=\"" + fileNameEncode + "\"");
+                    response.setHeader("Content-Disposition", " attachment; filename=\"" + fileNameEncode + "\"");
                     os = response.getOutputStream();
                     workbook.write(os);
                 }
