@@ -48,7 +48,13 @@ public class SearchReportApi extends PrivateApiComponentBase {
 		return null;
 	}
 
-	@Input({ @Param(name = "keyword", type = ApiParamType.STRING, desc = "关键字", xss = true), @Param(name = "needPage", type = ApiParamType.BOOLEAN, desc = "是否需要分页"), @Param(name = "pageSize", type = ApiParamType.INTEGER, desc = "每页数量"), @Param(name = "currentPage", type = ApiParamType.INTEGER, desc = "当前页"), })
+	@Input({
+			@Param(name = "isActive", type = ApiParamType.ENUM, rule = "0,1", desc = "是否激活"),
+			@Param(name = "keyword", type = ApiParamType.STRING, desc = "关键字", xss = true),
+			@Param(name = "needPage", type = ApiParamType.BOOLEAN, desc = "是否需要分页"),
+			@Param(name = "pageSize", type = ApiParamType.INTEGER, desc = "每页数量"),
+			@Param(name = "currentPage", type = ApiParamType.INTEGER, desc = "当前页"),
+	})
 	@Output({ @Param(explode = BasePageVo.class), @Param(name = "tbodyList", desc = "报表定义列表", explode = ReportVo[].class) })
 	@Description(desc = "查询报表")
 	@Override

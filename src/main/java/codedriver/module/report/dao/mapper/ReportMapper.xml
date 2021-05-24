@@ -39,6 +39,9 @@
 			<if test="type !=null and type != ''">
 				AND type = #{type}
 			</if>
+			<if test="isActive != null">
+				AND `is_active` = #{isActive}
+			</if>
 		</where>
 	</sql>
 
@@ -106,6 +109,13 @@
 		FROM
 		`report_auth`
 		WHERE report_id = #{value}
+	</select>
+
+	<select id="getReferenceCountByReportId" parameterType="java.lang.Long" resultType="int">
+		select
+		count(`id`)
+		from `reportinstance`
+		where `report_id` = #{value}
 	</select>
 
 

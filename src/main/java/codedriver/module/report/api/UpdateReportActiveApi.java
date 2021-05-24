@@ -1,6 +1,8 @@
 package codedriver.module.report.api;
 
 import codedriver.module.report.auth.label.REPORT_MODIFY;
+import codedriver.module.report.exception.ReportHasInstanceException;
+import codedriver.module.report.exception.ReportNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,8 @@ import codedriver.framework.restful.annotation.Param;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportVo;
+
+import java.util.Objects;
 
 @Service
 @AuthAction(action = REPORT_MODIFY.class)
@@ -45,6 +49,13 @@ public class UpdateReportActiveApi extends PrivateApiComponentBase {
 	@Override
 	public Object myDoService(JSONObject jsonObj) throws Exception {
 		ReportVo reportVo = JSONObject.toJavaObject(jsonObj, ReportVo.class);
+        ReportVo report = reportMapper.getReportById(reportVo.getId());
+        if(report == null){
+            throw new ReportNotFoundException(report.getId());
+        }
+        if(Objects.equals(reportVo.getIsActive(),0) && reportMapper.getReferenceCountByReportId(reportVo.getId()) > 0){
+			throw new ReportHasInstanceException(report.getName());
+		}
 		reportMapper.updateReportActive(reportVo);
 		return null;
 	}
