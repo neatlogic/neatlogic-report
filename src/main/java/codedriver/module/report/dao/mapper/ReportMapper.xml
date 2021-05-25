@@ -39,6 +39,9 @@
 			<if test="type !=null and type != ''">
 				AND type = #{type}
 			</if>
+			<if test="isActive != null">
+				AND `is_active` = #{isActive}
+			</if>
 		</where>
 	</sql>
 
@@ -107,7 +110,6 @@
 		`report_auth`
 		WHERE report_id = #{value}
 	</select>
-
 
 	<update id="updateReportActive" parameterType="codedriver.module.report.dto.ReportVo">
 		UPDATE
