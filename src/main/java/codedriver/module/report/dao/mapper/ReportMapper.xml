@@ -111,14 +111,6 @@
 		WHERE report_id = #{value}
 	</select>
 
-	<select id="getReferenceCountByReportId" parameterType="java.lang.Long" resultType="int">
-		select
-		count(`id`)
-		from `reportinstance`
-		where `report_id` = #{value}
-	</select>
-
-
 	<update id="updateReportActive" parameterType="codedriver.module.report.dto.ReportVo">
 		UPDATE
 		`report`
