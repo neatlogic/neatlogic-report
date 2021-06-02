@@ -11,33 +11,39 @@ import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
 import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.auth.label.REPORT_MODIFY;
+import codedriver.module.report.dao.mapper.ReportInstanceMapper;
 import codedriver.module.report.dto.ReportInstanceAuthVo;
 import codedriver.module.report.dto.ReportInstanceVo;
 import codedriver.module.report.dto.ReportParamVo;
 import codedriver.module.report.dto.ReportVo;
+import codedriver.module.report.exception.ReportInstanceNotFoundException;
 import codedriver.module.report.service.ReportInstanceService;
 import codedriver.module.report.service.ReportService;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AuthAction(action = REPORT_BASE.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
 public class GetReportInstanceApi extends PrivateApiComponentBase {
 
-    @Autowired
+    @Resource
     private ReportInstanceService reportInstanceService;
 
-    @Autowired
-    private TeamMapper teamMapper;
-
-    @Autowired
+    @Resource
     private ReportService reportService;
+
+    @Resource
+    private ReportInstanceMapper reportInstanceMapper;
+
+    @Resource
+    private TeamMapper teamMapper;
 
     @Override
     public String getToken() {
@@ -59,13 +65,15 @@ public class GetReportInstanceApi extends PrivateApiComponentBase {
     @Description(desc = "获取报表详细信息接口")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
-        // 权限判断：如果是管理员
         boolean hasAuth = AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName());
         Long reportInstanceId = jsonObj.getLong("id");
+        if (reportInstanceMapper.checkReportInstanceExists(reportInstanceId) == 0) {
+            throw new ReportInstanceNotFoundException(reportInstanceId);
+        }
         ReportInstanceVo reportInstanceVo = reportInstanceService.getReportInstanceDetailById(reportInstanceId);
-
-        if (!hasAuth) {
-            String userUuid = UserContext.get().getUserUuid(true);
+        // 如果不是创建人也没有REPORT_MODIFY权限，看是否在授权列表中，不在则无权查看
+        String userUuid = UserContext.get().getUserUuid(true);
+        if (!hasAuth && !Objects.equals(userUuid, reportInstanceVo.getFcu())) {
             List<String> userRoleList = UserContext.get().getRoleUuidList();
             List<String> teamUuidList = teamMapper.getTeamUuidListByUserUuid(userUuid);
             if (reportInstanceVo.getReportInstanceAuthList() != null) {
@@ -88,9 +96,9 @@ public class GetReportInstanceApi extends PrivateApiComponentBase {
                     }
                 }
             }
-        }
-        if (!hasAuth) {
-            throw new PermissionDeniedException();
+            if (!hasAuth) {
+                throw new PermissionDeniedException();
+            }
         }
         if (reportInstanceVo.getReportId() != null) {
             ReportVo reportVo = reportService.getReportDetailById(reportInstanceVo.getReportId());

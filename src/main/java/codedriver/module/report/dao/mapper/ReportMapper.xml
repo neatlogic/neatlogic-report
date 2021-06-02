@@ -19,19 +19,12 @@
 
 	<sql id="searchReportCondition">
 		<where>
-			<if test="searchMode == 'user'">
-				<choose>
-					<when test="reportAuthList != null and reportAuthList.size() > 0">
-						AND EXISTS (SELECT 1 FROM report_auth auth WHERE auth.report_id = a.id AND
-						<foreach collection="reportAuthList" item="auth" open="(" separator="OR" close=")">
-							(auth.type = #{auth.authType} AND auth.auth_uuid = #{auth.authUuid})
-						</foreach>
-						)
-					</when>
-					<otherwise>
-						AND FALSE
-					</otherwise>
-				</choose>
+			<if test="reportAuthList != null and reportAuthList.size() > 0">
+				AND EXISTS (SELECT 1 FROM report_auth auth WHERE auth.report_id = a.id AND
+				<foreach collection="reportAuthList" item="auth" open="(" separator="OR" close=")">
+					(auth.type = #{auth.authType} AND auth.auth_uuid = #{auth.authUuid})
+				</foreach>
+				)
 			</if>
 			<if test="keyword!=null and keyword != ''">
 				AND name LIKE CONCAT('%',#{keyword},'%')
@@ -111,11 +104,28 @@
 		WHERE report_id = #{value}
 	</select>
 
+	<select id="getReportBaseInfo" parameterType="java.lang.Long" resultType="codedriver.module.report.dto.ReportVo">
+		select
+		`id`,
+		`name`,
+		`type`,
+		`is_active` as isActive,
+		`visit_count` AS visitCount,
+		`fcu`,
+		`fcd`,
+		`lcu`,
+		`lcd`
+		from `report`
+		where `id` = #{value}
+	</select>
+
 	<update id="updateReportActive" parameterType="codedriver.module.report.dto.ReportVo">
 		UPDATE
 		`report`
 		SET
-		`is_active` = #{isActive}
+		`is_active` = #{isActive},
+		`lcu` = #{lcu},
+		`lcd` = NOW(3)
 		WHERE `id` = #{id}
 	</update>
 
