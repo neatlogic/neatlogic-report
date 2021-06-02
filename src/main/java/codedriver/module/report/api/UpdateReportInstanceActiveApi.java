@@ -56,7 +56,7 @@ public class UpdateReportInstanceActiveApi extends PrivateApiComponentBase {
         if (instance == null) {
             throw new ReportInstanceNotFoundException(reportVo.getId());
         }
-        if (!AuthActionChecker.checkByUserUuid(REPORT_MODIFY.class.getSimpleName()) && !Objects.equals(UserContext.get().getUserUuid(), instance.getFcu())) {
+        if (!AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName()) && !Objects.equals(UserContext.get().getUserUuid(), instance.getFcu())) {
             throw new PermissionDeniedException();
         }
         reportVo.setLcu(UserContext.get().getUserUuid());

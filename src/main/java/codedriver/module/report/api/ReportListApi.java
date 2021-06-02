@@ -45,7 +45,7 @@ public class ReportListApi extends PrivateApiComponentBase {
 
     @Override
     public String getName() {
-        return "获取报表定义";
+        return "获取报表定义列表";
     }
 
     @Override
@@ -54,19 +54,18 @@ public class ReportListApi extends PrivateApiComponentBase {
     }
 
     @Input({
-            @Param(name = "isActive", type = ApiParamType.ENUM, rule = "0,1", desc = "是否激活"),
             @Param(name = "keyword", type = ApiParamType.STRING, desc = "关键字", xss = true),
             @Param(name = "needPage", type = ApiParamType.BOOLEAN, desc = "是否需要分页"),
             @Param(name = "pageSize", type = ApiParamType.INTEGER, desc = "每页数量"),
             @Param(name = "currentPage", type = ApiParamType.INTEGER, desc = "当前页"),
     })
     @Output({@Param(explode = BasePageVo.class), @Param(name = "tbodyList", desc = "报表定义列表", explode = ReportVo[].class)})
-    @Description(desc = "获取报表定义")
+    @Description(desc = "获取报表定义列表(用于报表实例编辑面板的模版选择下拉框)")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
         ReportVo reportVo = JSONObject.toJavaObject(jsonObj, ReportVo.class);
-        // 在授权列表的，拿激活的，有REPORT_MODIFY权限，则拿全部
-        if (!AuthActionChecker.checkByUserUuid(REPORT_MODIFY.class.getSimpleName())) {
+        reportVo.setIsActive(1);
+        if (!AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName())) {
             String userUuid = UserContext.get().getUserUuid();
             List<ReportAuthVo> reportAuthList = new ArrayList<>();
             reportAuthList.add(new ReportAuthVo(ReportAuthVo.AUTHTYPE_USER, userUuid));
@@ -76,7 +75,6 @@ public class ReportListApi extends PrivateApiComponentBase {
             for (String teamUuid : teamMapper.getTeamUuidListByUserUuid(userUuid)) {
                 reportAuthList.add(new ReportAuthVo(ReportAuthVo.AUTHTYPE_TEAM, teamUuid));
             }
-            reportVo.setIsActive(1);
             reportVo.setReportAuthList(reportAuthList);
         }
         List<ReportVo> reportList = reportMapper.searchReport(reportVo);

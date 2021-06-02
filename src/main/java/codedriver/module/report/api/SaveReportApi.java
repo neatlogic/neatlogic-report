@@ -1,5 +1,6 @@
 package codedriver.module.report.api;
 
+import codedriver.framework.asynchronization.threadlocal.UserContext;
 import codedriver.framework.auth.core.AuthAction;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.restful.annotation.*;
@@ -55,11 +56,13 @@ public class SaveReportApi extends PrivateApiComponentBase {
     public Object myDoService(JSONObject jsonObj) throws Exception {
         ReportVo reportVo = JSONObject.toJavaObject(jsonObj, ReportVo.class);
 
+        reportVo.setLcu(UserContext.get().getUserUuid());
         if (jsonObj.getLong("id") != null) {
             reportMapper.deleteReportAuthByReportId(reportVo.getId());
             reportMapper.deleteReportParamByReportId(reportVo.getId());
             reportMapper.updateReport(reportVo);
         } else {
+            reportVo.setFcu(UserContext.get().getUserUuid());
             reportMapper.insertReport(reportVo);
         }
         if (CollectionUtils.isNotEmpty(reportVo.getParamList())) {

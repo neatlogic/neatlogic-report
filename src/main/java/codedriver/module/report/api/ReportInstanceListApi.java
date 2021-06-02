@@ -23,7 +23,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @AuthAction(action = REPORT_BASE.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
@@ -54,16 +56,15 @@ public class ReportInstanceListApi extends PrivateApiComponentBase {
     @Input({})
     @Output({
             @Param(name = "Return", desc = "报表列表", explode = ReportInstanceVo[].class)})
-    @Description(desc = "获取报表列表")
+    @Description(desc = "获取报表列表(用于左侧报表实例菜单)")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
-        // todo 左侧报表菜单：查询当前用户创建的或有权限的报表(id:name)
-        // todo 如果有REPORT_MODIFY权限，则能看到所有实例
+        // 不分页查询当前用户可看的、激活的所有报表实例，只保留id、name字段
         ReportInstanceVo reportInstanceVo = new ReportInstanceVo();
+        reportInstanceVo.setIsActive(1);
         List<ReportInstanceVo> instanceList = new ArrayList<>();
-
-        // todo 如果不是管理员，则只筛选激活的报表，除非是自己创建的
         if (!AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName())) {
+            // 查询当前用户有权看到的实例
             String userUuid = UserContext.get().getUserUuid(true);
             List<ReportInstanceAuthVo> reportAuthList = new ArrayList<>();
             reportAuthList.add(new ReportInstanceAuthVo(ReportInstanceAuthVo.AUTHTYPE_USER, userUuid));
@@ -74,25 +75,24 @@ public class ReportInstanceListApi extends PrivateApiComponentBase {
                 reportAuthList.add(new ReportInstanceAuthVo(ReportInstanceAuthVo.AUTHTYPE_TEAM, teamUuid));
             }
             reportInstanceVo.setReportInstanceAuthList(reportAuthList);
-            reportInstanceVo.setIsActive(1);
-
             List<ReportInstanceVo> authInstanceList = reportInstanceMapper.getReportInstanceList(reportInstanceVo);
-
             if (CollectionUtils.isNotEmpty(authInstanceList)) {
-                authInstanceList.addAll(authInstanceList);
+                instanceList.addAll(authInstanceList);
             }
 
-            // todo 查询自己创建的
+            // 查询当前用户创建的实例
             reportInstanceVo.setReportInstanceAuthList(null);
-            reportInstanceVo.setIsActive(null);
             reportInstanceVo.setFcu(UserContext.get().getUserUuid());
-
             List<ReportInstanceVo> ownerInstanceList = reportInstanceMapper.getReportInstanceList(reportInstanceVo);
             if (CollectionUtils.isNotEmpty(ownerInstanceList)) {
                 instanceList.addAll(ownerInstanceList);
             }
-
+            if (CollectionUtils.isNotEmpty(instanceList)) {
+                instanceList = instanceList.stream().distinct()
+                        .sorted(Comparator.comparing(ReportInstanceVo::getId).reversed()).collect(Collectors.toList());
+            }
         } else {
+            // REPORT_MODIFY权限可查询所有实例
             instanceList = reportInstanceMapper.getReportInstanceList(reportInstanceVo);
         }
 

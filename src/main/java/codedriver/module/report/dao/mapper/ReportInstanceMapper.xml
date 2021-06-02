@@ -103,7 +103,7 @@
 				and a.`is_active` = #{isActive}
 			</if>
 			<if test="fcu != null and fcu != ''">
-				a.`fcu` = #{fcu}
+				and a.`fcu` = #{fcu}
 			</if>
 		</where>
 		order by a.`id` desc

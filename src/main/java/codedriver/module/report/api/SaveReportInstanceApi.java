@@ -60,7 +60,7 @@ public class SaveReportInstanceApi extends PrivateApiComponentBase {
             @Param(name = "name", type = ApiParamType.STRING, desc = "报表名称", isRequired = true, xss = true),
             @Param(name = "reportId", type = ApiParamType.LONG, desc = "报表定义id", isRequired = true),
             @Param(name = "isActive", type = ApiParamType.INTEGER, desc = "是否激活", isRequired = true),
-            @Param(name = "authList", type = ApiParamType.JSONARRAY, desc = "报表授权列表", isRequired = true),
+            @Param(name = "authList", type = ApiParamType.JSONARRAY, desc = "报表授权列表"),
             @Param(name = "config", type = ApiParamType.JSONOBJECT, desc = "报表参数配置"),
             @Param(name = "tableConfig", type = ApiParamType.JSONARRAY, desc = "表格字段配置")
     })
@@ -89,7 +89,7 @@ public class SaveReportInstanceApi extends PrivateApiComponentBase {
             if (instance == null) {
                 throw new ReportInstanceNotFoundException(reportInstanceVo.getId());
             }
-            if (!AuthActionChecker.checkByUserUuid(REPORT_MODIFY.class.getSimpleName())
+            if (!AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName())
                     && !Objects.equals(UserContext.get().getUserUuid(), instance.getFcu())) {
                 throw new PermissionDeniedException();
             }

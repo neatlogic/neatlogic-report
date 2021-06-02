@@ -9,6 +9,7 @@ import codedriver.framework.common.util.PageUtil;
 import codedriver.framework.restful.annotation.*;
 import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
+import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.auth.label.REPORT_MODIFY;
 import codedriver.module.report.dao.mapper.ReportInstanceMapper;
 import codedriver.module.report.dto.ReportInstanceVo;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.List;
 
-@AuthAction(action = REPORT_MODIFY.class)
+@AuthAction(action = REPORT_BASE.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
 @Service
 public class SearchReportInstanceApi extends PrivateApiComponentBase {
@@ -52,8 +53,7 @@ public class SearchReportInstanceApi extends PrivateApiComponentBase {
     public Object myDoService(JSONObject jsonObj) throws Exception {
         // 查询当前用户创建的实例，如果有REPORT_MODIFY权限，则查询所有
         ReportInstanceVo reportInstanceVo = JSONObject.toJavaObject(jsonObj, ReportInstanceVo.class);
-        Boolean hasAuth = AuthActionChecker.checkByUserUuid(REPORT_MODIFY.class.getSimpleName());
-        if (!hasAuth) {
+        if (!AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName())) {
             reportInstanceVo.setFcu(UserContext.get().getUserUuid());
         }
         List<ReportInstanceVo> reportInstanceList = reportInstanceMapper.searchReportInstance(reportInstanceVo);
