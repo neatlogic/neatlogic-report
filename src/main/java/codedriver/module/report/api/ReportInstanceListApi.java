@@ -59,7 +59,7 @@ public class ReportInstanceListApi extends PrivateApiComponentBase {
     @Description(desc = "获取报表列表(用于左侧报表实例菜单)")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
-        // 不分页查询当前用户可看的、激活的所有报表实例，只保留id、name字段
+        // 不分页查询当前用户有权限且激活的所有报表实例，只保留id、name字段
         ReportInstanceVo reportInstanceVo = new ReportInstanceVo();
         reportInstanceVo.setIsActive(1);
         List<ReportInstanceVo> instanceList = new ArrayList<>();
