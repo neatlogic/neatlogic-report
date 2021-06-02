@@ -97,6 +97,8 @@ public class DrawTable implements TemplateMethodModelEx {
 			}
 			sb.append("</tbody>");
 
+		} else {
+			sb.append("无数据");
 		}
 		sb.append("</table></div></div>");
 		return sb.toString();
