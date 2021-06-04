@@ -48,7 +48,6 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
     }
     @Override
     public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
-        boolean canReturn = true;
         int width = 1000;
         int height = 600;
         String title = "", xLabel = "", yLabel = "";
@@ -95,12 +94,6 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
                     dataset = DatasetUtils.createCategoryDataset(rowList.toArray(new String[rowList.size()]),
                         columnList.toArray(new String[columnList.size()]), dataList);
                 }
-
-                if (dataset == null || dataset.getRowCount() <= 0) {
-                    canReturn = false;
-                }
-            } else {
-                canReturn = false;
             }
             if (arguments.get(0) instanceof SimpleSequence) {
                 SimpleSequence line = (SimpleSequence)arguments.get(1);
@@ -126,8 +119,6 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
                 }
             }
 
-        } else {
-            canReturn = false;
         }
 
         // has title
@@ -160,53 +151,51 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
             }
         }
 
-        if (canReturn) {
-            StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme(actionType);
+        StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme(actionType);
 
-            JFreeChart chart = ChartFactory.createStackedBarChart(title, xLabel, yLabel, dataset,
-                PlotOrientation.HORIZONTAL, true, false, false);
-            standardChartTheme.apply(chart);
-            chart.getLegend().setFrame(new BlockBorder(ChartColor.CHART_BACKGROUND_COLOR.getColor(actionType)));
+        JFreeChart chart = ChartFactory.createStackedBarChart(title, xLabel, yLabel, dataset,
+            PlotOrientation.HORIZONTAL, true, false, false);
+        standardChartTheme.apply(chart);
+        chart.getLegend().setFrame(new BlockBorder(ChartColor.CHART_BACKGROUND_COLOR.getColor(actionType)));
 
-            CategoryPlot p = chart.getCategoryPlot();
-            CategoryItemRenderer renderer = new DrawStackedBarLineH.CustomRenderer(actionType);
-            p.setRenderer(renderer);
-            p.setOutlinePaint(Color.white);
+        CategoryPlot p = chart.getCategoryPlot();
+        CategoryItemRenderer renderer = new DrawStackedBarLineH.CustomRenderer(actionType);
+        p.setRenderer(renderer);
+        p.setOutlinePaint(Color.white);
+        p.setNoDataMessage("无数据");
 
-            CategoryAxis categoryaxis = p.getDomainAxis();
-            categoryaxis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_45);// 横轴斜45度
+        CategoryAxis categoryaxis = p.getDomainAxis();
+        categoryaxis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_45);// 横轴斜45度
 
-            p.setDataset(1, dataSetLine);// 设置数据集索引
-            p.mapDatasetToRangeAxis(1, 1);// 将该索引映射到axis
+        p.setDataset(1, dataSetLine);// 设置数据集索引
+        p.mapDatasetToRangeAxis(1, 1);// 将该索引映射到axis
 
-            CategoryItemRenderer Linerenderer = new DrawStackedBarLineH.CustomRenderer(actionType); // 设置方形数据点
-            p.setRenderer(Linerenderer);
-            p.setOutlinePaint(Color.white);
+        CategoryItemRenderer Linerenderer = new DrawStackedBarLineH.CustomRenderer(actionType); // 设置方形数据点
+        p.setRenderer(Linerenderer);
+        p.setOutlinePaint(Color.white);
 
-            Double maxNum = 0d;
-            for (int j = 0; j < dataSetLine.getRowKeys().size(); j++) { // 获取最大值
-                for (int i = 0; i < dataSetLine.getColumnKeys().size(); i++) {
-                    Object temp = dataSetLine.getValue(j, i);
-                    if (temp != null) {
-                        Double tempInt = Double.valueOf((temp.toString()));
-                        if (tempInt > maxNum) {
-                            maxNum = tempInt;
-                        }
+        Double maxNum = 0d;
+        for (int j = 0; j < dataSetLine.getRowKeys().size(); j++) { // 获取最大值
+            for (int i = 0; i < dataSetLine.getColumnKeys().size(); i++) {
+                Object temp = dataSetLine.getValue(j, i);
+                if (temp != null) {
+                    Double tempInt = Double.valueOf((temp.toString()));
+                    if (tempInt > maxNum) {
+                        maxNum = tempInt;
                     }
                 }
             }
-            ValueAxis numberaxis = new NumberAxis("");
-            numberaxis.setUpperBound(maxNum + 1); // 纵轴上限
-            numberaxis.setLowerBound(0.00D); // 纵轴下限
-            p.setRangeAxis(1, numberaxis);
-            LineAndShapeRenderer lineAndShapeRenderer = new DrawStackedBarLineH.LineCustomRenderer();
-            lineAndShapeRenderer.setSeriesShape(0, new Ellipse2D.Double(-2D, -2D, 4D, 4D));
-            p.setRenderer(1, lineAndShapeRenderer);
-            p.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
-
-            return JfreeChartUtil.getChartString(actionType, chart, width, height);
         }
-        return "";
+        ValueAxis numberaxis = new NumberAxis("");
+        numberaxis.setUpperBound(maxNum + 1); // 纵轴上限
+        numberaxis.setLowerBound(0.00D); // 纵轴下限
+        p.setRangeAxis(1, numberaxis);
+        LineAndShapeRenderer lineAndShapeRenderer = new DrawStackedBarLineH.LineCustomRenderer();
+        lineAndShapeRenderer.setSeriesShape(0, new Ellipse2D.Double(-2D, -2D, 4D, 4D));
+        p.setRenderer(1, lineAndShapeRenderer);
+        p.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
+
+        return JfreeChartUtil.getChartString(actionType, chart, width, height);
     }
 
     static class CustomRenderer extends StackedBarRenderer {

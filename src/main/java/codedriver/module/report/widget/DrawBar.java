@@ -44,7 +44,6 @@ public class DrawBar implements TemplateMethodModelEx {
 
     @Override
 	public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
-		boolean canReturn = true;
 		int width = 1000;
 		int height = 500;
 		//int tick = 0;
@@ -71,14 +70,7 @@ public class DrawBar implements TemplateMethodModelEx {
 						dataset.addValue(valuekey.getAsNumber(), rowkey, columnkey);
 					}
 				}
-				if (dataset.getRowCount() <= 0) {
-					canReturn = false;
-				}
-			} else {
-				canReturn = false;
 			}
-		} else {
-			canReturn = false;
 		}
 
 		if (arguments.size() >= 2) {
@@ -104,44 +96,42 @@ public class DrawBar implements TemplateMethodModelEx {
 			}
 		}
 
-		if (canReturn) {
-			StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme(actionType);
+		StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme(actionType);
 
-			JFreeChart chart = ChartFactory.createBarChart(title, xLabel, yLabel, dataset);
-			standardChartTheme.apply(chart);
-			chart.getLegend().setFrame(new BlockBorder(JfreeChartUtil.ChartColor.CHART_BACKGROUND_COLOR.getColor(actionType)));
+		JFreeChart chart = ChartFactory.createBarChart(title, xLabel, yLabel, dataset);
+		standardChartTheme.apply(chart);
+		chart.getLegend().setFrame(new BlockBorder(JfreeChartUtil.ChartColor.CHART_BACKGROUND_COLOR.getColor(actionType)));
 
-			CategoryPlot p = chart.getCategoryPlot();
-			CategoryItemRenderer renderer = new DrawBar.CustomRenderer(actionType);
-			renderer.setDefaultItemLabelsVisible(isShowValue);
-			renderer.setDefaultItemLabelPaint(JfreeChartUtil.ChartColor.LABEL_LINK_COLOR.getColor(actionType));
-			p.setRenderer(renderer);
-			p.setOutlinePaint(null);
-			//X坐标轴
-			CategoryAxis axis = p.getDomainAxis();
-			axis.setLowerMargin(0);
-			axis.setUpperMargin(0);
-			axis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);// 倾斜45度
-			axis.setAxisLinePaint(JfreeChartUtil.ChartColor.TICK_LABEL_COLOR.getColor(ActionType.EXPORT.getValue()));
-			axis.setTickMarkPaint(JfreeChartUtil.ChartColor.TICK_LABEL_COLOR.getColor(ActionType.EXPORT.getValue()));
-            /*if (tick > 0) {
-            	List<String> xLables = dataset.getColumnKeys();
-            	for (int k = 0; k < xLables.size(); k++) {
-            		if (k % tick != 0) {
-            			axis.setTickLabelPaint(xLables.get(k), Color.WHITE);
-            		}
-            	}
-            }*/
-			
-			//y坐标轴
-			ValueAxis yXis = p.getRangeAxis();
-			yXis.setAxisLinePaint(JfreeChartUtil.ChartColor.TICK_LABEL_COLOR.getColor(ActionType.EXPORT.getValue()));
-			yXis.setTickMarkPaint(JfreeChartUtil.ChartColor.TICK_LABEL_COLOR.getColor(ActionType.EXPORT.getValue()));
-			yXis.setLabelPaint(Color.WHITE);
-			yXis.setTickLabelPaint(Color.WHITE);
-			return JfreeChartUtil.getChartString(actionType, chart, width, height);
-		}
-		return "";
+		CategoryPlot p = chart.getCategoryPlot();
+		CategoryItemRenderer renderer = new DrawBar.CustomRenderer(actionType);
+		renderer.setDefaultItemLabelsVisible(isShowValue);
+		renderer.setDefaultItemLabelPaint(JfreeChartUtil.ChartColor.LABEL_LINK_COLOR.getColor(actionType));
+		p.setRenderer(renderer);
+		p.setOutlinePaint(null);
+		p.setNoDataMessage("无数据");
+		//X坐标轴
+		CategoryAxis axis = p.getDomainAxis();
+		axis.setLowerMargin(0);
+		axis.setUpperMargin(0);
+		axis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);// 倾斜45度
+		axis.setAxisLinePaint(JfreeChartUtil.ChartColor.TICK_LABEL_COLOR.getColor(ActionType.EXPORT.getValue()));
+		axis.setTickMarkPaint(JfreeChartUtil.ChartColor.TICK_LABEL_COLOR.getColor(ActionType.EXPORT.getValue()));
+        /*if (tick > 0) {
+        	List<String> xLables = dataset.getColumnKeys();
+        	for (int k = 0; k < xLables.size(); k++) {
+        		if (k % tick != 0) {
+        			axis.setTickLabelPaint(xLables.get(k), Color.WHITE);
+        		}
+        	}
+        }*/
+
+		//y坐标轴
+		ValueAxis yXis = p.getRangeAxis();
+		yXis.setAxisLinePaint(JfreeChartUtil.ChartColor.TICK_LABEL_COLOR.getColor(ActionType.EXPORT.getValue()));
+		yXis.setTickMarkPaint(JfreeChartUtil.ChartColor.TICK_LABEL_COLOR.getColor(ActionType.EXPORT.getValue()));
+		yXis.setLabelPaint(Color.WHITE);
+		yXis.setTickLabelPaint(Color.WHITE);
+		return JfreeChartUtil.getChartString(actionType, chart, width, height);
 	}
 
 	static class CustomRenderer extends BarRenderer {

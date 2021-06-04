@@ -101,7 +101,7 @@ public class DrawPie implements TemplateMethodModelEx {
 
 		public void setColor(PiePlot plot, DefaultPieDataset dataset,String actionType) {
 
-			plot.setNoDataMessage("数据加载失败");
+			plot.setNoDataMessage("无数据");
 			plot.setInsets(new RectangleInsets(10, 10, 5, 10));
 			PiePlot piePlot = (PiePlot) plot;
 			piePlot.setInsets(new RectangleInsets(0, 0, 0, 0));

@@ -6,20 +6,17 @@ import codedriver.framework.auth.core.AuthActionChecker;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.common.dto.BasePageVo;
 import codedriver.framework.common.util.PageUtil;
-import codedriver.framework.dao.mapper.TeamMapper;
 import codedriver.framework.restful.annotation.*;
 import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
 import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.auth.label.REPORT_MODIFY;
 import codedriver.module.report.dao.mapper.ReportInstanceMapper;
-import codedriver.module.report.dto.ReportInstanceAuthVo;
 import codedriver.module.report.dto.ReportInstanceVo;
 import com.alibaba.fastjson.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import javax.annotation.Resource;
 import java.util.List;
 
 @AuthAction(action = REPORT_BASE.class)
@@ -27,11 +24,8 @@ import java.util.List;
 @Service
 public class SearchReportInstanceApi extends PrivateApiComponentBase {
 
-    @Autowired
+    @Resource
     private ReportInstanceMapper reportInstanceMapper;
-
-    @Autowired
-    private TeamMapper teamMapper;
 
     @Override
     public String getToken() {
@@ -49,34 +43,19 @@ public class SearchReportInstanceApi extends PrivateApiComponentBase {
     }
 
     @Input({@Param(name = "keyword", type = ApiParamType.STRING, desc = "关键字", xss = true),
-        @Param(name = "needPage", type = ApiParamType.BOOLEAN, desc = "是否需要分页"),
-        @Param(name = "pageSize", type = ApiParamType.INTEGER, desc = "每页数量"),
-        @Param(name = "currentPage", type = ApiParamType.INTEGER, desc = "当前页"),})
+            @Param(name = "needPage", type = ApiParamType.BOOLEAN, desc = "是否需要分页"),
+            @Param(name = "pageSize", type = ApiParamType.INTEGER, desc = "每页数量"),
+            @Param(name = "currentPage", type = ApiParamType.INTEGER, desc = "当前页"),})
     @Output({@Param(explode = BasePageVo.class),
-        @Param(name = "tbodyList", desc = "报表列表", explode = ReportInstanceVo[].class)})
+            @Param(name = "tbodyList", desc = "报表列表", explode = ReportInstanceVo[].class)})
     @Description(desc = "查询报表")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
+        // 查询当前用户创建的实例，如果有REPORT_MODIFY权限，则查询所有
         ReportInstanceVo reportInstanceVo = JSONObject.toJavaObject(jsonObj, ReportInstanceVo.class);
-        String userUuid = UserContext.get().getUserUuid(true);
-        // 权限判断：如果是管理员
-        boolean hasAuth = AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName());
-        if (!hasAuth) {
-            // 如果不是管理员，则校验报表权限
-            reportInstanceVo.setSearchMode("user");
-            List<ReportInstanceAuthVo> reportAuthList = new ArrayList<>();
-            reportAuthList.add(new ReportInstanceAuthVo(ReportInstanceAuthVo.AUTHTYPE_USER, userUuid));
-            for (String roleUuid : UserContext.get().getRoleUuidList()) {
-                reportAuthList.add(new ReportInstanceAuthVo(ReportInstanceAuthVo.AUTHTYPE_ROLE, roleUuid));
-            }
-            for (String teamUuid : teamMapper.getTeamUuidListByUserUuid(userUuid)) {
-                reportAuthList.add(new ReportInstanceAuthVo(ReportInstanceAuthVo.AUTHTYPE_TEAM, teamUuid));
-            }
-            reportInstanceVo.setReportInstanceAuthList(reportAuthList);
-        } else {
-            reportInstanceVo.setSearchMode("admin");
+        if (!AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName())) {
+            reportInstanceVo.setFcu(UserContext.get().getUserUuid());
         }
-
         List<ReportInstanceVo> reportInstanceList = reportInstanceMapper.searchReportInstance(reportInstanceVo);
         JSONObject returnObj = new JSONObject();
         returnObj.put("tbodyList", reportInstanceList);

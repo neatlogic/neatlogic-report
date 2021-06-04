@@ -44,7 +44,6 @@ public class DrawBarH implements TemplateMethodModelEx {
     @SuppressWarnings("unchecked")
     @Override
 	public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
-		boolean canReturn = true;
 		int width = 1000;
 		int height = 600;
 		int tick = 0;
@@ -71,14 +70,7 @@ public class DrawBarH implements TemplateMethodModelEx {
 						dataset.addValue(valuekey.getAsNumber(), rowkey, columnkey);
 					}
 				}
-				if (dataset.getRowCount() <= 0) {
-					canReturn = false;
-				}
-			} else {
-				canReturn = false;
 			}
-		} else {
-			canReturn = false;
 		}
 
 		if (arguments.size() >= 2) {
@@ -104,35 +96,32 @@ public class DrawBarH implements TemplateMethodModelEx {
 			}
 		}
 
-		if (canReturn) {
-			StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme(actionType);
+		StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme(actionType);
 
-			JFreeChart chart = ChartFactory.createBarChart(title, xLabel, yLabel, dataset, PlotOrientation.HORIZONTAL, true, false, false);
-			standardChartTheme.apply(chart);
-			chart.getLegend().setFrame(new BlockBorder(new Color(10, 10, 10)));
+		JFreeChart chart = ChartFactory.createBarChart(title, xLabel, yLabel, dataset, PlotOrientation.HORIZONTAL, true, false, false);
+		standardChartTheme.apply(chart);
+		chart.getLegend().setFrame(new BlockBorder(new Color(10, 10, 10)));
 
-			CategoryPlot p = chart.getCategoryPlot();
-			CategoryItemRenderer renderer = new DrawBarH.CustomRenderer(actionType);
-			renderer.setDefaultItemLabelsVisible(isShowValue);
-			p.setRenderer(renderer);
-			p.setOutlinePaint(Color.white);
-
-			CategoryAxis yxis = (CategoryAxis) p.getDomainAxis();// Y坐标轴
-			yxis.setLowerMargin(0);
-			yxis.setUpperMargin(0);
-			yxis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_45);// 倾斜45度
-			if (tick > 0) {
-				List<String> xLables = dataset.getColumnKeys();
-				for (int k = 0; k < xLables.size(); k++) {
-					if (k % tick != 0) {
-						yxis.setTickLabelPaint(xLables.get(k), Color.WHITE);
-					}
+		CategoryPlot p = chart.getCategoryPlot();
+		CategoryItemRenderer renderer = new DrawBarH.CustomRenderer(actionType);
+		renderer.setDefaultItemLabelsVisible(isShowValue);
+		p.setRenderer(renderer);
+		p.setOutlinePaint(Color.white);
+		p.setNoDataMessage("无数据");
+		CategoryAxis yxis = (CategoryAxis) p.getDomainAxis();// Y坐标轴
+		yxis.setLowerMargin(0);
+		yxis.setUpperMargin(0);
+		yxis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_45);// 倾斜45度
+		if (tick > 0) {
+			List<String> xLables = dataset.getColumnKeys();
+			for (int k = 0; k < xLables.size(); k++) {
+				if (k % tick != 0) {
+					yxis.setTickLabelPaint(xLables.get(k), Color.WHITE);
 				}
 			}
-
-			return JfreeChartUtil.getChartString(actionType, chart, width, height);
 		}
-		return "";
+
+		return JfreeChartUtil.getChartString(actionType, chart, width, height);
 	}
 
 	static class CustomRenderer extends BarRenderer {

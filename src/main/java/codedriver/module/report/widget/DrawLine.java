@@ -39,7 +39,6 @@ public class DrawLine implements TemplateMethodModelEx {
 	@SuppressWarnings({"unchecked", "unused"})
     @Override
 	public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
-		boolean canReturn = true;
 		int width = 1000;
 		int height = 400;
 		int tick = 0;
@@ -71,11 +70,7 @@ public class DrawLine implements TemplateMethodModelEx {
 						dataset.addValue(y.getAsNumber(), series, x);
 					}
 				}
-			} else {
-				canReturn = false;
 			}
-		} else {
-			canReturn = false;
 		}
 
 		if (arguments.size() >= 2) {
@@ -101,35 +96,33 @@ public class DrawLine implements TemplateMethodModelEx {
 			}
 		}
 
-		if (canReturn) {
-			StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme(actionType);
+		StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme(actionType);
 
-			JFreeChart chart = ChartFactory.createLineChart(title, xLabel, yLabel, dataset);
-			standardChartTheme.apply(chart);
-			chart.getLegend().setFrame(new BlockBorder(ChartColor.CHART_BACKGROUND_COLOR.getColor(actionType)));
-			CategoryPlot p = chart.getCategoryPlot();
-			CategoryItemRenderer render = new DrawLine.CustomRenderer(actionType);
-			render.setDefaultItemLabelsVisible(isShowValue);
-			p.setRenderer(render);
-			p.setOutlinePaint(null);
-			CategoryAxis axis = (CategoryAxis) p.getDomainAxis();// X坐标轴
-			if (tick > 0) {
-				List<String> xLables = dataset.getColumnKeys();
-				for (int k = 0; k < xLables.size(); k++) {
-					if (k % tick != 0) {
-						axis.setTickLabelPaint(xLables.get(k), Color.WHITE);
-					}
+		JFreeChart chart = ChartFactory.createLineChart(title, xLabel, yLabel, dataset);
+		standardChartTheme.apply(chart);
+		chart.getLegend().setFrame(new BlockBorder(ChartColor.CHART_BACKGROUND_COLOR.getColor(actionType)));
+		CategoryPlot p = chart.getCategoryPlot();
+		CategoryItemRenderer render = new DrawLine.CustomRenderer(actionType);
+		render.setDefaultItemLabelsVisible(isShowValue);
+		p.setRenderer(render);
+		p.setOutlinePaint(null);
+		p.setNoDataMessage("无数据");
+		CategoryAxis axis = (CategoryAxis) p.getDomainAxis();// X坐标轴
+		if (tick > 0) {
+			List<String> xLables = dataset.getColumnKeys();
+			for (int k = 0; k < xLables.size(); k++) {
+				if (k % tick != 0) {
+					axis.setTickLabelPaint(xLables.get(k), Color.WHITE);
 				}
 			}
-			axis.setLowerMargin(0);
-			axis.setUpperMargin(0);
-			axis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);// 倾斜45度
-			ValueAxis yAxis = p.getRangeAxis();// 对Y轴做操作 q
-			yAxis.setAutoRange(true); // 设置y轴自动获取范围
-			
-			return JfreeChartUtil.getChartString(actionType, chart, width, height);
 		}
-		return "";
+		axis.setLowerMargin(0);
+		axis.setUpperMargin(0);
+		axis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);// 倾斜45度
+		ValueAxis yAxis = p.getRangeAxis();// 对Y轴做操作 q
+		yAxis.setAutoRange(true); // 设置y轴自动获取范围
+
+		return JfreeChartUtil.getChartString(actionType, chart, width, height);
 	}
 
 	static class CustomRenderer extends LineAndShapeRenderer {

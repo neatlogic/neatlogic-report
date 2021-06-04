@@ -9,34 +9,36 @@ import codedriver.module.report.dto.ReportVo;
 
 public interface ReportMapper {
 
-	public List<ReportParamVo> getReportParamByReportId(Long reportId);
+	List<ReportParamVo> getReportParamByReportId(Long reportId);
 
-	public int searchReportCount(ReportVo reportVo);
+	int searchReportCount(ReportVo reportVo);
 
-	public List<ReportTypeVo> getAllReportType();
+	List<ReportTypeVo> getAllReportType();
 
-	public List<ReportVo> searchReport(ReportVo reportVo);
+	List<ReportVo> searchReport(ReportVo reportVo);
 
-	public List<ReportAuthVo> getReportAuthByReportId(Long reportId);
+	List<ReportAuthVo> getReportAuthByReportId(Long reportId);
 
-	public ReportVo getReportById(Long reportId);
+	ReportVo getReportById(Long reportId);
 
-	public int updateReportActive(ReportVo reportVo);
+	ReportVo getReportBaseInfo(Long reportId);
 
-	public int updateReport(ReportVo reportVo);
+	int updateReportActive(ReportVo reportVo);
 
-	public int updateReportVisitCount(Long reportId);
+	int updateReport(ReportVo reportVo);
 
-	public int insertReport(ReportVo reportVo);
+	int updateReportVisitCount(Long reportId);
 
-	public int insertReportParam(ReportParamVo reportParamVo);
+	int insertReport(ReportVo reportVo);
 
-	public int insertReportAuth(ReportAuthVo reportAuthVo);
+	int insertReportParam(ReportParamVo reportParamVo);
 
-	public int deleteReportAuthByReportId(Long reportId);
+	int insertReportAuth(ReportAuthVo reportAuthVo);
 
-	public int deleteReportById(Long reportId);
+	int deleteReportAuthByReportId(Long reportId);
 
-	public int deleteReportParamByReportId(Long reportId);
+	int deleteReportById(Long reportId);
+
+	int deleteReportParamByReportId(Long reportId);
 
 }

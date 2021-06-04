@@ -7,15 +7,20 @@ import codedriver.module.report.dto.ReportInstanceTableColumnVo;
 import codedriver.module.report.dto.ReportInstanceVo;
 
 public interface ReportInstanceMapper {
-	public ReportInstanceVo getReportInstanceById(Long reportInstanceId);
 
-	public List<ReportInstanceAuthVo> getReportInstanceAuthByReportInstanceId(Long reportInstanceId);
+	int checkReportInstanceExists(Long instanceId);
 
-	public List<ReportInstanceVo> searchReportInstance(ReportInstanceVo reportInstanceVo);
+	ReportInstanceVo getReportInstanceById(Long reportInstanceId);
 
-	public int searchReportInstanceCount(ReportInstanceVo reportInstanceVo);
+	List<ReportInstanceAuthVo> getReportInstanceAuthByReportInstanceId(Long reportInstanceId);
 
-	public List<ReportInstanceTableColumnVo> getReportInstanceTableColumnList(Long reportInstanceId);
+	List<ReportInstanceVo> searchReportInstance(ReportInstanceVo reportInstanceVo);
+
+	int searchReportInstanceCount(ReportInstanceVo reportInstanceVo);
+
+	List<ReportInstanceVo> getReportInstanceList(ReportInstanceVo reportInstanceVo);
+
+	List<ReportInstanceTableColumnVo> getReportInstanceTableColumnList(Long reportInstanceId);
 
 	/**
 	 * @Description: 检查id为reportId的报表是否被报表实例引用
@@ -24,22 +29,22 @@ public interface ReportInstanceMapper {
 	 * @Params: [reportId]
 	 * @Returns: int
 	**/
-	public int checkReportInstanceExistsByReportId(Long reportId);
+	int checkReportInstanceExistsByReportId(Long reportId);
 
-	public int insertReportInstance(ReportInstanceVo reportInstanceVo);
+	int insertReportInstance(ReportInstanceVo reportInstanceVo);
 
-	public int insertReportInstanceAuth(ReportInstanceAuthVo reportInstanceAuthVo);
+	int insertReportInstanceAuth(ReportInstanceAuthVo reportInstanceAuthVo);
 
-	public int batchInsertReportInstanceTableColumn(List<ReportInstanceTableColumnVo> list);
+	int batchInsertReportInstanceTableColumn(List<ReportInstanceTableColumnVo> list);
 
-	public int updateReportInstance(ReportInstanceVo reportInstanceVo);
+	int updateReportInstance(ReportInstanceVo reportInstanceVo);
 
-	public int updateReportInstanceActive(ReportInstanceVo reportInstanceVo);
+	int updateReportInstanceActive(ReportInstanceVo reportInstanceVo);
 
-	public int deleteReportInstanceAuthByReportInstanceId(Long reportInstanceId);
+	int deleteReportInstanceAuthByReportInstanceId(Long reportInstanceId);
 
-	public int deleteReportInstanceTableColumn(Long reportInstanceId);
+	int deleteReportInstanceTableColumn(Long reportInstanceId);
 
-	public int deleteReportInstanceById(Long reportInstanceId);
+	int deleteReportInstanceById(Long reportInstanceId);
 
 }
