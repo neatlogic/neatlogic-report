@@ -5,7 +5,7 @@ import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.restful.annotation.*;
 import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
-import codedriver.module.report.auth.label.REPORT_MODIFY;
+import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.dto.ReportVo;
 import codedriver.module.report.dto.SelectVo;
 import codedriver.module.report.service.ReportService;
@@ -25,7 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-@AuthAction(action = REPORT_MODIFY.class)
+@AuthAction(action = REPORT_BASE.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
 public class GetReportApi extends PrivateApiComponentBase {
 
