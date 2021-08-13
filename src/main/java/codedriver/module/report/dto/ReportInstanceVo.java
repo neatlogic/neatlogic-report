@@ -1,16 +1,19 @@
+/*
+ * Copyright(c) 2021 TechSure Co., Ltd. All Rights Reserved.
+ * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+ */
+
 package codedriver.module.report.dto;
-
-import java.util.*;
-
-import org.apache.commons.collections4.CollectionUtils;
-
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.annotation.JSONField;
 
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.common.dto.BasePageVo;
 import codedriver.framework.restful.annotation.EntityField;
 import codedriver.framework.util.SnowflakeUtil;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
+import org.apache.commons.collections4.CollectionUtils;
+
+import java.util.*;
 
 public class ReportInstanceVo extends BasePageVo {
     @JSONField(serialize = false)
@@ -113,14 +116,6 @@ public class ReportInstanceVo extends BasePageVo {
 
     public void setLcd(Date lcd) {
         this.lcd = lcd;
-    }
-
-    public String getKeyword() {
-        return keyword;
-    }
-
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
     }
 
     public List<ReportInstanceAuthVo> getReportInstanceAuthList() {
