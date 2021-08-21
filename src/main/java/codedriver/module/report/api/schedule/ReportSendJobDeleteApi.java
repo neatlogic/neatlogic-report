@@ -1,3 +1,8 @@
+/*
+ * Copyright(c) 2021 TechSure Co., Ltd. All Rights Reserved.
+ * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+ */
+
 package codedriver.module.report.api.schedule;
 
 import codedriver.framework.asynchronization.threadlocal.TenantContext;
@@ -58,7 +63,7 @@ public class ReportSendJobDeleteApi extends PrivateApiComponentBase {
 		if(job == null){
 			throw new ReportSendJobNotFoundException(id);
 		}
-		/** 清除定时任务 */
+		/* 清除定时任务 */
 		IJob handler = SchedulerManager.getHandler("codedriver.module.report.schedule.plugin.ReportSendJob");
 		String tenantUuid = TenantContext.get().getTenantUuid();
 		JobObject newJobObject = new JobObject.Builder(job.getId().toString(), handler.getGroupName(), handler.getClassName(), tenantUuid).withCron(job.getCron()).addData("sendJobId",job.getId()).build();

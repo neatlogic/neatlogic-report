@@ -1,3 +1,8 @@
+/*
+ * Copyright(c) 2021 TechSure Co., Ltd. All Rights Reserved.
+ * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+ */
+
 package codedriver.module.report.api.schedule;
 
 import codedriver.framework.asynchronization.threadlocal.TenantContext;
@@ -64,9 +69,9 @@ public class ReportSendJobStatusUpdateApi extends PrivateApiComponentBase {
 		IJob handler = SchedulerManager.getHandler("codedriver.module.report.schedule.plugin.ReportSendJob");
 		String tenantUuid = TenantContext.get().getTenantUuid();
 		JobObject newJobObject = new JobObject.Builder(job.getId().toString(), handler.getGroupName(), handler.getClassName(), tenantUuid).withCron(job.getCron()).addData("sendJobId",job.getId()).build();
-		if(jobVo.getIsActive().intValue() == 1){
+		if (jobVo.getIsActive() == 1) {
 			schedulerManager.loadJob(newJobObject);
-		}else{
+		} else {
 			schedulerManager.unloadJob(newJobObject);
 		}
 

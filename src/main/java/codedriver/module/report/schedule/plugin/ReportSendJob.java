@@ -1,3 +1,8 @@
+/*
+ * Copyright(c) 2021 TechSure Co., Ltd. All Rights Reserved.
+ * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+ */
+
 package codedriver.module.report.schedule.plugin;
 
 import codedriver.framework.asynchronization.threadlocal.TenantContext;
@@ -53,15 +58,13 @@ public class ReportSendJob extends JobBase {
 	private ReportService reportService;
 
 	@Override
-	public Boolean checkCronIsExpired(JobObject jobObject) {
-		ReportSendJobVo jobVo = reportSendJobMapper.getJobBaseInfoById(Long.valueOf(jobObject.getJobName()));
-		if (jobVo != null) {
-			if (jobVo.getIsActive().equals(1) && jobVo.getCron().equals(jobObject.getCron())) {
-				return true;
-			}
-		}
-		return false;
-	}
+    public Boolean isHealthy(JobObject jobObject) {
+        ReportSendJobVo jobVo = reportSendJobMapper.getJobBaseInfoById(Long.valueOf(jobObject.getJobName()));
+        if (jobVo != null) {
+            return jobVo.getIsActive().equals(1) && jobVo.getCron().equals(jobObject.getCron());
+        }
+        return false;
+    }
 
 	@Override
 	public void reloadJob(JobObject jobObject) {
