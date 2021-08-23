@@ -8,13 +8,15 @@ package codedriver.module.report.api;
 import codedriver.framework.asynchronization.threadlocal.UserContext;
 import codedriver.framework.auth.core.AuthAction;
 import codedriver.framework.auth.core.AuthActionChecker;
-import codedriver.framework.dao.mapper.TeamMapper;
+import codedriver.framework.dto.AuthenticationInfoVo;
 import codedriver.framework.restful.annotation.*;
 import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
+import codedriver.framework.service.AuthenticationInfoService;
 import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.auth.label.REPORT_MODIFY;
 import codedriver.module.report.dao.mapper.ReportInstanceMapper;
+import codedriver.module.report.dto.ReportAuthVo;
 import codedriver.module.report.dto.ReportInstanceAuthVo;
 import codedriver.module.report.dto.ReportInstanceVo;
 import com.alibaba.fastjson.JSONObject;
@@ -36,7 +38,7 @@ public class ReportInstanceListApi extends PrivateApiComponentBase {
     private ReportInstanceMapper reportInstanceMapper;
 
     @Resource
-    private TeamMapper teamMapper;
+    private AuthenticationInfoService authenticationInfoService;
 
     @Override
     public String getToken() {
@@ -67,12 +69,13 @@ public class ReportInstanceListApi extends PrivateApiComponentBase {
             // 查询当前用户有权看到的实例
             String userUuid = UserContext.get().getUserUuid(true);
             List<ReportInstanceAuthVo> reportAuthList = new ArrayList<>();
-            reportAuthList.add(new ReportInstanceAuthVo(ReportInstanceAuthVo.AUTHTYPE_USER, userUuid));
-            for (String roleUuid : UserContext.get().getRoleUuidList()) {
-                reportAuthList.add(new ReportInstanceAuthVo(ReportInstanceAuthVo.AUTHTYPE_ROLE, roleUuid));
+            AuthenticationInfoVo authenticationInfoVo = authenticationInfoService.getAuthenticationInfo(userUuid);
+            reportAuthList.add(new ReportInstanceAuthVo(ReportAuthVo.AUTHTYPE_USER, userUuid));
+            for (String roleUuid : authenticationInfoVo.getRoleUuidList()) {
+                reportAuthList.add(new ReportInstanceAuthVo(ReportAuthVo.AUTHTYPE_ROLE, roleUuid));
             }
-            for (String teamUuid : teamMapper.getTeamUuidListByUserUuid(userUuid)) {
-                reportAuthList.add(new ReportInstanceAuthVo(ReportInstanceAuthVo.AUTHTYPE_TEAM, teamUuid));
+            for (String teamUuid : authenticationInfoVo.getTeamUuidList()) {
+                reportAuthList.add(new ReportInstanceAuthVo(ReportAuthVo.AUTHTYPE_TEAM, teamUuid));
             }
             reportInstanceVo.setReportInstanceAuthList(reportAuthList);
             List<ReportInstanceVo> authInstanceList = reportInstanceMapper.getReportInstanceList(reportInstanceVo);

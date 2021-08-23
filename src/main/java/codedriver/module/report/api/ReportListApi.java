@@ -11,10 +11,11 @@ import codedriver.framework.auth.core.AuthActionChecker;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.common.dto.BasePageVo;
 import codedriver.framework.common.util.PageUtil;
-import codedriver.framework.dao.mapper.TeamMapper;
+import codedriver.framework.dto.AuthenticationInfoVo;
 import codedriver.framework.restful.annotation.*;
 import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
+import codedriver.framework.service.AuthenticationInfoService;
 import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.auth.label.REPORT_MODIFY;
 import codedriver.module.report.dao.mapper.ReportMapper;
@@ -36,7 +37,7 @@ public class ReportListApi extends PrivateApiComponentBase {
     private ReportMapper reportMapper;
 
     @Resource
-    private TeamMapper teamMapper;
+    private AuthenticationInfoService authenticationInfoService;
 
     @Override
     public String getToken() {
@@ -68,11 +69,12 @@ public class ReportListApi extends PrivateApiComponentBase {
         if (!AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName())) {
             String userUuid = UserContext.get().getUserUuid();
             List<ReportAuthVo> reportAuthList = new ArrayList<>();
+            AuthenticationInfoVo authenticationInfoVo = authenticationInfoService.getAuthenticationInfo(userUuid);
             reportAuthList.add(new ReportAuthVo(ReportAuthVo.AUTHTYPE_USER, userUuid));
-            for (String roleUuid : UserContext.get().getRoleUuidList()) {
+            for (String roleUuid : authenticationInfoVo.getRoleUuidList()) {
                 reportAuthList.add(new ReportAuthVo(ReportAuthVo.AUTHTYPE_ROLE, roleUuid));
             }
-            for (String teamUuid : teamMapper.getTeamUuidListByUserUuid(userUuid)) {
+            for (String teamUuid : authenticationInfoVo.getTeamUuidList()) {
                 reportAuthList.add(new ReportAuthVo(ReportAuthVo.AUTHTYPE_TEAM, teamUuid));
             }
             reportVo.setReportAuthList(reportAuthList);
