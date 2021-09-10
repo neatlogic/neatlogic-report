@@ -25,9 +25,9 @@ public class ReportParamVo {
 	@EntityField(name = "宽度", type = ApiParamType.INTEGER)
 	private Integer width;
 	@JSONField(serialize = false)
-	private transient String configStr;
+	private String configStr;
 	@JSONField(serialize = false)
-	private transient Integer sort;
+	private Integer sort;
 
 	public Long getReportId() {
 		return reportId;

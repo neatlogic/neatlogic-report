@@ -17,7 +17,7 @@ import java.util.*;
 
 public class ReportInstanceVo extends BasePageVo {
     @JSONField(serialize = false)
-    private transient String keyword;
+    private String keyword;
     @EntityField(name = "id", type = ApiParamType.LONG)
     private Long id;
     @EntityField(name = "报表定义id", type = ApiParamType.LONG)
@@ -45,7 +45,7 @@ public class ReportInstanceVo extends BasePageVo {
     @EntityField(name = "授权字符串列表", type = ApiParamType.JSONARRAY)
     private List<String> authList;
     @JSONField(serialize = false) // 搜索模式，默认是按用户搜索，管理员页面无需检查用户权限
-    private transient String searchMode = "user";
+    private String searchMode = "user";
     @EntityField(name = "报表参数列表", type = ApiParamType.JSONARRAY)
     private List<ReportParamVo> paramList;
     @EntityField(name = "表格列表", type = ApiParamType.JSONARRAY)
