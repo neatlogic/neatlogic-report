@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class ReportVo extends BasePageVo {
     @JSONField(serialize = false)
-    private transient String keyword;
+    private String keyword;
     @EntityField(name = "id", type = ApiParamType.LONG)
     private Long id;
     @EntityField(name = "名称", type = ApiParamType.STRING)
@@ -53,7 +53,7 @@ public class ReportVo extends BasePageVo {
     @EntityField(name = "表格列表", type = ApiParamType.JSONARRAY)
     List<Map<String, Object>> tableList;
     @JSONField(serialize = false)//搜索模式，默认是按用户搜索，管理员页面无需检查用户权限
-    private transient String searchMode = "user";
+    private String searchMode = "user";
     @JSONField(serialize = false)
     private Integer sort;
 
