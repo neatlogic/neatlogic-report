@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Map;
 
 public class ReportVo extends BasePageVo {
-    @JSONField(serialize = false)
-    private String keyword;
     @EntityField(name = "id", type = ApiParamType.LONG)
     private Long id;
     @EntityField(name = "名称", type = ApiParamType.STRING)
