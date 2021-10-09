@@ -16,8 +16,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import java.util.*;
 
 public class ReportInstanceVo extends BasePageVo {
-    @JSONField(serialize = false)
-    private String keyword;
     @EntityField(name = "id", type = ApiParamType.LONG)
     private Long id;
     @EntityField(name = "报表定义id", type = ApiParamType.LONG)
