@@ -172,7 +172,9 @@
 		`is_active`,
 		`config`,
 		`fcu`,
-		`fcd`
+		`fcd`,
+		`lcu`,
+		`lcd`
 		)
 		VALUES
 		(
@@ -182,6 +184,8 @@
 		0,
 		#{isActive},
 		#{configStr},
+		#{fcu},
+		NOW(3),
 		#{fcu},
 		NOW(3)
 		)

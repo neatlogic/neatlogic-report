@@ -182,7 +182,9 @@
 		`content`,
 		`is_active`,
 		`fcu`,
-		`fcd`
+		`fcd`,
+		`lcu`,
+		`lcd`
 		)
 		VALUES
 		(
@@ -193,6 +195,8 @@
 		#{condition},
 		#{content},
 		#{isActive},
+		#{fcu},
+		NOW(3),
 		#{fcu},
 		NOW(3)
 		)
