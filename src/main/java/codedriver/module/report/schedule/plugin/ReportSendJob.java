@@ -6,13 +6,14 @@
 package codedriver.module.report.schedule.plugin;
 
 import codedriver.framework.asynchronization.threadlocal.TenantContext;
+import codedriver.framework.common.constvalue.MimeType;
 import codedriver.framework.dao.mapper.MailServerMapper;
 import codedriver.framework.dao.mapper.UserMapper;
-import codedriver.framework.dto.MailServerVo;
 import codedriver.framework.dto.UserVo;
-import codedriver.framework.notify.exception.EmailServerNotFoundException;
 import codedriver.framework.scheduler.core.JobBase;
 import codedriver.framework.scheduler.dto.JobObject;
+import codedriver.framework.util.EmailUtil;
+import codedriver.framework.util.ExportUtil;
 import codedriver.module.report.constvalue.ActionType;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dao.mapper.ReportSendJobMapper;
@@ -21,7 +22,6 @@ import codedriver.module.report.dto.ReportSendJobRelationVo;
 import codedriver.module.report.dto.ReportSendJobVo;
 import codedriver.module.report.dto.ReportVo;
 import codedriver.module.report.service.ReportService;
-import codedriver.framework.util.ExportUtil;
 import codedriver.module.report.util.ReportFreemarkerUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections4.CollectionUtils;
@@ -33,12 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
 import javax.annotation.Resource;
-import javax.mail.*;
-import javax.mail.internet.*;
-import javax.mail.util.ByteArrayDataSource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -134,7 +129,7 @@ public class ReportSendJob extends JobBase {
         if (canExec) {
             /** 发送邮件 */
             try {
-                sendEmailWithFile(sendJob.getEmailTitle(), sendJob.getEmailContent(), to, cc, reportMap);
+                EmailUtil.sendEmailWithFile(sendJob.getEmailTitle(), sendJob.getEmailContent(), to, cc, reportMap, MimeType.PDF);
             } catch (Exception e) {
                 throw new JobExecutionException(e.getMessage());
             }
@@ -223,60 +218,6 @@ public class ReportSendJob extends JobBase {
             }
         }
         return reportMap;
-    }
-
-    public void sendEmailWithFile(String title, String content, String to, String cc, Map<String, InputStream> attachmentMap) throws MessagingException, IOException {
-        MailServerVo mailServerVo = mailServerMapper.getActiveMailServer();
-        if (mailServerVo != null && StringUtils.isNotBlank(mailServerVo.getHost()) && mailServerVo.getPort() != null) {
-            /** 开启邮箱服务器连接会话 */
-            Properties props = new Properties();
-            props.setProperty("mail.smtp.host", mailServerVo.getHost());
-            props.setProperty("mail.smtp.port", mailServerVo.getPort().toString());
-            props.put("mail.smtp.auth", "true");
-            Session session = Session.getInstance(props, new Authenticator() {
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(mailServerVo.getUserName(), mailServerVo.getPassword());
-                }
-            });
-
-            MimeMessage msg = new MimeMessage(session);
-            if (StringUtils.isNotBlank(mailServerVo.getFromAddress())) {
-                msg.setFrom(new InternetAddress(mailServerVo.getFromAddress(), mailServerVo.getName()));
-            }
-            /** 设置收件人 */
-            msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to, false));
-            /** 设置抄送人 */
-            if (StringUtils.isNotBlank(cc)) {
-                msg.setRecipients(Message.RecipientType.CC, InternetAddress.parse(cc, false));
-            }
-            /** 设置邮件标题 */
-            msg.setSubject(title);
-            msg.setSentDate(new Date());
-
-            MimeMultipart multipart = new MimeMultipart();
-            /** 设置邮件正文 */
-            if (StringUtils.isNotBlank(content)) {
-                MimeBodyPart text = new MimeBodyPart();
-                text.setContent(content, "text/plain;charset=UTF-8");
-                multipart.addBodyPart(text);
-            }
-            /** 设置附件 */
-            if (MapUtils.isNotEmpty(attachmentMap)) {
-                for (Map.Entry<String, InputStream> entry : attachmentMap.entrySet()) {
-                    MimeBodyPart messageBodyPart = new MimeBodyPart();
-                    DataSource dataSource = new ByteArrayDataSource(entry.getValue(), "application/pdf");
-                    DataHandler dataHandler = new DataHandler(dataSource);
-                    messageBodyPart.setDataHandler(dataHandler);
-                    messageBodyPart.setFileName(MimeUtility.encodeText(entry.getKey()) + ".pdf");
-                    multipart.addBodyPart(messageBodyPart);
-                }
-            }
-            msg.setContent(multipart);
-            /** 发送邮件 */
-            Transport.send(msg);
-        } else {
-            throw new EmailServerNotFoundException();
-        }
     }
 
     @Override
