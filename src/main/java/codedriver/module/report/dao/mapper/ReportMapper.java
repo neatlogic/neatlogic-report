@@ -6,6 +6,7 @@ import codedriver.module.report.dto.ReportAuthVo;
 import codedriver.module.report.dto.ReportParamVo;
 import codedriver.module.report.dto.ReportTypeVo;
 import codedriver.module.report.dto.ReportVo;
+import org.apache.ibatis.annotations.Param;
 
 public interface ReportMapper {
 
@@ -22,6 +23,10 @@ public interface ReportMapper {
 	ReportVo getReportById(Long reportId);
 
 	ReportVo getReportBaseInfo(Long reportId);
+
+	int getReportParamCountByMatrixUuid(String matrixUuid);
+
+	List<ReportParamVo> getReportParamByMatrixUuid(@Param("matrixUuid") String matrixUuid, @Param("startNum") int startNum, @Param("pageSize") int pageSize);
 
 	int updateReportActive(ReportVo reportVo);
 

@@ -1,5 +1,6 @@
 package codedriver.module.report.dto;
 
+import codedriver.framework.common.dto.BasePageVo;
 import org.apache.commons.lang3.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
@@ -9,7 +10,7 @@ import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.restful.annotation.EntityField;
 import codedriver.framework.util.SnowflakeUtil;
 
-public class ReportParamVo {
+public class ReportParamVo extends BasePageVo {
 	@EntityField(name = "报表id", type = ApiParamType.LONG)
 	private Long reportId;
 	@EntityField(name = "id", type = ApiParamType.LONG)
@@ -28,6 +29,8 @@ public class ReportParamVo {
 	private String configStr;
 	@JSONField(serialize = false)
 	private Integer sort;
+
+	private String reportName;
 
 	public Long getReportId() {
 		return reportId;
@@ -109,4 +112,11 @@ public class ReportParamVo {
 		this.id = id;
 	}
 
+	public String getReportName() {
+		return reportName;
+	}
+
+	public void setReportName(String reportName) {
+		this.reportName = reportName;
+	}
 }
