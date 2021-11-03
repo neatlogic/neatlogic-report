@@ -119,6 +119,21 @@
 		where `id` = #{value}
 	</select>
 
+	<select id="getReportParamCountByMatrixUuid" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select count(1)
+		from report_param
+		where config like CONCAT('%', #{value}, '%')
+	</select>
+
+    <select id="getReportParamByMatrixUuid" resultType="codedriver.module.report.dto.ReportParamVo">
+		select a.id as reportId, a.name as reportName, b.name
+		from report a
+		join report_param b
+		on a.id = b.report_id
+		where b.config like CONCAT('%', #{matrixUuid}, '%')
+		LIMIT #{startNum}, #{pageSize}
+	</select>
+
 	<update id="updateReportActive" parameterType="codedriver.module.report.dto.ReportVo">
 		UPDATE
 		`report`
