@@ -125,7 +125,7 @@
 		where config like CONCAT('%', #{value}, '%')
 	</select>
 
-    <select id="getReportParamByMatrixUuid" resultType="codedriver.module.report.dto.ReportParamVo">
+	<select id="getReportParamByMatrixUuid" resultType="codedriver.module.report.dto.ReportParamVo">
 		select a.id as reportId, a.name as reportName, b.name
 		from report a
 		join report_param b
