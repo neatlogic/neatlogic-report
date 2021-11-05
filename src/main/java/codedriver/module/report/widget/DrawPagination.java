@@ -1,30 +1,32 @@
+/*
+ * Copyright(c) 2021 TechSure Co., Ltd. All Rights Reserved.
+ * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+ */
+
 package codedriver.module.report.widget;
+
+import com.alibaba.fastjson.JSONObject;
+import freemarker.template.SimpleHash;
+import freemarker.template.TemplateMethodModelEx;
+import freemarker.template.TemplateModelException;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.alibaba.fastjson.JSONObject;
-
-import freemarker.template.SimpleHash;
-import freemarker.template.TemplateMethodModelEx;
-import freemarker.template.TemplateModelException;
-
 public class DrawPagination implements TemplateMethodModelEx {
     Logger logger = LoggerFactory.getLogger(DrawPagination.class);
-    private Boolean needPage;
+    private final Boolean needPage;
 
     public DrawPagination(Boolean _needPage) {
         this.needPage = _needPage;
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked", "unused"})
     @Override
     public Object exec(List arguments) throws TemplateModelException {
         boolean canReturn = false;

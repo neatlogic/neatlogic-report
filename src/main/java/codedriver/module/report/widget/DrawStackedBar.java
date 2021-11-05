@@ -1,10 +1,17 @@
+/*
+ * Copyright(c) 2021 TechSure Co., Ltd. All Rights Reserved.
+ * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+ */
+
 package codedriver.module.report.widget;
 
-import java.awt.Color;
-import java.awt.Paint;
-import java.util.ArrayList;
-import java.util.List;
-
+import codedriver.module.report.util.JfreeChartUtil;
+import codedriver.module.report.util.JfreeChartUtil.ChartColor;
+import com.alibaba.fastjson.JSONObject;
+import freemarker.template.SimpleHash;
+import freemarker.template.SimpleSequence;
+import freemarker.template.TemplateMethodModelEx;
+import freemarker.template.TemplateModelException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfree.chart.ChartFactory;
@@ -25,24 +32,17 @@ import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.general.DatasetUtils;
 
-import com.alibaba.fastjson.JSONObject;
-
-import codedriver.module.report.util.JfreeChartUtil;
-import codedriver.module.report.util.JfreeChartUtil.ChartColor;
-import freemarker.template.SimpleHash;
-import freemarker.template.SimpleNumber;
-import freemarker.template.SimpleSequence;
-import freemarker.template.TemplateMethodModelEx;
-import freemarker.template.TemplateModelException;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DrawStackedBar implements TemplateMethodModelEx {
 	private static final Log logger = LogFactory.getLog(DrawStackedBar.class);
-	private String actionType ;
+	private final String actionType;
 
     public DrawStackedBar(String actionType) {
         this.actionType = actionType ;
     }
-	@SuppressWarnings({"unchecked", "rawtypes"})
     @Override
 	public Object exec(List arguments) throws TemplateModelException {
 		boolean canReturn = true;
@@ -57,8 +57,8 @@ public class DrawStackedBar implements TemplateMethodModelEx {
 			if (arguments.get(0) instanceof SimpleSequence) {
 				SimpleSequence ss = (SimpleSequence) arguments.get(0);
 				if (ss.size() > 0) {
-					List<String> rowList = new ArrayList<String>();
-					List<String> columnList = new ArrayList<String>();
+					List<String> rowList = new ArrayList<>();
+					List<String> columnList = new ArrayList<>();
 					double[][] dataList = new double[ss.size()][];
 					for (int i = 0; i < ss.size(); i++) {
 						SimpleHash sm = (SimpleHash) ss.get(i);
@@ -80,7 +80,7 @@ public class DrawStackedBar implements TemplateMethodModelEx {
 									throw new RuntimeException("堆积图数据集dataList属性中缺少typeField字段");
 								}
 								if (valueItem.containsKey("valueField")) {
-									dList[j] = Double.parseDouble(((SimpleNumber) valueItem.get("valueField")).toString());
+									dList[j] = Double.parseDouble(valueItem.get("valueField").toString());
 								} else {
 									throw new RuntimeException("堆积图数据集dataList属性中缺少valueField字段");
 								}
@@ -90,7 +90,7 @@ public class DrawStackedBar implements TemplateMethodModelEx {
 							throw new RuntimeException("堆积图数据集缺少dataList属性");
 						}
 					}
-					dataset = DatasetUtils.createCategoryDataset(rowList.toArray(new String[rowList.size()]), columnList.toArray(new String[columnList.size()]), dataList);
+					dataset = DatasetUtils.createCategoryDataset(rowList.toArray(new String[0]), columnList.toArray(new String[0]), dataList);
 				}
 			}
 		}
@@ -130,7 +130,7 @@ public class DrawStackedBar implements TemplateMethodModelEx {
 		p.setRenderer(renderer);
 		p.setOutlinePaint(Color.white);
 		p.setNoDataMessage("无数据");
-		CategoryAxis axis = (CategoryAxis) p.getDomainAxis();// X坐标轴
+		CategoryAxis axis = p.getDomainAxis();// X坐标轴
 		axis.setLowerMargin(0);
 		axis.setUpperMargin(0);
 		axis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);// 倾斜45度
@@ -147,16 +147,13 @@ public class DrawStackedBar implements TemplateMethodModelEx {
 	}
 
 	static class CustomRenderer extends StackedBarRenderer {
-		/**
-		 * @Fields serialVersionUID : TODO
-		 */
 		private static final long serialVersionUID = 3946096994457346387L;
-		private Paint[] colors;
+		private final Paint[] colors;
 
 		public CustomRenderer(String actionType) {
 			this.setBarPainter(new StandardBarPainter());
 			this.setShadowVisible(false);
-			super.setDefaultShadowsVisible(false);
+			setDefaultShadowsVisible(false);
 			this.setDefaultItemLabelsVisible(true);
 			this.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
 			this.setDefaultPositiveItemLabelPosition(new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BASELINE_CENTER));

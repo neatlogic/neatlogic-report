@@ -1,11 +1,14 @@
+/*
+ * Copyright(c) 2021 TechSure Co., Ltd. All Rights Reserved.
+ * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+ */
+
 package codedriver.module.report.widget;
 
-import java.awt.Color;
-import java.awt.Paint;
-import java.awt.geom.Ellipse2D;
-import java.util.ArrayList;
-import java.util.List;
-
+import codedriver.module.report.config.ReportConfig;
+import codedriver.module.report.util.JfreeChartUtil;
+import codedriver.module.report.util.JfreeChartUtil.ChartColor;
+import freemarker.template.*;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.LegendItem;
@@ -21,33 +24,27 @@ import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.CategoryItemRenderer;
-import org.jfree.chart.renderer.category.LineAndShapeRenderer;
-import org.jfree.chart.renderer.category.StackedBarRenderer;
-import org.jfree.chart.renderer.category.StandardBarPainter;
+import org.jfree.chart.renderer.category.*;
 import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DatasetUtils;
 
-import codedriver.module.report.config.ReportConfig;
-import codedriver.module.report.util.JfreeChartUtil;
-import codedriver.module.report.util.JfreeChartUtil.ChartColor;
-import freemarker.template.SimpleHash;
-import freemarker.template.SimpleNumber;
-import freemarker.template.SimpleSequence;
-import freemarker.template.TemplateMethodModelEx;
-import freemarker.template.TemplateModelException;
+import java.awt.*;
+import java.awt.geom.Ellipse2D;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DrawStackedBarLineH implements TemplateMethodModelEx {
     //private static final Log logger = LogFactory.getLog(DrawStackedBarLineH.class);
-    private String actionType ;
+    private final String actionType;
 
     public DrawStackedBarLineH(String actionType) {
-        this.actionType = actionType ;
+        this.actionType = actionType;
     }
+
     @Override
-    public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
+    public Object exec(List arguments) throws TemplateModelException {
         int width = 1000;
         int height = 600;
         String title = "", xLabel = "", yLabel = "";
@@ -55,23 +52,23 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
         DefaultCategoryDataset dataSetLine = new DefaultCategoryDataset();
         if (arguments.size() >= 1) {
             if (arguments.get(0) instanceof SimpleSequence) {
-                SimpleSequence ss = (SimpleSequence)arguments.get(0);
+                SimpleSequence ss = (SimpleSequence) arguments.get(0);
                 if (ss.size() > 0) {
-                    List<String> rowList = new ArrayList<String>();
-                    List<String> columnList = new ArrayList<String>();
+                    List<String> rowList = new ArrayList<>();
+                    List<String> columnList = new ArrayList<>();
                     double[][] dataList = new double[ss.size()][];
                     for (int i = 0; i < ss.size(); i++) {
-                        SimpleHash sm = (SimpleHash)ss.get(i);
+                        SimpleHash sm = (SimpleHash) ss.get(i);
                         if (sm.containsKey("bar_row")) {
                             rowList.add(sm.get("bar_row").toString());
                         } else {
                             throw new RuntimeException("堆积图数据集缺少bar_row字段");
                         }
                         if (sm.containsKey("bar_data")) {
-                            SimpleSequence valueItemList = (SimpleSequence)sm.get("bar_data");
+                            SimpleSequence valueItemList = (SimpleSequence) sm.get("bar_data");
                             double[] dList = new double[valueItemList.size()];
                             for (int j = 0; j < valueItemList.size(); j++) {
-                                SimpleHash valueItem = (SimpleHash)valueItemList.get(j);
+                                SimpleHash valueItem = (SimpleHash) valueItemList.get(j);
                                 if (valueItem.containsKey("bar_column")) {
                                     if (!columnList.contains(valueItem.get("bar_column").toString())) {
                                         columnList.add(valueItem.get("bar_column").toString());
@@ -81,7 +78,7 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
                                 }
                                 if (valueItem.containsKey("bar_value")) {
                                     dList[j] =
-                                        Double.parseDouble(((SimpleNumber)valueItem.get("bar_value")).toString());
+                                            Double.parseDouble(valueItem.get("bar_value").toString());
                                 } else {
                                     throw new RuntimeException("堆积图数据集bar_data属性中缺少bar_value字段");
                                 }
@@ -91,15 +88,15 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
                             throw new RuntimeException("堆积图数据集缺少bar_data属性");
                         }
                     }
-                    dataset = DatasetUtils.createCategoryDataset(rowList.toArray(new String[rowList.size()]),
-                        columnList.toArray(new String[columnList.size()]), dataList);
+                    dataset = DatasetUtils.createCategoryDataset(rowList.toArray(new String[0]),
+                            columnList.toArray(new String[0]), dataList);
                 }
             }
             if (arguments.get(0) instanceof SimpleSequence) {
-                SimpleSequence line = (SimpleSequence)arguments.get(1);
+                SimpleSequence line = (SimpleSequence) arguments.get(1);
                 if (line != null) {
                     for (int i = 0; i < line.size(); i++) {
-                        SimpleHash sm = (SimpleHash)line.get(i);
+                        SimpleHash sm = (SimpleHash) line.get(i);
                         String series = null;
                         SimpleNumber y = null;
                         String x = null;
@@ -107,7 +104,7 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
                             series = sm.get("line_series").toString();
                         }
                         if (sm.get("line_y") != null) {
-                            y = (SimpleNumber)sm.get("line_y");
+                            y = (SimpleNumber) sm.get("line_y");
                         }
                         if (sm.get("line_x") != null) {
                             x = sm.get("line_x").toString();
@@ -139,14 +136,14 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
         // has width
         if (arguments.size() >= 5) {
             if (arguments.get(5) instanceof SimpleNumber) {
-                SimpleNumber t = (SimpleNumber)arguments.get(5);
+                SimpleNumber t = (SimpleNumber) arguments.get(5);
                 width = t.getAsNumber().intValue();
             }
         }
 
         if (arguments.size() >= 6) {
             if (arguments.get(6) instanceof SimpleNumber) {
-                SimpleNumber t = (SimpleNumber)arguments.get(6);
+                SimpleNumber t = (SimpleNumber) arguments.get(6);
                 height = t.getAsNumber().intValue();
             }
         }
@@ -154,7 +151,7 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
         StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme(actionType);
 
         JFreeChart chart = ChartFactory.createStackedBarChart(title, xLabel, yLabel, dataset,
-            PlotOrientation.HORIZONTAL, true, false, false);
+                PlotOrientation.HORIZONTAL, true, false, false);
         standardChartTheme.apply(chart);
         chart.getLegend().setFrame(new BlockBorder(ChartColor.CHART_BACKGROUND_COLOR.getColor(actionType)));
 
@@ -174,12 +171,12 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
         p.setRenderer(Linerenderer);
         p.setOutlinePaint(Color.white);
 
-        Double maxNum = 0d;
+        double maxNum = 0d;
         for (int j = 0; j < dataSetLine.getRowKeys().size(); j++) { // 获取最大值
             for (int i = 0; i < dataSetLine.getColumnKeys().size(); i++) {
                 Object temp = dataSetLine.getValue(j, i);
                 if (temp != null) {
-                    Double tempInt = Double.valueOf((temp.toString()));
+                    double tempInt = Double.parseDouble((temp.toString()));
                     if (tempInt > maxNum) {
                         maxNum = tempInt;
                     }
@@ -200,15 +197,15 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
 
     static class CustomRenderer extends StackedBarRenderer {
         private static final long serialVersionUID = 8646461953824971641L;
-        private Paint[] colors;
+        private final Paint[] colors;
 
         public CustomRenderer(String actionType) {
             this.setBarPainter(new StandardBarPainter());
-            super.setDefaultShadowsVisible(false);
+            setDefaultShadowsVisible(false);
             this.setDefaultItemLabelsVisible(true);
             this.setDefaultItemLabelGenerator(new StandardCategoryItemLabelGenerator());
             this.setDefaultPositiveItemLabelPosition(
-                new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BASELINE_CENTER));
+                    new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BASELINE_CENTER));
             this.setItemLabelAnchorOffset(-10D);
             this.colors = JfreeChartUtil.getCharColors(actionType);
             // this.setDefaultItemLabelFont(new Font("黑体", Font.PLAIN,
@@ -227,11 +224,8 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
     }
 
     static class LineCustomRenderer extends LineAndShapeRenderer {
-        /**
-         * @Fields serialVersionUID : TODO
-         */
         private static final long serialVersionUID = 2892093102930999651L;
-        private Paint[] colors;
+        private final Paint[] colors;
 
         public LineCustomRenderer() {
             this.colors = ReportConfig.CHART_COLOR;
