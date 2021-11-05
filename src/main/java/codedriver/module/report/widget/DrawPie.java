@@ -1,10 +1,14 @@
+/*
+ * Copyright(c) 2021 TechSure Co., Ltd. All Rights Reserved.
+ * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+ */
+
 package codedriver.module.report.widget;
 
-import java.awt.Rectangle;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.List;
-
+import codedriver.module.report.util.JfreeChartUtil;
+import codedriver.module.report.util.JfreeChartUtil.ChartColor;
+import com.alibaba.fastjson.JSONObject;
+import freemarker.template.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfree.chart.ChartFactory;
@@ -17,25 +21,21 @@ import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
 
-import com.alibaba.fastjson.JSONObject;
-
-import codedriver.module.report.util.JfreeChartUtil;
-import codedriver.module.report.util.JfreeChartUtil.ChartColor;
-import freemarker.template.SimpleHash;
-import freemarker.template.SimpleNumber;
-import freemarker.template.SimpleSequence;
-import freemarker.template.TemplateMethodModelEx;
-import freemarker.template.TemplateModelException;
+import java.awt.*;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.List;
 
 public class DrawPie implements TemplateMethodModelEx {
 	private static final Log logger = LogFactory.getLog(DrawPie.class);
-	private String actionType ;
+	private final String actionType;
 
-    public DrawPie(String actionType) {
-        this.actionType = actionType ;
-    }
+	public DrawPie(String actionType) {
+		this.actionType = actionType;
+	}
+
 	@Override
-	public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
+	public Object exec(List arguments) throws TemplateModelException {
 		boolean canReturn = true;
 		int width = 500;
 		int height = 500;
