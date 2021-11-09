@@ -3,6 +3,7 @@ package codedriver.module.report.api;
 import codedriver.framework.asynchronization.threadlocal.UserContext;
 import codedriver.framework.auth.core.AuthAction;
 import codedriver.framework.auth.core.AuthActionChecker;
+import codedriver.framework.auth.core.AuthFactory;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.exception.type.PermissionDeniedException;
 import codedriver.framework.restful.annotation.*;
@@ -57,7 +58,7 @@ public class ReportInstanceDeleteApi extends PrivateApiComponentBase {
         // 如果没有REPORT_MODIFY权限且不是创建者，那么无权删除
         if (!AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName())
                 && !Objects.equals(UserContext.get().getUserUuid(), instance.getFcu())) {
-            throw new PermissionDeniedException();
+            throw new PermissionDeniedException(AuthFactory.getAuthInstance(REPORT_MODIFY.class.getSimpleName()).getAuthDisplayName());
         }
         reportInstanceMapper.deleteReportInstanceTableColumn(id);
         reportInstanceMapper.deleteReportInstanceAuthByReportInstanceId(id);

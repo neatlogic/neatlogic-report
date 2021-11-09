@@ -2,6 +2,7 @@ package codedriver.module.report.api;
 
 import codedriver.framework.asynchronization.threadlocal.UserContext;
 import codedriver.framework.auth.core.AuthActionChecker;
+import codedriver.framework.auth.core.AuthFactory;
 import codedriver.framework.exception.type.PermissionDeniedException;
 import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.auth.label.REPORT_MODIFY;
@@ -57,7 +58,7 @@ public class UpdateReportInstanceActiveApi extends PrivateApiComponentBase {
             throw new ReportInstanceNotFoundException(reportVo.getId());
         }
         if (!AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName()) && !Objects.equals(UserContext.get().getUserUuid(), instance.getFcu())) {
-            throw new PermissionDeniedException();
+            throw new PermissionDeniedException(AuthFactory.getAuthInstance(REPORT_MODIFY.class.getSimpleName()).getAuthDisplayName());
         }
         reportVo.setLcu(UserContext.get().getUserUuid());
         reportInstanceMapper.updateReportInstanceActive(reportVo);
