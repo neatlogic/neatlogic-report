@@ -6,6 +6,7 @@
 package codedriver.module.report.dto;
 
 import codedriver.framework.common.constvalue.ApiParamType;
+import codedriver.framework.common.dto.BaseEditorVo;
 import codedriver.framework.common.dto.BasePageVo;
 import codedriver.framework.restful.annotation.EntityField;
 import codedriver.framework.util.SnowflakeUtil;
@@ -15,7 +16,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;
 
-public class ReportInstanceVo extends BasePageVo {
+public class ReportInstanceVo extends BaseEditorVo {
     @EntityField(name = "id", type = ApiParamType.LONG)
     private Long id;
     @EntityField(name = "报表定义id", type = ApiParamType.LONG)
@@ -28,14 +29,6 @@ public class ReportInstanceVo extends BasePageVo {
     private Integer isActive;
     @EntityField(name = "访问次数", type = ApiParamType.INTEGER)
     private Integer visitCount;
-    @EntityField(name = "创建用户", type = ApiParamType.STRING)
-    private String fcu;
-    @EntityField(name = "最后修改人", type = ApiParamType.STRING)
-    private String lcu;
-    @EntityField(name = "创建日期", type = ApiParamType.LONG)
-    private Date fcd;
-    @EntityField(name = "修改日期", type = ApiParamType.LONG)
-    private Date lcd;
     @EntityField(name = "配置", type = ApiParamType.JSONOBJECT)
     private JSONObject config;
     @EntityField(name = "授权列表", type = ApiParamType.JSONARRAY)
@@ -82,38 +75,6 @@ public class ReportInstanceVo extends BasePageVo {
 
     public void setVisitCount(Integer visitCount) {
         this.visitCount = visitCount;
-    }
-
-    public String getFcu() {
-        return fcu;
-    }
-
-    public void setFcu(String fcu) {
-        this.fcu = fcu;
-    }
-
-    public String getLcu() {
-        return lcu;
-    }
-
-    public void setLcu(String lcu) {
-        this.lcu = lcu;
-    }
-
-    public Date getFcd() {
-        return fcd;
-    }
-
-    public void setFcd(Date fcd) {
-        this.fcd = fcd;
-    }
-
-    public Date getLcd() {
-        return lcd;
-    }
-
-    public void setLcd(Date lcd) {
-        this.lcd = lcd;
     }
 
     public List<ReportInstanceAuthVo> getReportInstanceAuthList() {
