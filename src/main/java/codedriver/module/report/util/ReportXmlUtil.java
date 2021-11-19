@@ -1,3 +1,8 @@
+/*
+ * Copyright(c) 2021 TechSure Co., Ltd. All Rights Reserved.
+ * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+ */
+
 package codedriver.module.report.util;
 
 import codedriver.framework.dto.RestVo;
@@ -250,8 +255,8 @@ public class ReportXmlUtil {
                     .setPassword(element.attributeValue("password") == null ? "" : element.attributeValue("password"));
                 // restVo.setMethod(element.attributeValue("method") == null ? "POST" :
                 // element.attributeValue("method"));
-                restVo.setTimeout(element.attributeValue("timeout") == null ? 60000
-                    : Integer.parseInt(element.attributeValue("timeout")));
+                restVo.setReadTimeout(element.attributeValue("timeout") == null ? 60000
+                        : Integer.parseInt(element.attributeValue("timeout")));
                 restVo.setUrl(element.attributeValue("url"));
                 List<Element> ifElList = element.elements("if");
                 if (ifElList != null && ifElList.size() > 0) {
@@ -664,8 +669,8 @@ public class ReportXmlUtil {
                     .setPassword(element.attributeValue("password") == null ? "" : element.attributeValue("password"));
                 // restVo.setMethod(element.attributeValue("method") == null ? "POST" :
                 // element.attributeValue("method"));
-                restVo.setTimeout(element.attributeValue("timeout") == null ? 60000
-                    : Integer.parseInt(element.attributeValue("timeout")));
+                restVo.setReadTimeout(element.attributeValue("timeout") == null ? 60000
+                        : Integer.parseInt(element.attributeValue("timeout")));
                 restVo.setUrl(element.attributeValue("url"));
                 String result = element.asXML();
                 result = HtmlUtil.decodeHtml(result);
