@@ -242,22 +242,14 @@ public class ReportXmlUtil {
 
         if (restNodeList != null && restNodeList.size() > 0) {
             for (Element element : restNodeList) {
-                RestVo restVo = new RestVo();
-                restVo.setId(element.attributeValue("id"));
-                String lazyLoad =
-                    element.attributeValue("lazyload") == null ? "false" : element.attributeValue("lazyload");
-                restVo.setLazyLoad(Boolean.parseBoolean(lazyLoad));
-                restVo
-                    .setAuthType(element.attributeValue("authtype") == null ? "" : element.attributeValue("authtype"));
-                restVo
-                    .setUsername(element.attributeValue("username") == null ? "" : element.attributeValue("username"));
-                restVo
-                    .setPassword(element.attributeValue("password") == null ? "" : element.attributeValue("password"));
-                // restVo.setMethod(element.attributeValue("method") == null ? "POST" :
-                // element.attributeValue("method"));
-                restVo.setReadTimeout(element.attributeValue("timeout") == null ? 60000
-                        : Integer.parseInt(element.attributeValue("timeout")));
-                restVo.setUrl(element.attributeValue("url"));
+                String url = element.attributeValue("url");
+                String authType = element.attributeValue("authtype") == null ? "" : element.attributeValue("authtype");
+                boolean lazyLoad = element.attributeValue("lazyload") != null && Boolean.parseBoolean(element.attributeValue("lazyload"));
+                String userName = element.attributeValue("username") == null ? "" : element.attributeValue("username");
+                String password = element.attributeValue("password") == null ? "" : element.attributeValue("password");
+                int readTimeOut = element.attributeValue("timeout") == null ? 60000 : Integer.parseInt(element.attributeValue("timeout"));
+                RestVo.Builder restBuilder = new RestVo.Builder(url,authType).setLazyLoad(lazyLoad).setUsername(userName)
+                        .setPassword(password).setId(element.attributeValue("id")).setReadTimeout(readTimeOut);
                 List<Element> ifElList = element.elements("if");
                 if (ifElList != null && ifElList.size() > 0) {
                     List<Element> removeObj = new ArrayList<Element>();
@@ -393,8 +385,8 @@ public class ReportXmlUtil {
                 }
                 matcher.appendTail(temp);
                 JSONObject payload = JSONObject.parseObject(temp.toString());
-                restVo.setPayload(payload);
-                restList.add(restVo);
+                restBuilder.setPayload(payload);
+                restList.add(restBuilder.build());
             }
         }
 
@@ -656,22 +648,14 @@ public class ReportXmlUtil {
 
         if (restNodeList != null && restNodeList.size() > 0) {
             for (Element element : restNodeList) {
-                RestVo restVo = new RestVo();
-                restVo.setId(element.attributeValue("id"));
-                String lazyLoad =
-                    element.attributeValue("lazyload") == null ? "false" : element.attributeValue("lazyload");
-                restVo.setLazyLoad(Boolean.parseBoolean(lazyLoad));
-                restVo
-                    .setAuthType(element.attributeValue("authtype") == null ? "" : element.attributeValue("authtype"));
-                restVo
-                    .setUsername(element.attributeValue("username") == null ? "" : element.attributeValue("username"));
-                restVo
-                    .setPassword(element.attributeValue("password") == null ? "" : element.attributeValue("password"));
-                // restVo.setMethod(element.attributeValue("method") == null ? "POST" :
-                // element.attributeValue("method"));
-                restVo.setReadTimeout(element.attributeValue("timeout") == null ? 60000
-                        : Integer.parseInt(element.attributeValue("timeout")));
-                restVo.setUrl(element.attributeValue("url"));
+                String url = element.attributeValue("url");
+                String authType = element.attributeValue("authtype") == null ? "" : element.attributeValue("authtype");
+                boolean lazyLoad = element.attributeValue("lazyload") != null && Boolean.parseBoolean(element.attributeValue("lazyload"));
+                String userName = element.attributeValue("username") == null ? "" : element.attributeValue("username");
+                String password = element.attributeValue("password") == null ? "" : element.attributeValue("password");
+                int readTimeOut = element.attributeValue("timeout") == null ? 60000 : Integer.parseInt(element.attributeValue("timeout"));
+                RestVo.Builder restBuilder = new RestVo.Builder(url,authType).setLazyLoad(lazyLoad).setUsername(userName)
+                        .setPassword(password).setId(element.attributeValue("id")).setReadTimeout(readTimeOut);
                 String result = element.asXML();
                 result = HtmlUtil.decodeHtml(result);
                 StringBuffer temp = null;
@@ -699,8 +683,8 @@ public class ReportXmlUtil {
                 }
                 matcher.appendTail(temp);
                 JSONObject payload = JSONObject.parseObject(temp.toString());
-                restVo.setPayload(payload);
-                restList.add(restVo);
+                restBuilder.setPayload(payload);
+                restList.add(restBuilder.build());
             }
         }
 

@@ -50,7 +50,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private Object getRemoteResult(RestVo restVo) {
-        String result = RestUtil.sendRequest(restVo);
+        String result = RestUtil.sendPostRequest(restVo);
         try {
             return JSON.parse(result);
         } catch (Exception ex) {
