@@ -198,7 +198,7 @@ public class ReportSendJob extends JobBase {
                         tmpMap.put("param", paramObj);
                         tmpMap.put("common", commonMap);
                         String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, report.getContent(), ActionType.VIEW.getValue());
-                        ExportUtil.getPdfFileByHtml(content, true, os);
+                        ExportUtil.getPdfFileByHtml(content, os, true, true);
                         InputStream is = new ByteArrayInputStream(os.toByteArray());
                         reportMap.put(report.getName(), is);
                         os.close();

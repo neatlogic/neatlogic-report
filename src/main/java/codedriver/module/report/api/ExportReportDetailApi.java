@@ -37,6 +37,7 @@ import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
 @AuthAction(action = REPORT_BASE.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
 @Service
@@ -71,7 +72,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
     @Description(desc = "导出报表接口")
     @Override
     public Object myDoService(JSONObject paramObj, HttpServletRequest request, HttpServletResponse response)
-        throws Exception {
+            throws Exception {
         Long reportId = paramObj.getLong("id");
         String type = paramObj.getString("type");
         Long reportInstanceId = paramObj.getLong("reportInstanceId");
@@ -87,40 +88,40 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
                 throw new ReportNotFoundException(reportId);
             }
             Map<String, Long> timeMap = new HashMap<>();
-            Map<String, Object> returnMap = reportService.getQueryResult(reportId, paramObj, timeMap, false,showColumnsMap);
+            Map<String, Object> returnMap = reportService.getQueryResult(reportId, paramObj, timeMap, false, showColumnsMap);
             Map<String, Object> tmpMap = new HashMap<>();
             Map<String, Object> commonMap = new HashMap<>();
             tmpMap.put("report", returnMap);
             tmpMap.put("param", paramObj);
             tmpMap.put("common", commonMap);
 
-            String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, reportVo.getContent(),ActionType.EXPORT.getValue());
+            String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, reportVo.getContent(), ActionType.EXPORT.getValue());
             if (DocType.PDF.getValue().equals(type)) {
                 os = response.getOutputStream();
                 response.setContentType("application/pdf");
                 response.setHeader("Content-Disposition",
-                    " attachment; filename=\"" + URLEncoder.encode(reportVo.getName(), "utf-8") + ".pdf\"");
-                ExportUtil.getPdfFileByHtml(content, true, os);
+                        " attachment; filename=\"" + URLEncoder.encode(reportVo.getName(), "utf-8") + ".pdf\"");
+                ExportUtil.getPdfFileByHtml(content, os, true, true);
             } else if (DocType.WORD.getValue().equals(type)) {
                 os = response.getOutputStream();
                 response.setContentType("application/x-download");
                 response.setHeader("Content-Disposition",
-                    " attachment; filename=\"" + URLEncoder.encode(reportVo.getName(), "utf-8") + ".docx\"");
-                ExportUtil.getWordFileByHtml(content, true, os);
-            }else if(DocType.EXCEL.getValue().equals(type)){
+                        " attachment; filename=\"" + URLEncoder.encode(reportVo.getName(), "utf-8") + ".docx\"");
+                ExportUtil.getWordFileByHtml(content, os, true, true);
+            } else if (DocType.EXCEL.getValue().equals(type)) {
                 List<List<Map<String, Object>>> tableList = getTableListByHtml(content);
-                if(CollectionUtils.isNotEmpty(tableList)){
+                if (CollectionUtils.isNotEmpty(tableList)) {
                     HSSFWorkbook workbook = new HSSFWorkbook();
-                    for(int i = 0;i < tableList.size();i++){
+                    for (int i = 0; i < tableList.size(); i++) {
                         List<Map<String, Object>> list = tableList.get(i);
                         Map<String, Object> map = list.get(i);
                         List<String> headerList = new ArrayList<>();
                         List<String> columnList = new ArrayList<>();
-                        for(String key : map.keySet()){
+                        for (String key : map.keySet()) {
                             headerList.add(key);
                             columnList.add(key);
                         }
-                        ExcelUtil.exportData(workbook,headerList,columnList,list,30,i);
+                        ExcelUtil.exportData(workbook, headerList, columnList, list, 30, i);
                     }
                     String fileNameEncode = reportVo.getName() + ".xls";
                     Boolean flag = request.getHeader("User-Agent").indexOf("Gecko") > 0;
@@ -151,43 +152,44 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
      * 从HTML中抽取表格元素数据
      * 一个报表中可能存在多个表格，这些表格的table上都有class="tstable-body"的属性，
      * 所以可以根据class拿到所有表格
+     *
      * @param content
      * @return
      */
     private List<List<Map<String, Object>>> getTableListByHtml(String content) {
-        List<List<Map<String,Object>>> tableList = null;
-        if(StringUtils.isNotBlank(content)){
+        List<List<Map<String, Object>>> tableList = null;
+        if (StringUtils.isNotBlank(content)) {
             Document doc = Jsoup.parse(content);
             Elements tableElements = null;
             /** 抽取所有带class="tstable-body"的表格元素 */
-            if(doc != null && CollectionUtils.isNotEmpty((tableElements = doc.getElementsByClass("tstable-body")))){
+            if (doc != null && CollectionUtils.isNotEmpty((tableElements = doc.getElementsByClass("tstable-body")))) {
                 tableList = new ArrayList<>();
                 Iterator<Element> tableIterator = tableElements.iterator();
-                while(tableIterator.hasNext()){
+                while (tableIterator.hasNext()) {
                     Element next = tableIterator.next();
                     Elements ths = next.getElementsByTag("th");
                     Elements tbodys = next.getElementsByTag("tbody");
-                    if(CollectionUtils.isNotEmpty(ths) && CollectionUtils.isNotEmpty(tbodys)){
+                    if (CollectionUtils.isNotEmpty(ths) && CollectionUtils.isNotEmpty(tbodys)) {
                         Iterator<Element> thIterator = ths.iterator();
                         List<String> thValueList = new ArrayList<>();
                         /** 抽取表头数据 */
-                        while (thIterator.hasNext()){
+                        while (thIterator.hasNext()) {
                             String text = thIterator.next().ownText();
                             thValueList.add(text);
                         }
                         Element tbody = tbodys.first();
                         Elements trs = tbody.getElementsByTag("tr");
-                        if(CollectionUtils.isNotEmpty(trs) && CollectionUtils.isNotEmpty(thValueList)){
+                        if (CollectionUtils.isNotEmpty(trs) && CollectionUtils.isNotEmpty(thValueList)) {
                             Iterator<Element> trIterator = trs.iterator();
-                            List<Map<String,Object>> valueList = new ArrayList<>();
+                            List<Map<String, Object>> valueList = new ArrayList<>();
                             /** 抽取表格内容数据，与表头key-value化存储 */
-                            while (trIterator.hasNext()){
+                            while (trIterator.hasNext()) {
                                 Element tds = trIterator.next();
                                 Elements tdEls = tds.getElementsByTag("td");
                                 List<Element> tdList = tdEls.subList(0, tdEls.size());
-                                Map<String,Object> map = new HashMap<>();
-                                for(int i = 0;i < tdList.size();i++){
-                                    map.put(thValueList.get(i),tdList.get(i).ownText());
+                                Map<String, Object> map = new HashMap<>();
+                                for (int i = 0; i < tdList.size(); i++) {
+                                    map.put(thValueList.get(i), tdList.get(i).ownText());
                                 }
                                 valueList.add(map);
                             }
