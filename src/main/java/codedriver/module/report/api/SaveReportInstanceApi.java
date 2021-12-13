@@ -92,7 +92,7 @@ public class SaveReportInstanceApi extends PrivateApiComponentBase {
             }
             if (!AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName())
                     && !Objects.equals(UserContext.get().getUserUuid(), instance.getFcu())) {
-                throw new PermissionDeniedException(AuthFactory.getAuthInstance(REPORT_MODIFY.class.getSimpleName()).getAuthDisplayName());
+                throw new PermissionDeniedException(REPORT_MODIFY.class);
             }
             reportInstanceMapper.deleteReportInstanceAuthByReportInstanceId(reportInstanceVo.getId());
             reportInstanceMapper.deleteReportInstanceTableColumn(reportInstanceVo.getId());

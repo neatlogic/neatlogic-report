@@ -58,7 +58,7 @@ public class ReportInstanceDeleteApi extends PrivateApiComponentBase {
         // 如果没有REPORT_MODIFY权限且不是创建者，那么无权删除
         if (!AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName())
                 && !Objects.equals(UserContext.get().getUserUuid(), instance.getFcu())) {
-            throw new PermissionDeniedException(AuthFactory.getAuthInstance(REPORT_MODIFY.class.getSimpleName()).getAuthDisplayName());
+            throw new PermissionDeniedException(REPORT_MODIFY.class);
         }
         reportInstanceMapper.deleteReportInstanceTableColumn(id);
         reportInstanceMapper.deleteReportInstanceAuthByReportInstanceId(id);
