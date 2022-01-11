@@ -41,7 +41,7 @@ public class MatrixReportParamDependencyHandler extends CustomTableDependencyHan
     }
 
     /**
-     * 被调用者字段
+     * 被引用者（上游）字段
      *
      * @return
      */
@@ -51,7 +51,7 @@ public class MatrixReportParamDependencyHandler extends CustomTableDependencyHan
     }
 
     /**
-     * 调用者字段
+     * 引用者（下游）字段
      *
      * @return
      */
@@ -68,8 +68,8 @@ public class MatrixReportParamDependencyHandler extends CustomTableDependencyHan
     /**
      * 报表参数与矩阵之间的引用关系有自己的添加和删除方式
      *
-     * @param from 被调用者值（如：服务时间窗口uuid）
-     * @param to 调用者值（如：服务uuid）
+     * @param from 被引用者（上游）值（如：服务时间窗口uuid）
+     * @param to 引用者（下游）值（如：服务uuid）
      * @return
      */
     @Override
@@ -80,7 +80,7 @@ public class MatrixReportParamDependencyHandler extends CustomTableDependencyHan
     /**
      * 报表参数与矩阵之间的引用关系有自己的添加和删除方式
      *
-     * @param to 调用者值（如：服务uuid）
+     * @param to 引用者（下游）值（如：服务uuid）
      * @return
      */
     @Override
@@ -91,16 +91,16 @@ public class MatrixReportParamDependencyHandler extends CustomTableDependencyHan
     /**
      * 解析数据，拼装跳转url，返回引用下拉列表一个选项数据结构
      *
-     * @param to 调用者值
+     * @param dependencyObj 引用关系数据
      * @return
      */
     @Override
-    protected DependencyInfoVo parse(Object to) {
-        if (to == null) {
+    protected DependencyInfoVo parse(Object dependencyObj) {
+        if (dependencyObj == null) {
             return null;
         }
-        if (to instanceof ReportParamVo) {
-            ReportParamVo reportParamVo = (ReportParamVo) to;
+        if (dependencyObj instanceof ReportParamVo) {
+            ReportParamVo reportParamVo = (ReportParamVo) dependencyObj;
             DependencyInfoVo dependencyInfoVo = new DependencyInfoVo();
             dependencyInfoVo.setValue(reportParamVo.getReportId());
             String text = String.format("<a href=\"/%s/report.html#/report-manage\" target=\"_blank\">%s</a>",
@@ -112,7 +112,7 @@ public class MatrixReportParamDependencyHandler extends CustomTableDependencyHan
     }
 
     /**
-     * 被调用方名
+     * 被引用者（上游）类型
      *
      * @return
      */
@@ -124,7 +124,7 @@ public class MatrixReportParamDependencyHandler extends CustomTableDependencyHan
     /**
      * 查询引用列表数据
      *
-     * @param from   被调用者值（如：服务时间窗口uuid）
+     * @param from   被引用者（上游）值（如：服务时间窗口uuid）
      * @param startNum 开始行号
      * @param pageSize 每页条数
      * @return
