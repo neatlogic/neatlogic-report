@@ -1,3 +1,8 @@
+/*
+ * Copyright(c) 2022 TechSure Co., Ltd. All Rights Reserved.
+ * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+ */
+
 package codedriver.module.report.api.schedule;
 
 import codedriver.framework.auth.core.AuthAction;
@@ -12,7 +17,7 @@ import codedriver.module.report.dto.ReportParamVo;
 import codedriver.module.report.dto.ReportSendJobRelationVo;
 import codedriver.module.report.dto.ReportSendJobVo;
 import codedriver.module.report.dto.ReportVo;
-import codedriver.module.report.exception.ReportSendJobNotFoundException;
+import codedriver.framework.report.exception.ReportSendJobNotFoundException;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;

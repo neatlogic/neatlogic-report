@@ -1,9 +1,13 @@
+/*
+ * Copyright(c) 2022 TechSure Co., Ltd. All Rights Reserved.
+ * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+ */
+
 package codedriver.module.report.api;
 
 import codedriver.framework.asynchronization.threadlocal.UserContext;
 import codedriver.framework.auth.core.AuthAction;
 import codedriver.framework.auth.core.AuthActionChecker;
-import codedriver.framework.auth.core.AuthFactory;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.exception.type.PermissionDeniedException;
 import codedriver.framework.restful.annotation.*;
@@ -13,7 +17,7 @@ import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.auth.label.REPORT_MODIFY;
 import codedriver.module.report.dao.mapper.ReportInstanceMapper;
 import codedriver.module.report.dto.ReportInstanceVo;
-import codedriver.module.report.exception.ReportNotFoundException;
+import codedriver.framework.report.exception.ReportNotFoundException;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

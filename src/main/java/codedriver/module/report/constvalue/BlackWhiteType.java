@@ -5,16 +5,15 @@
 
 package codedriver.module.report.constvalue;
 
-public enum ActionType {
+public enum BlackWhiteType {
 
-    VIEW("view", "查看"),
-    EXPORT("export", "导出");
+    BLACK("black", "黑名单"), WHITE("white", "白名单");
 
 
     private final String value;
     private final String text;
 
-    private ActionType(String value, String text) {
+    BlackWhiteType(String value, String text) {
         this.value = value;
         this.text = text;
     }
@@ -29,7 +28,7 @@ public enum ActionType {
     }
 
     public static String getText(String _value) {
-        for (ActionType type : values()) {
+        for (BlackWhiteType type : values()) {
             if (type.getValue().equals(_value)) {
                 return type.getText();
             }

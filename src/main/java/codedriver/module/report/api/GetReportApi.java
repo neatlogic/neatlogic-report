@@ -1,3 +1,8 @@
+/*
+ * Copyright(c) 2022 TechSure Co., Ltd. All Rights Reserved.
+ * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+ */
+
 package codedriver.module.report.api;
 
 import codedriver.framework.auth.core.AuthAction;
@@ -32,11 +37,11 @@ public class GetReportApi extends PrivateApiComponentBase {
     /**
      * 匹配表格Id
      */
-    private static Pattern pattern = Pattern.compile("drawTable.*\\)");
+    private static final Pattern pattern = Pattern.compile("drawTable.*\\)");
     /**
      * 匹配表格中文名
      */
-    private static Pattern namePattern = Pattern.compile("title.*\"");
+    private static final Pattern namePattern = Pattern.compile("title.*\"");
 
     @Resource
     private ReportService reportService;
@@ -63,7 +68,7 @@ public class GetReportApi extends PrivateApiComponentBase {
     public Object myDoService(JSONObject jsonObj) throws Exception {
 
         ReportVo reportVo = reportService.getReportDetailById(jsonObj.getLong("id"));
-        /** 查找表格 */
+        /* 查找表格 */
         getTableList(reportVo);
 
         return reportVo;
@@ -75,11 +80,11 @@ public class GetReportApi extends PrivateApiComponentBase {
         if (StringUtils.isNotBlank(content) && StringUtils.isNotBlank(sql)) {
             Map<String, String> tables = new HashMap<>();
             Matcher matcher = pattern.matcher(content);
-            /** 寻找是表格的图表，生成[包含id的字符串->title]的map */
+            /* 寻找是表格的图表，生成[包含id的字符串->title]的map */
             while (matcher.find()) {
                 String e = matcher.group();
                 Matcher m = namePattern.matcher(e);
-                /** 寻找表格title */
+                /* 寻找表格title */
                 if (m.find()) {
                     String name = m.group();
                     if (name.contains(",")) {
@@ -92,14 +97,14 @@ public class GetReportApi extends PrivateApiComponentBase {
                     tables.put(e, null);
                 }
             }
-            /** tableColumnsMap中的key为表格ID与中文名组合而成的字符串,value为表格字段
-             * e.g:"tableData-工单上报列表"
+            /* tableColumnsMap中的key为表格ID与中文名组合而成的字符串,value为表格字段
+              e.g:"tableData-工单上报列表"
              */
             List<Map<String, Object>> tableColumnsMapList = null;
             if (MapUtils.isNotEmpty(tables)) {
                 tableColumnsMapList = new ArrayList<>();
-                /** 从SQL中获取所有图表
-                 * 从中寻找表格，记录下其id、title与column
+                /* 从SQL中获取所有图表
+                  从中寻找表格，记录下其id、title与column
                  */
                 Map<String, Object> map = ReportXmlUtil.analyseSql(sql);
                 List<SelectVo> selectList = (List<SelectVo>) map.get("select");
