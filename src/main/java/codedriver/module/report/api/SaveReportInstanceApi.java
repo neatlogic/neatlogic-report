@@ -1,9 +1,13 @@
+/*
+ * Copyright(c) 2022 TechSure Co., Ltd. All Rights Reserved.
+ * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+ */
+
 package codedriver.module.report.api;
 
 import codedriver.framework.asynchronization.threadlocal.UserContext;
 import codedriver.framework.auth.core.AuthAction;
 import codedriver.framework.auth.core.AuthActionChecker;
-import codedriver.framework.auth.core.AuthFactory;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.exception.type.PermissionDeniedException;
 import codedriver.framework.restful.annotation.*;
@@ -16,9 +20,9 @@ import codedriver.module.report.dto.ReportInstanceAuthVo;
 import codedriver.module.report.dto.ReportInstanceTableColumnVo;
 import codedriver.module.report.dto.ReportInstanceVo;
 import codedriver.module.report.dto.ReportVo;
-import codedriver.module.report.exception.ReportInstanceNotFoundException;
-import codedriver.module.report.exception.ReportIsNotActiveException;
-import codedriver.module.report.exception.ReportNotFoundException;
+import codedriver.framework.report.exception.ReportInstanceNotFoundException;
+import codedriver.framework.report.exception.ReportIsNotActiveException;
+import codedriver.framework.report.exception.ReportNotFoundException;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections4.CollectionUtils;
