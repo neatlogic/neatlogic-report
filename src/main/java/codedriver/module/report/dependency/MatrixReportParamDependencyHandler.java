@@ -12,6 +12,7 @@ import codedriver.framework.dependency.core.IFromType;
 import codedriver.framework.dependency.dto.DependencyInfoVo;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportParamVo;
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -101,12 +102,19 @@ public class MatrixReportParamDependencyHandler extends CustomTableDependencyHan
         }
         if (dependencyObj instanceof ReportParamVo) {
             ReportParamVo reportParamVo = (ReportParamVo) dependencyObj;
-            DependencyInfoVo dependencyInfoVo = new DependencyInfoVo();
-            dependencyInfoVo.setValue(reportParamVo.getReportId());
-            String text = String.format("<a href=\"/%s/report.html#/report-manage\" target=\"_blank\">%s</a>",
-                    TenantContext.get().getTenantUuid(), reportParamVo.getReportName() + "-" + reportParamVo.getName());
-            dependencyInfoVo.setText(text);
-            return dependencyInfoVo;
+            JSONObject dependencyInfoConfig = new JSONObject();
+            dependencyInfoConfig.put("reportId", reportParamVo.getReportId());
+            dependencyInfoConfig.put("reportName", reportParamVo.getReportName());
+            dependencyInfoConfig.put("paramName", reportParamVo.getName());
+            String pathFormat = "报表-${DATA.reportName}-${DATA.paramName}";
+            String urlFormat = "/" + TenantContext.get().getTenantUuid() + "/report.html#/report-manage";
+            return new DependencyInfoVo(reportParamVo.getReportId(), dependencyInfoConfig, pathFormat, urlFormat);
+//            DependencyInfoVo dependencyInfoVo = new DependencyInfoVo();
+//            dependencyInfoVo.setValue(reportParamVo.getReportId());
+//            String text = String.format("<a href=\"/%s/report.html#/report-manage\" target=\"_blank\">%s</a>",
+//                    TenantContext.get().getTenantUuid(), reportParamVo.getReportName() + "-" + reportParamVo.getName());
+//            dependencyInfoVo.setText(text);
+//            return dependencyInfoVo;
         }
         return null;
     }
