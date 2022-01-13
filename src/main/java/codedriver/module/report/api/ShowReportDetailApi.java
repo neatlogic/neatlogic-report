@@ -19,6 +19,7 @@ import codedriver.framework.report.exception.ReportNotFoundException;
 import codedriver.module.report.service.ReportService;
 import codedriver.module.report.util.ReportFreemarkerUtil;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,10 +59,15 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
 	@Input({
 			@Param(name = "id", desc = "报表id", isRequired = true),
 			@Param(name = "reportInstanceId", desc = "报表实例id"),
+			@Param(name = "taskStatus", desc = "工单状态"),
 	})
 	@Description(desc = "展示报表接口")
 	@Override
 	public Object myDoService(JSONObject paramObj, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		String taskStatus = paramObj.getString("taskStatus");
+		if (StringUtils.isBlank(taskStatus)) {
+			paramObj.remove("taskStatus");
+		}
 		Long reportId = paramObj.getLong("id");
 		Long reportInstanceId = paramObj.getLong("reportInstanceId");
 		// 统计使用次数
