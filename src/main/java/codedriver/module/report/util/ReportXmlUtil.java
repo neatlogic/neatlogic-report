@@ -10,6 +10,7 @@ import codedriver.framework.util.HtmlUtil;
 import codedriver.module.report.dto.ResultMapVo;
 import codedriver.module.report.dto.SelectVo;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 import org.dom4j.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -438,7 +439,7 @@ public class ReportXmlUtil {
                 for (Element notNullEl : notNullElList) {
                     boolean hasParam = false;
                     Object p = paramMap.get(notNullEl.attributeValue("parameter"));
-                    if (p != null) {
+                    if (p != null&& (!StringUtils.equals(StringUtils.EMPTY, p.toString()))) {
                         hasParam = true;
                     }
                     if (!hasParam) {

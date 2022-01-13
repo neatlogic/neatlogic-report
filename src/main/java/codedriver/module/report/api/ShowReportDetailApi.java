@@ -6,6 +6,7 @@
 package codedriver.module.report.api;
 
 import codedriver.framework.auth.core.AuthAction;
+import codedriver.framework.report.exception.ReportNotFoundException;
 import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.OperationType;
@@ -15,11 +16,9 @@ import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiCompon
 import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportVo;
-import codedriver.framework.report.exception.ReportNotFoundException;
 import codedriver.module.report.service.ReportService;
 import codedriver.module.report.util.ReportFreemarkerUtil;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -59,14 +58,10 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
 	@Input({
 			@Param(name = "id", desc = "报表id", isRequired = true),
 			@Param(name = "reportInstanceId", desc = "报表实例id"),
-			@Param(name = "taskStatus", desc = "工单状态"),
 	})
 	@Description(desc = "展示报表接口")
 	@Override
 	public Object myDoService(JSONObject paramObj, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		if (StringUtils.isBlank(paramObj.getString("taskStatus"))) {
-			paramObj.remove("taskStatus");
-		}
 		Long reportId = paramObj.getLong("id");
 		Long reportInstanceId = paramObj.getLong("reportInstanceId");
 		// 统计使用次数
