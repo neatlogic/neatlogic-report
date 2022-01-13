@@ -305,7 +305,7 @@ public class ReportXmlUtil {
                     for (Element foreachEl : forEachList) {
                         boolean hasParam = false;
                         Object p = paramMap.get(foreachEl.attributeValue("parameter"));
-                        if (p != null) {
+                        if (p != null && (!StringUtils.equals(StringUtils.EMPTY, p.toString()))) {
                             hasParam = true;
                             String separator = foreachEl.attributeValue("separator");
                             String orgText = foreachEl.getText();
@@ -475,7 +475,7 @@ public class ReportXmlUtil {
                     Element foreachEl = (Element)node;
                     boolean hasParam = false;
                     Object p = paramMap.get(foreachEl.attributeValue("parameter"));
-                    if (p != null) {
+                    if (p != null && (!StringUtils.equals(StringUtils.EMPTY, p.toString()))) {
                         hasParam = true;
                         String separator = foreachEl.attributeValue("separator");
                         String orgText = foreachEl.getText();
