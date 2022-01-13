@@ -64,8 +64,7 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
 	@Description(desc = "展示报表接口")
 	@Override
 	public Object myDoService(JSONObject paramObj, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		String taskStatus = paramObj.getString("taskStatus");
-		if (StringUtils.isBlank(taskStatus)) {
+		if (StringUtils.isBlank(paramObj.getString("taskStatus"))) {
 			paramObj.remove("taskStatus");
 		}
 		Long reportId = paramObj.getLong("id");
