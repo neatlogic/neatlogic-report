@@ -271,7 +271,7 @@ public class ReportXmlUtil {
                     for (Element notNullEl : notNullElList) {
                         boolean hasParam = false;
                         Object p = paramMap.get(notNullEl.attributeValue("parameter"));
-                        if (p != null) {
+                        if (p != null && (!StringUtils.equals(StringUtils.EMPTY, p.toString()))) {
                             hasParam = true;
                         }
                         if (!hasParam) {
@@ -439,7 +439,7 @@ public class ReportXmlUtil {
                 for (Element notNullEl : notNullElList) {
                     boolean hasParam = false;
                     Object p = paramMap.get(notNullEl.attributeValue("parameter"));
-                    if (p != null&& (!StringUtils.equals(StringUtils.EMPTY, p.toString()))) {
+                    if (p != null && (!StringUtils.equals(StringUtils.EMPTY, p.toString()))) {
                         hasParam = true;
                     }
                     if (!hasParam) {
