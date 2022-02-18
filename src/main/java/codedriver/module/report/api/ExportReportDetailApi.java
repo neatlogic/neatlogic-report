@@ -192,7 +192,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
                                 Element tds = trIterator.next();
                                 Elements tdEls = tds.getElementsByTag("td");
                                 List<Element> tdList = tdEls.subList(0, tdEls.size());
-                                Map<String, Object> map = new HashMap<>();
+                                Map<String, Object> map = new LinkedHashMap<>();
                                 for (int i = 0; i < tdList.size(); i++) {
                                     map.put(thValueList.get(i), tdList.get(i).ownText());
                                 }
