@@ -85,11 +85,8 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
 			//out.write("</head>");
 			//out.write("<body>");
 			Map<String, Long> timeMap = new HashMap<>();
-			boolean isFirst = false;
-			if (request.getHeader("referer") == null || request.getHeader("referer").indexOf("report-show/" + reportId) == -1) {
-				isFirst = true;
-			}
-			Map<String, Object> returnMap = reportService.getQueryResult(reportId, paramObj, timeMap, isFirst,showColumnsMap);
+            boolean isFirst = request.getHeader("referer") == null || !request.getHeader("referer").contains("report-show/" + reportId);
+            Map<String, Object> returnMap = reportService.getQueryResult(reportId, paramObj, timeMap, isFirst, showColumnsMap);
 			Map<String, Object> tmpMap = new HashMap<>();
 			Map<String, Object> commonMap = new HashMap<>();
 			tmpMap.put("report", returnMap);

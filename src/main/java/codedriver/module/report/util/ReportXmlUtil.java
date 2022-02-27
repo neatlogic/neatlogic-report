@@ -1,200 +1,166 @@
 /*
- * Copyright(c) 2021 TechSure Co., Ltd. All Rights Reserved.
+ * Copyright(c) 2022 TechSure Co., Ltd. All Rights Reserved.
  * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
  */
 
 package codedriver.module.report.util;
 
 import codedriver.framework.dto.RestVo;
+import codedriver.framework.report.dto.ReportDataSourceConditionVo;
+import codedriver.framework.report.dto.ReportDataSourceFieldVo;
+import codedriver.framework.report.dto.ReportDataSourceVo;
+import codedriver.framework.report.exception.DataSourceXmlIrregularException;
 import codedriver.framework.util.HtmlUtil;
 import codedriver.module.report.dto.ResultMapVo;
 import codedriver.module.report.dto.SelectVo;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ReportXmlUtil {
-    static Logger logger = LoggerFactory.getLogger(ReportXmlUtil.class);
+    //static Logger logger = LoggerFactory.getLogger(ReportXmlUtil.class);
 
-    private static void validateSubXml(List<Element> elementList, Map<String, Boolean> checkMap) {
+    private static void generateConditionFromXml(List<Element> elementList, Set<String> checkSet, List<ReportDataSourceConditionVo> conditionList) {
         for (Element sub : elementList) {
-            if (sub.getName().equals("id") || sub.getName().equals("result") || sub.getName().equals("collection")) {
-                if (sub.attributeValue("property") == null) {
-                    throw new RuntimeException("“" + sub.getName() + "”节点必须定义唯一的“property”属性");
+            if (sub.getName().equals("condition")) {
+                String name = sub.attributeValue("name");
+                String label = sub.attributeValue("label");
+                String type = sub.attributeValue("type");
+                String isRequired = sub.attributeValue("isRequired");
+                if (StringUtils.isBlank(sub.attributeValue("name"))) {
+                    throw new DataSourceXmlIrregularException("“" + sub.getName() + "”节点必须定义唯一的“name”属性");
                 } else {
-                    if (checkMap.containsKey(sub.attributeValue("property"))) {
-                        throw new RuntimeException(
-                            "property=" + sub.attributeValue("property") + "的" + sub.getName() + "节点已存在");
+                    if (checkSet.contains(sub.attributeValue("name"))) {
+                        throw new DataSourceXmlIrregularException("name=" + sub.attributeValue("name") + "的" + sub.getName() + "节点已存在");
                     } else {
-                        checkMap.put(sub.attributeValue("property"), true);
+                        checkSet.add(sub.attributeValue("name"));
                     }
                 }
-                List<Element> sList = sub.elements();
-                if (sList != null && sList.size() > 0) {
-                    validateSubXml(sList, checkMap);
+                ReportDataSourceConditionVo condition = new ReportDataSourceConditionVo(name, label, type);
+                if (StringUtils.isNotBlank(isRequired)) {
+                    condition.setIsRequired(isRequired.equals("1") || isRequired.equalsIgnoreCase("true") ? 1 : 0);
                 }
+                conditionList.add(condition);
             }
         }
-
     }
 
-    public static boolean validateXml(String xml) throws DocumentException, SAXException, IOException {
+    private static void generateFieldFromXml(List<Element> elementList, Set<String> checkSet, List<ReportDataSourceFieldVo> fieldList) {
+        for (Element sub : elementList) {
+            if (sub.getName().equals("id") || sub.getName().equals("field")) {
+                String column = sub.attributeValue("column");
+                String label = sub.attributeValue("label");
+                String type = sub.attributeValue("type");
+                if (StringUtils.isBlank(sub.attributeValue("column"))) {
+                    throw new DataSourceXmlIrregularException("“" + sub.getName() + "”节点必须定义唯一的“column”属性");
+                } else {
+                    if (checkSet.contains(sub.attributeValue("column"))) {
+                        throw new DataSourceXmlIrregularException("column=" + sub.attributeValue("column") + "的" + sub.getName() + "节点已存在");
+                    } else {
+                        checkSet.add(sub.attributeValue("column"));
+                    }
+                }
+                fieldList.add(new ReportDataSourceFieldVo(column, label, type, sub.getName().equals("id") ? 1 : 0));
+            }
+        }
+    }
+
+    /**
+     * @param xml 配置xml
+     * @return 数据源对象
+     */
+    public static ReportDataSourceVo generateDataSourceFromXml(String xml) throws DocumentException {
         Document document = DocumentHelper.parseText(xml);
         Element root = document.getRootElement();
-        if (!root.getName().equals("mapper")) {
-            throw new RuntimeException("xml根节点名称必须是“mapper”");
+        ReportDataSourceVo reportDataSourceVo = new ReportDataSourceVo();
+        if (!root.getName().equals("report")) {
+            throw new DataSourceXmlIrregularException("xml根节点名称必须是“report”");
         }
 
-        List<Element> resultMapList = root.elements("resultMap");
-        List<Element> restList = root.elements("rest");
-        Map<String, Boolean> checkResultMap = new HashMap<String, Boolean>();
-        if (restList.size() <= 0) {
-            if (resultMapList.size() <= 0) {
-                throw new RuntimeException("请定义一个或多个“resultMap”节点");
+
+        Element fieldsElement = root.element("fields");
+        Element conditionsElement = root.element("conditions");
+        Element selectElement = root.element("select");
+        if (fieldsElement == null) {
+            throw new DataSourceXmlIrregularException("请定义“fields”节点");
+        } else {
+            List<Element> subResultElList = fieldsElement.elements();
+            Set<String> fieldCheckSet = new HashSet<>();
+            if (CollectionUtils.isNotEmpty(subResultElList)) {
+                List<ReportDataSourceFieldVo> fieldList = new ArrayList<>();
+                generateFieldFromXml(subResultElList, fieldCheckSet, fieldList);
+                reportDataSourceVo.setFieldList(fieldList);
             } else {
-
-                for (Element resultmap : resultMapList) {
-                    if (resultmap.attributeValue("id") == null) {
-                        throw new RuntimeException("“resultMap”节点必须定义“id”属性");
-                    } else {
-                        if (checkResultMap.containsKey(resultmap.attributeValue("id"))) {
-                            throw new RuntimeException("resultMap:" + resultmap.attributeValue("id") + "已存在");
-                        } else {
-                            checkResultMap.put(resultmap.attributeValue("id"), true);
-                        }
-                    }
-                    if ("Map".equals(resultmap.attributeValue("resultType"))) {
-                        if (resultmap.elements("collection").size() > 0) {
-                            throw new RuntimeException("resultType等于Map的resultMap节点不能包含collection节点。");
-                        }
-                    }
-                    List<Element> subResultElList = resultmap.elements();
-                    Map<String, Boolean> subCheckMap = new HashMap<String, Boolean>();
-                    if (subResultElList != null && subResultElList.size() > 0) {
-                        validateSubXml(subResultElList, subCheckMap);
-                    } else {
-                        throw new RuntimeException("resultMap节点必须包含id或result或collection节点");
-                    }
-                }
+                throw new DataSourceXmlIrregularException("fields节点必须包含id或field节点");
             }
         }
 
-        List<Element> selectList = root.elements("select");
-        if (restList.size() <= 0) {
-            if (selectList.size() <= 0) {
-                throw new RuntimeException("请定义一个或多个“select”节点");
+        if (conditionsElement != null) {
+            List<Element> conditionElList = conditionsElement.elements();
+            Set<String> conditionCheckSet = new HashSet<>();
+            if (CollectionUtils.isNotEmpty(conditionElList)) {
+                List<ReportDataSourceConditionVo> conditionList = new ArrayList<>();
+                generateConditionFromXml(conditionElList, conditionCheckSet, conditionList);
+                reportDataSourceVo.setConditionList(conditionList);
             } else {
-                Map<String, Boolean> checkMap = new HashMap<String, Boolean>();
-                for (Element select : selectList) {
-                    if (select.attributeValue("id") == null) {
-                        throw new RuntimeException("“select”节点必须定义唯一的“id”属性");
-                    } else if (select.attributeValue("resultMap") == null) {
-                        throw new RuntimeException("“select”节点必须定义“resultMap”属性");
-                    } else if (!checkResultMap.containsKey(select.attributeValue("resultMap"))) {
-                        throw new RuntimeException("id=“" + select.attributeValue("id") + "”的select节点引用了不存在的resultMap");
-                    } else {
-                        if (checkMap.containsKey(select.attributeValue("id"))) {
-                            throw new RuntimeException("“select”节点的“id”属性必须唯一");
-                        } else {
-                            checkMap.put(select.attributeValue("id"), true);
-                        }
-                    }
-                }
+                throw new DataSourceXmlIrregularException("conditions节点必须包含condition节点");
             }
         }
 
-        if (restList.size() > 0) {
-            Map<String, Boolean> checkMap = new HashMap<String, Boolean>();
-            for (Element rest : restList) {
-                if (rest.attributeValue("id") == null) {
-                    throw new RuntimeException("“rest”节点必须定义唯一的“id”属性");
-                } else if (rest.attributeValue("authtype") != null
-                    && !rest.attributeValue("authtype").trim().equals("")) {
-                    if (!rest.attributeValue("authtype").equals("basic")) {
-                        throw new RuntimeException(
-                            "id=“" + rest.attributeValue("id") + "”的rest节点authtype属性只能是basic或为空");
-                    } else {
-                        if (rest.attributeValue("username") == null
-                            || rest.attributeValue("username").trim().equals("")) {
-                            throw new RuntimeException("id=“" + rest.attributeValue("id") + "”的rest节点缺少username属性");
-                        }
-                        if (rest.attributeValue("password") == null
-                            || rest.attributeValue("password").trim().equals("")) {
-                            throw new RuntimeException("id=“" + rest.attributeValue("id") + "”的rest节点缺少password属性");
-                        }
-                    }
-
-                } else {
-                    if (checkMap.containsKey(rest.attributeValue("id"))) {
-                        throw new RuntimeException("“rest”节点的“id”属性必须唯一");
-                    } else {
-                        checkMap.put(rest.attributeValue("id"), true);
-                    }
-                }
-            }
+        if (selectElement == null) {
+            throw new DataSourceXmlIrregularException("请定义一个“select”节点");
         }
+
 
         List<Node> ifNotNullElementList = document.selectNodes("//ifNotNull");
         List<Node> ifNullElementList = document.selectNodes("//ifNull");
         List<Node> forEachElementList = document.selectNodes("//forEach");
         List<Node> ifElementList = document.selectNodes("//if");
+
         if (ifNotNullElementList != null && ifNotNullElementList.size() > 0) {
             for (Node node : ifNotNullElementList) {
-                Element e = (Element)node;
-                if (e.attributeValue("parameter") == null || e.attributeValue("parameter").trim().equals("")) {
-                    throw new RuntimeException("“ifNotNull”节点的“parameter”属性不能为空。");
+                Element e = (Element) node;
+                if (StringUtils.isBlank(e.attributeValue("parameter"))) {
+                    throw new DataSourceXmlIrregularException("“ifNotNull”节点的“parameter”属性不能为空。");
                 }
             }
         }
+
         if (ifNullElementList != null && ifNullElementList.size() > 0) {
             for (Node node : ifNullElementList) {
-                Element e = (Element)node;
-                if (e.attributeValue("parameter") == null || e.attributeValue("parameter").trim().equals("")) {
-                    throw new RuntimeException("“ifNull”节点的“parameter”属性不能为空。");
+                Element e = (Element) node;
+                if (StringUtils.isBlank(e.attributeValue("parameter"))) {
+                    throw new DataSourceXmlIrregularException("“ifNull”节点的“parameter”属性不能为空。");
                 }
             }
         }
+
         if (forEachElementList != null && forEachElementList.size() > 0) {
             for (Node node : forEachElementList) {
-                Element e = (Element)node;
-                if (e.attributeValue("parameter") == null || e.attributeValue("separator") == null
-                    || e.attributeValue("parameter").trim().equals("")
-                    || e.attributeValue("separator").trim().equals("")) {
-                    throw new RuntimeException("“forEach”节点的“parameter”和“separator”属性不能为空。");
+                Element e = (Element) node;
+                if (StringUtils.isBlank(e.attributeValue("parameter")) || StringUtils.isBlank(e.attributeValue("separator"))) {
+                    throw new DataSourceXmlIrregularException("“forEach”节点的“parameter”和“separator”属性不能为空。");
                 }
             }
         }
+
         if (ifElementList != null && ifElementList.size() > 0) {
             for (Node node : ifElementList) {
-                Element e = (Element)node;
-                if (e.attributeValue("test") == null || e.attributeValue("test").trim().equals("")) {
-                    throw new RuntimeException("“if”节点的“test”属性不能为空。");
+                Element e = (Element) node;
+                if (StringUtils.isBlank(e.attributeValue("test"))) {
+                    throw new DataSourceXmlIrregularException("“if”节点的“test”属性不能为空。");
                 }
             }
         }
-        /*
-         * SchemaFactory schemaFactory =
-         * SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI); Schema schema
-         * = schemaFactory.newSchema(ReportAnalyser.class.getResource(
-         * "/com/techsure/module/balantreport/report.xsd")); Validator validator =
-         * schema.newValidator(); Source source = new StreamSource(new
-         * StringReader(xml)); validator.validate(source);
-         */
 
-        return true;
+        return reportDataSourceVo;
     }
 
     private static ResultMapVo analyseResultMap(Element element) {
@@ -211,7 +177,7 @@ public class ReportXmlUtil {
             } else if (result.getName().equals("collection")) {
                 Map<String, ResultMapVo> map = resultMapVo.getResultMap();
                 if (map == null) {
-                    map = new HashMap<String, ResultMapVo>();
+                    map = new HashMap<>();
                 }
                 map.put(result.attributeValue("property"), analyseResultMap(result));
                 resultMapVo.setResultMap(map);
@@ -220,26 +186,22 @@ public class ReportXmlUtil {
         return resultMapVo;
     }
 
-    @SuppressWarnings({"unchecked", "unused"})
-    public static Map<String, Object> analyseSql(String xml, Map<String, Object> paramMap)
-        throws DocumentException, UnsupportedEncodingException {
+    public static Map<String, Object> analyseSql(String xml, Map<String, Object> paramMap) throws DocumentException, UnsupportedEncodingException {
         Document document = DocumentHelper.parseText(xml);
         Element root = document.getRootElement();
         List<Element> resultMapNodeList = root.elements("resultMap");
         List<Element> sqlNodeList = root.elements("select");
         List<Element> restNodeList = root.elements("rest");
-        String regex_param = "\\#\\{([^\\}]+?)\\}";
-        String regex_dollarparam = "\\$\\{([^\\}]+?)\\}";
-        String[] replace_regex =
-            new String[] {"<[/]?if[^>]*?>", "<[/]?rest[^>]*?>", "<[/]?select[^>]*?>", "<[/]?forEach[^>]*?>",
-                "<[/]?ifNotNull[^>]*?>", "<[/]?ifNull[^>]*?>", "<[/]?forEach[^>]*?>", "\\<\\!\\[CDATA\\[", "\\]\\]\\>"};
-        Map<String, Object> returnMap = new HashMap<String, Object>();
-        List<SelectVo> selectList = new ArrayList<SelectVo>();
-        List<RestVo> restList = new ArrayList<RestVo>();
+        String regex_param = "#\\{([^}]+?)}";
+        String regex_dollarparam = "\\$\\{([^}]+?)}";
+        String[] replace_regex = new String[]{"<[/]?if[^>]*?>", "<[/]?rest[^>]*?>", "<[/]?select[^>]*?>", "<[/]?forEach[^>]*?>", "<[/]?ifNotNull[^>]*?>", "<[/]?ifNull[^>]*?>", "<[/]?forEach[^>]*?>", "\\<\\!\\[CDATA\\[", "\\]\\]\\>"};
+        Map<String, Object> returnMap = new HashMap<>();
+        List<SelectVo> selectList = new ArrayList<>();
+        List<RestVo> restList = new ArrayList<>();
         returnMap.put("select", selectList);
         returnMap.put("rest", restList);
-        Map<String, ResultMapVo> resultMap = new HashMap<String, ResultMapVo>();
-        Map<String, Integer> resultTypeMap = new HashMap<String, Integer>();
+        Map<String, ResultMapVo> resultMap = new HashMap<>();
+        Map<String, Integer> resultTypeMap = new HashMap<>();
 
         if (restNodeList != null && restNodeList.size() > 0) {
             for (Element element : restNodeList) {
@@ -249,11 +211,10 @@ public class ReportXmlUtil {
                 String userName = element.attributeValue("username") == null ? "" : element.attributeValue("username");
                 String password = element.attributeValue("password") == null ? "" : element.attributeValue("password");
                 int readTimeOut = element.attributeValue("timeout") == null ? 60000 : Integer.parseInt(element.attributeValue("timeout"));
-                RestVo.Builder restBuilder = new RestVo.Builder(url,authType).setLazyLoad(lazyLoad).setUsername(userName)
-                        .setPassword(password).setId(element.attributeValue("id")).setReadTimeout(readTimeOut);
+                RestVo.Builder restBuilder = new RestVo.Builder(url, authType).setLazyLoad(lazyLoad).setUsername(userName).setPassword(password).setId(element.attributeValue("id")).setReadTimeout(readTimeOut);
                 List<Element> ifElList = element.elements("if");
                 if (ifElList != null && ifElList.size() > 0) {
-                    List<Element> removeObj = new ArrayList<Element>();
+                    List<Element> removeObj = new ArrayList<>();
                     for (Element ifEl : ifElList) {
                         String testExp = ifEl.attributeValue("test");
                         if (!ReportFreemarkerUtil.evaluateExpression(testExp, paramMap)) {
@@ -267,7 +228,7 @@ public class ReportXmlUtil {
 
                 List<Element> notNullElList = element.elements("ifNotNull");
                 if (notNullElList != null && notNullElList.size() > 0) {
-                    List<Element> removeObj = new ArrayList<Element>();
+                    List<Element> removeObj = new ArrayList<>();
                     for (Element notNullEl : notNullElList) {
                         boolean hasParam = false;
                         Object p = paramMap.get(notNullEl.attributeValue("parameter"));
@@ -284,7 +245,7 @@ public class ReportXmlUtil {
                 }
                 List<Element> nullElList = element.elements("ifNull");
                 if (nullElList != null && nullElList.size() > 0) {
-                    List<Element> removeObj = new ArrayList<Element>();
+                    List<Element> removeObj = new ArrayList<>();
                     for (Element nullEl : nullElList) {
                         boolean isNull = false;
                         Object p = paramMap.get(nullEl.attributeValue("parameter"));
@@ -301,7 +262,7 @@ public class ReportXmlUtil {
                 }
                 List<Element> forEachList = element.elements("forEach");
                 if (forEachList != null && forEachList.size() > 0) {
-                    List<Element> removeObj = new ArrayList<Element>();
+                    List<Element> removeObj = new ArrayList<>();
                     for (Element foreachEl : forEachList) {
                         boolean hasParam = false;
                         Object p = paramMap.get(foreachEl.attributeValue("parameter"));
@@ -309,19 +270,18 @@ public class ReportXmlUtil {
                             hasParam = true;
                             String separator = foreachEl.attributeValue("separator");
                             String orgText = foreachEl.getText();
-                            String newText = "";
+                            StringBuilder newText = new StringBuilder();
                             if (p instanceof String) {
-                                newText = orgText;
+                                newText = new StringBuilder(orgText);
                             } else if (p instanceof String[]) {
-                                for (int pi = 0; pi < ((String[])p).length; pi++) {
-                                    newText += orgText.replace("#{" + foreachEl.attributeValue("parameter") + "}",
-                                        "#{" + foreachEl.attributeValue("parameter") + "#" + pi + "}");
-                                    if (pi < ((String[])p).length - 1) {
-                                        newText += separator;
+                                for (int pi = 0; pi < ((String[]) p).length; pi++) {
+                                    newText.append(orgText.replace("#{" + foreachEl.attributeValue("parameter") + "}", "#{" + foreachEl.attributeValue("parameter") + "#" + pi + "}"));
+                                    if (pi < ((String[]) p).length - 1) {
+                                        newText.append(separator);
                                     }
                                 }
                             }
-                            foreachEl.setText(newText);
+                            foreachEl.setText(newText.toString());
                         }
                         if (!hasParam) {
                             removeObj.add(foreachEl);
@@ -333,9 +293,9 @@ public class ReportXmlUtil {
                 }
                 String result = element.asXML();
                 result = HtmlUtil.decodeHtml(result);
-                StringBuffer temp = null;
-                Pattern pattern = null;
-                Matcher matcher = null;
+                StringBuffer temp;
+                Pattern pattern;
+                Matcher matcher;
                 for (String regex : replace_regex) {
                     temp = new StringBuffer();
                     pattern = Pattern.compile(regex, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
@@ -352,26 +312,26 @@ public class ReportXmlUtil {
                 matcher = pattern.matcher(result);
                 while (matcher.find()) {
                     String key = matcher.group(1);
-                    if (key.indexOf("#") > -1) {
+                    if (key.contains("#")) {
                         key = key.substring(0, key.lastIndexOf("#"));
                     }
                     Object pp = paramMap.get(key);
                     if (pp instanceof String) {
                         matcher.appendReplacement(temp, URLEncoder.encode(pp.toString(), "UTF-8"));
                     } else if (pp instanceof String[]) {
-                        if (matcher.group(1).indexOf("#") > -1) {
+                        if (matcher.group(1).contains("#")) {
                             int s = Integer.parseInt(matcher.group(1).substring(matcher.group(1).lastIndexOf("#") + 1));
-                            String[] ps = (String[])pp;
+                            String[] ps = (String[]) pp;
                             if (ps[s] != null) {
                                 matcher.appendReplacement(temp, URLEncoder.encode(ps[s], "UTF-8"));
                             }
                         } else {
-                            matcher.appendReplacement(temp, URLEncoder.encode(((String[])pp)[0], "UTF-8"));
+                            matcher.appendReplacement(temp, URLEncoder.encode(((String[]) pp)[0], "UTF-8"));
                         }
                     } else if (pp instanceof List<?>) {
-                        if (matcher.group(1).indexOf("#") > -1) {
+                        if (matcher.group(1).contains("#")) {
                             int s = Integer.parseInt(matcher.group(1).substring(matcher.group(1).lastIndexOf("#") + 1));
-                            List<String> ps = (List<String>)pp;
+                            List<String> ps = (List<String>) pp;
                             if (ps.get(s) != null) {
                                 matcher.appendReplacement(temp, URLEncoder.encode(ps.get(s), "UTF-8"));
                             }
@@ -408,10 +368,8 @@ public class ReportXmlUtil {
             SelectVo selectVo = new SelectVo();
             String sqlId = element.attributeValue("id");
             String lazyLoad = element.attributeValue("lazyload") == null ? "false" : element.attributeValue("lazyload");
-            Integer datasource = element.attributeValue("datasource") == null ? 0
-                : Integer.parseInt(element.attributeValue("datasource"));
-            Integer queryTimeout =
-                element.attributeValue("timeout") == null ? 30 : Integer.parseInt(element.attributeValue("timeout"));
+            Integer datasource = element.attributeValue("datasource") == null ? 0 : Integer.parseInt(element.attributeValue("datasource"));
+            int queryTimeout = element.attributeValue("timeout") == null ? 30 : Integer.parseInt(element.attributeValue("timeout"));
             String needPage = element.attributeValue("needPage");
             String pageSize = element.attributeValue("pageSize");
             selectVo.setId(sqlId);
@@ -422,7 +380,7 @@ public class ReportXmlUtil {
             selectVo.setPageSize(pageSize);
             List<Element> ifElList = element.elements("if");
             if (ifElList != null && ifElList.size() > 0) {
-                List<Element> removeObj = new ArrayList<Element>();
+                List<Element> removeObj = new ArrayList<>();
                 for (Element ifEl : ifElList) {
                     String testExp = ifEl.attributeValue("test");
                     if (!ReportFreemarkerUtil.evaluateExpression(testExp, paramMap)) {
@@ -470,38 +428,36 @@ public class ReportXmlUtil {
             // List<Element> forEachList = element.elements("forEach");
             List<Node> forEachList = element.selectNodes("//forEach");
             if (forEachList != null && forEachList.size() > 0) {
-                List<Element> removeObj = new ArrayList<Element>();
+                List<Element> removeObj = new ArrayList<>();
                 for (Node node : forEachList) {
-                    Element foreachEl = (Element)node;
+                    Element foreachEl = (Element) node;
                     boolean hasParam = false;
                     Object p = paramMap.get(foreachEl.attributeValue("parameter"));
                     if (p != null && (!StringUtils.equals(StringUtils.EMPTY, p.toString()))) {
                         hasParam = true;
                         String separator = foreachEl.attributeValue("separator");
                         String orgText = foreachEl.getText();
-                        String newText = "";
+                        StringBuilder newText = new StringBuilder();
                         if (p instanceof String) {
-                            newText = orgText;
+                            newText = new StringBuilder(orgText);
                         } else if (p instanceof String[]) {
-                            for (int pi = 0; pi < ((String[])p).length; pi++) {
-                                newText += orgText.replace("#{" + foreachEl.attributeValue("parameter") + "}",
-                                    "#{" + foreachEl.attributeValue("parameter") + "#" + pi + "}");
-                                if (pi < ((String[])p).length - 1) {
-                                    newText += separator;
+                            for (int pi = 0; pi < ((String[]) p).length; pi++) {
+                                newText.append(orgText.replace("#{" + foreachEl.attributeValue("parameter") + "}", "#{" + foreachEl.attributeValue("parameter") + "#" + pi + "}"));
+                                if (pi < ((String[]) p).length - 1) {
+                                    newText.append(separator);
                                 }
                             }
                         } else if (p instanceof List<?>) {
                             int i = 0;
-                            for (String pi : (List<String>)p) {
-                                newText += orgText.replace("#{" + foreachEl.attributeValue("parameter") + "}",
-                                    "#{" + foreachEl.attributeValue("parameter") + "#" + i + "}");
-                                if (i < ((List<String>)p).size() - 1) {
-                                    newText += separator;
+                            for (String pi : (List<String>) p) {
+                                newText.append(orgText.replace("#{" + foreachEl.attributeValue("parameter") + "}", "#{" + foreachEl.attributeValue("parameter") + "#" + i + "}"));
+                                if (i < ((List<String>) p).size() - 1) {
+                                    newText.append(separator);
                                 }
                                 i++;
                             }
                         }
-                        foreachEl.setText(newText);
+                        foreachEl.setText(newText.toString());
                     }
                     if (!hasParam) {
                         removeObj.add(foreachEl);
@@ -512,9 +468,9 @@ public class ReportXmlUtil {
                 }
             }
             String result = element.asXML();
-            StringBuffer temp = null;
-            Pattern pattern = null;
-            Matcher matcher = null;
+            StringBuffer temp;
+            Pattern pattern;
+            Matcher matcher;
             for (String regex : replace_regex) {
                 temp = new StringBuffer();
                 pattern = Pattern.compile(regex, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
@@ -532,7 +488,7 @@ public class ReportXmlUtil {
             List<Object> paramList = new ArrayList<Object>();
             while (matcher.find()) {
                 String key = matcher.group(1);
-                if (key.indexOf("#") > -1) {
+                if (key.contains("#")) {
                     key = key.substring(0, key.lastIndexOf("#"));
                 }
                 Object pp = paramMap.get(key);
@@ -540,28 +496,28 @@ public class ReportXmlUtil {
                     matcher.appendReplacement(temp, "?");
                     paramList.add(pp);
                 } else if (pp instanceof String[]) {
-                    if (matcher.group(1).indexOf("#") > -1) {
+                    if (matcher.group(1).contains("#")) {
                         int s = Integer.parseInt(matcher.group(1).substring(matcher.group(1).lastIndexOf("#") + 1));
-                        String[] ps = (String[])pp;
+                        String[] ps = (String[]) pp;
                         if (ps[s] != null) {
                             paramList.add(ps[s]);
                             matcher.appendReplacement(temp, "?");
                         }
                     } else {
                         matcher.appendReplacement(temp, "?");
-                        paramList.add(((String[])pp)[0]);
+                        paramList.add(((String[]) pp)[0]);
                     }
                 } else if (pp instanceof List<?>) {
-                    if (matcher.group(1).indexOf("#") > -1) {
+                    if (matcher.group(1).contains("#")) {
                         int s = Integer.parseInt(matcher.group(1).substring(matcher.group(1).lastIndexOf("#") + 1));
-                        List<String> ps = (List<String>)pp;
+                        List<String> ps = (List<String>) pp;
                         if (ps.get(s) != null) {
                             paramList.add(ps.get(s));
                             matcher.appendReplacement(temp, "?");
                         }
                     } else {
                         matcher.appendReplacement(temp, "?");
-                        paramList.add(((List<String>)pp).get(0));
+                        paramList.add(((List<String>) pp).get(0));
                     }
                 } else {
                     continue sql;
@@ -577,26 +533,26 @@ public class ReportXmlUtil {
                 String key = matcher.group(1);
                 Object pp = paramMap.get(key);
                 if (pp instanceof String) {
-                    matcher.appendReplacement(temp, (String)pp);
+                    matcher.appendReplacement(temp, (String) pp);
                 } else if (pp instanceof String[]) {
-                    if (matcher.group(1).indexOf("$") > -1) {
+                    if (matcher.group(1).contains("$")) {
                         int s = Integer.parseInt(matcher.group(1).substring(matcher.group(1).lastIndexOf("$") + 1));
-                        String[] ps = (String[])pp;
+                        String[] ps = (String[]) pp;
                         if (ps[s] != null) {
                             matcher.appendReplacement(temp, ps[s]);
                         }
                     } else {
-                        matcher.appendReplacement(temp, ((String[])pp)[0]);
+                        matcher.appendReplacement(temp, ((String[]) pp)[0]);
                     }
                 } else if (pp instanceof List<?>) {
-                    if (matcher.group(1).indexOf("$") > -1) {
+                    if (matcher.group(1).contains("$")) {
                         int s = Integer.parseInt(matcher.group(1).substring(matcher.group(1).lastIndexOf("$") + 1));
-                        List<String> ps = (List<String>)pp;
+                        List<String> ps = (List<String>) pp;
                         if (ps.get(s) != null) {
                             matcher.appendReplacement(temp, ps.get(s));
                         }
                     } else {
-                        matcher.appendReplacement(temp, ((List<String>)pp).get(0));
+                        matcher.appendReplacement(temp, ((List<String>) pp).get(0));
                     }
                 } else {
                     continue sql;
@@ -634,18 +590,16 @@ public class ReportXmlUtil {
         List<Element> resultMapNodeList = root.elements("resultMap");
         List<Element> sqlNodeList = root.elements("select");
         List<Element> restNodeList = root.elements("rest");
-        String regex_param = "\\#\\{([^\\}]+?)\\}";
+        String regex_param = "#\\{([^}]+?)}";
         // String regex_dollarparam = "\\$\\{([^\\}]+?)\\}";
-        String[] replace_regex =
-            new String[] {"<[/]?if[^>]*?>", "<[/]?rest[^>]*?>", "<[/]?select[^>]*?>", "<[/]?forEach[^>]*?>",
-                "<[/]?ifNotNull[^>]*?>", "<[/]?ifNull[^>]*?>", "<[/]?forEach[^>]*?>", "\\<\\!\\[CDATA\\[", "\\]\\]\\>"};
-        Map<String, Object> returnMap = new HashMap<String, Object>();
-        List<SelectVo> selectList = new ArrayList<SelectVo>();
-        List<RestVo> restList = new ArrayList<RestVo>();
+        String[] replace_regex = new String[]{"<[/]?if[^>]*?>", "<[/]?rest[^>]*?>", "<[/]?select[^>]*?>", "<[/]?forEach[^>]*?>", "<[/]?ifNotNull[^>]*?>", "<[/]?ifNull[^>]*?>", "<[/]?forEach[^>]*?>", "\\<\\!\\[CDATA\\[", "\\]\\]\\>"};
+        Map<String, Object> returnMap = new HashMap<>();
+        List<SelectVo> selectList = new ArrayList<>();
+        List<RestVo> restList = new ArrayList<>();
         returnMap.put("select", selectList);
         returnMap.put("rest", restList);
-        Map<String, ResultMapVo> resultMap = new HashMap<String, ResultMapVo>();
-        Map<String, Integer> resultTypeMap = new HashMap<String, Integer>();
+        Map<String, ResultMapVo> resultMap = new HashMap<>();
+        Map<String, Integer> resultTypeMap = new HashMap<>();
 
         if (restNodeList != null && restNodeList.size() > 0) {
             for (Element element : restNodeList) {
@@ -655,13 +609,12 @@ public class ReportXmlUtil {
                 String userName = element.attributeValue("username") == null ? "" : element.attributeValue("username");
                 String password = element.attributeValue("password") == null ? "" : element.attributeValue("password");
                 int readTimeOut = element.attributeValue("timeout") == null ? 60000 : Integer.parseInt(element.attributeValue("timeout"));
-                RestVo.Builder restBuilder = new RestVo.Builder(url,authType).setLazyLoad(lazyLoad).setUsername(userName)
-                        .setPassword(password).setId(element.attributeValue("id")).setReadTimeout(readTimeOut);
+                RestVo.Builder restBuilder = new RestVo.Builder(url, authType).setLazyLoad(lazyLoad).setUsername(userName).setPassword(password).setId(element.attributeValue("id")).setReadTimeout(readTimeOut);
                 String result = element.asXML();
                 result = HtmlUtil.decodeHtml(result);
-                StringBuffer temp = null;
-                Pattern pattern = null;
-                Matcher matcher = null;
+                StringBuffer temp;
+                Pattern pattern;
+                Matcher matcher;
                 for (String regex : replace_regex) {
                     temp = new StringBuffer();
                     pattern = Pattern.compile(regex, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
@@ -678,7 +631,7 @@ public class ReportXmlUtil {
                 matcher = pattern.matcher(result);
                 while (matcher.find()) {
                     String key = matcher.group(1);
-                    if (key.indexOf("#") > -1) {
+                    if (key.contains("#")) {
                         key = key.substring(0, key.lastIndexOf("#"));
                     }
                 }
@@ -706,10 +659,8 @@ public class ReportXmlUtil {
             SelectVo selectVo = new SelectVo();
             String sqlId = element.attributeValue("id");
             String lazyLoad = element.attributeValue("lazyload") == null ? "false" : element.attributeValue("lazyload");
-            Integer datasource = element.attributeValue("datasource") == null ? 0
-                : Integer.parseInt(element.attributeValue("datasource"));
-            Integer queryTimeout =
-                element.attributeValue("timeout") == null ? 30 : Integer.parseInt(element.attributeValue("timeout"));
+            Integer datasource = element.attributeValue("datasource") == null ? 0 : Integer.parseInt(element.attributeValue("datasource"));
+            Integer queryTimeout = element.attributeValue("timeout") == null ? 30 : Integer.parseInt(element.attributeValue("timeout"));
             String needPage = element.attributeValue("needPage");
             String pageSize = element.attributeValue("pageSize");
             selectVo.setId(sqlId);
@@ -719,9 +670,9 @@ public class ReportXmlUtil {
             selectVo.setNeedPage(needPage);
             selectVo.setPageSize(pageSize);
             String result = element.asXML();
-            StringBuffer temp = null;
-            Pattern pattern = null;
-            Matcher matcher = null;
+            StringBuffer temp;
+            Pattern pattern;
+            Matcher matcher;
             for (String regex : replace_regex) {
                 temp = new StringBuffer();
                 pattern = Pattern.compile(regex, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
