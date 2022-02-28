@@ -85,7 +85,7 @@ public class ReportInstanceListApi extends PrivateApiComponentBase {
 
             // 查询当前用户创建的实例
             reportInstanceVo.setReportInstanceAuthList(null);
-            reportInstanceVo.setFcu(UserContext.get().getUserUuid());
+            reportInstanceVo.setSearchByFcu(1);
             List<ReportInstanceVo> ownerInstanceList = reportInstanceMapper.getReportInstanceList(reportInstanceVo);
             if (CollectionUtils.isNotEmpty(ownerInstanceList)) {
                 instanceList.addAll(ownerInstanceList);
