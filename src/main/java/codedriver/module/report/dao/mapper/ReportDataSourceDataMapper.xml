@@ -12,6 +12,36 @@
         from ${tableName}
     </select>
 
+    <select id="searchDataSourceData" parameterType="codedriver.framework.report.dto.ReportDataSourceDataVo"
+            resultType="java.util.HashMap">
+        select
+        <foreach collection="fieldList" item="item">
+            `${item.id}` as `field_${item.id}`,
+        </foreach>
+        id,
+        insert_time as intertTime,
+        expire_time as expireTime
+        from ${tableName}
+        <if test="conditionList != null and conditionList.size() > 0">
+            <foreach collection="conditionList" item="item" separator="and">
+                `${item.id}` like concat('%', #{item.value}, '%')
+            </foreach>
+        </if>
+        limit #{startNum},#{pageSize}
+    </select>
+
+    <select id="searchDataSourceDataCount" parameterType="codedriver.framework.report.dto.ReportDataSourceDataVo"
+            resultType="int">
+        select
+        count(1)
+        from ${tableName}
+        <if test="conditionList != null and conditionList.size() > 0">
+            <foreach collection="conditionList" item="item" separator="and">
+                `${item.id}` like concat('%', #{item.value}, '%')
+            </foreach>
+        </if>
+    </select>
+
     <insert id="insertDataSourceData" parameterType="codedriver.framework.report.dto.ReportDataSourceDataVo">
         insert into ${tableName}
         (

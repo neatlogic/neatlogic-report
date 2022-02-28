@@ -8,8 +8,15 @@ package codedriver.module.report.dao.mapper;
 import codedriver.framework.report.dto.ReportDataSourceDataVo;
 import codedriver.framework.report.dto.ReportDataSourceVo;
 
+import java.util.HashMap;
+import java.util.List;
+
 public interface ReportDataSourceDataMapper {
     int getDataSourceDataCount(ReportDataSourceVo reportDataSourceVo);
+
+    int searchDataSourceDataCount(ReportDataSourceDataVo reportDataSourceDataVo);
+
+    List<HashMap<String, Object>> searchDataSourceData(ReportDataSourceDataVo reportDataSourceDataVo);
 
     void insertDataSourceData(ReportDataSourceDataVo reportDataSourceDataVo);
 
