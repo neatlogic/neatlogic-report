@@ -7,14 +7,16 @@ package codedriver.module.report.dto;
 
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.common.dto.BaseEditorVo;
-import codedriver.framework.common.dto.BasePageVo;
 import codedriver.framework.restful.annotation.EntityField;
 import codedriver.framework.util.SnowflakeUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class ReportInstanceVo extends BaseEditorVo {
     @EntityField(name = "id", type = ApiParamType.LONG)
@@ -41,6 +43,9 @@ public class ReportInstanceVo extends BaseEditorVo {
     private List<ReportParamVo> paramList;
     @EntityField(name = "表格列表", type = ApiParamType.JSONARRAY)
     private Map<String, List<String>> tableColumnsMap;
+
+    @JSONField(serialize = false)
+    private Integer searchByFcu = 0;
 
     public Long getId() {
         if (id == null) {
@@ -172,6 +177,14 @@ public class ReportInstanceVo extends BaseEditorVo {
 
     public void setTableColumnsMap(Map<String, List<String>> tableColumnsMap) {
         this.tableColumnsMap = tableColumnsMap;
+    }
+
+    public Integer getSearchByFcu() {
+        return searchByFcu;
+    }
+
+    public void setSearchByFcu(Integer searchByFcu) {
+        this.searchByFcu = searchByFcu;
     }
 
     @Override
