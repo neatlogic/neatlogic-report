@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright(c) 2022 TechSure Co., Ltd. All Rights Reserved.
+  ~ 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="codedriver.module.report.dao.mapper.ReportStatementMapper">
+    <select id="getReportStatementById" parameterType="java.lang.Long"
+            resultType="codedriver.framework.report.dto.ReportStatementVo">
+        select id, name, is_active as isActive, config as configStr
+        from report_statement
+        where id = #{id}
+    </select>
+
+    <update id="updateReportStatement" parameterType="codedriver.framework.report.dto.ReportStatementVo">
+        update report_statement
+        set name      = #{name},
+            is_active = #{isActive},
+            config    = #{configStr}
+        where id = #{id}
+    </update>
+
+    <insert id="insertReportStatement" parameterType="codedriver.framework.report.dto.ReportStatementVo">
+        insert into report_statement
+        (id,
+         name,
+         is_active,
+         config)
+        values (#{id},
+                #{name},
+                #{isActive},
+                #{configStr})
+    </insert>
+
+    <delete id="deleteStatementById" parameterType="java.lang.Long">
+        delete
+        from report_statement
+        where id = #{id}
+    </delete>
+
+</mapper>

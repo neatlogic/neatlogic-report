@@ -285,7 +285,7 @@ public class ReportDataSourceServiceImpl implements ReportDataSourceService {
                 @Override
                 protected void execute() {
                     //如果是替换模式，则需要先清理数据
-                    if (dataSourceVo.getMode().equals(Mode.REPLACE.getValue())) {
+                    if (StringUtils.isNotBlank(dataSourceVo.getMode()) && dataSourceVo.getMode().equals(Mode.REPLACE.getValue())) {
                         reportDataSourceDataMapper.truncateTable(dataSourceVo);
                     }
 
