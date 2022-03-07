@@ -5,6 +5,7 @@
 
 package codedriver.module.report.api.statement;
 
+import codedriver.framework.asynchronization.threadlocal.UserContext;
 import codedriver.framework.auth.core.AuthAction;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.report.dto.ReportStatementVo;
@@ -14,7 +15,7 @@ import codedriver.framework.restful.annotation.OperationType;
 import codedriver.framework.restful.annotation.Param;
 import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
-import codedriver.module.report.auth.label.REPORT_ADMIN;
+import codedriver.module.report.auth.label.REPORT_STATEMENT_MODIFY;
 import codedriver.module.report.dao.mapper.ReportStatementMapper;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 
 @Service
-@AuthAction(action = REPORT_ADMIN.class)
+@AuthAction(action = REPORT_STATEMENT_MODIFY.class)
 @OperationType(type = OperationTypeEnum.UPDATE)
 @Transactional
 public class SaveReportStatementApi extends PrivateApiComponentBase {
@@ -55,8 +56,10 @@ public class SaveReportStatementApi extends PrivateApiComponentBase {
     public Object myDoService(JSONObject jsonObj) throws Exception {
         ReportStatementVo reportStatementVo = JSONObject.toJavaObject(jsonObj, ReportStatementVo.class);
         if (jsonObj.getLong("id") == null) {
+            reportStatementVo.setFcu(UserContext.get().getUserUuid(true));
             reportStatementMapper.insertReportStatement(reportStatementVo);
         } else {
+            reportStatementVo.setLcu(UserContext.get().getUserUuid(true));
             reportStatementMapper.updateReportStatement(reportStatementVo);
         }
         return reportStatementVo.getId();

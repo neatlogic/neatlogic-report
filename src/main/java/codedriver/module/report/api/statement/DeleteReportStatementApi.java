@@ -13,7 +13,7 @@ import codedriver.framework.restful.annotation.OperationType;
 import codedriver.framework.restful.annotation.Param;
 import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
-import codedriver.module.report.auth.label.REPORT_ADMIN;
+import codedriver.module.report.auth.label.REPORT_STATEMENT_MODIFY;
 import codedriver.module.report.dao.mapper.ReportStatementMapper;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
 @Service
-@AuthAction(action = REPORT_ADMIN.class)
+@AuthAction(action = REPORT_STATEMENT_MODIFY.class)
 @OperationType(type = OperationTypeEnum.DELETE)
 public class DeleteReportStatementApi extends PrivateApiComponentBase {
     @Resource

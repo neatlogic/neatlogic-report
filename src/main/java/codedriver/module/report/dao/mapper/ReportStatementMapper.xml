@@ -13,11 +13,48 @@
         where id = #{id}
     </select>
 
+    <select id="searchReportStatementCount" parameterType="codedriver.framework.report.dto.ReportStatementVo"
+            resultType="int">
+        select count(1)
+        from report_statement
+        <include refid="searchReportStatementSql"></include>
+    </select>
+
+    <select id="searchReportStatement" parameterType="codedriver.framework.report.dto.ReportStatementVo"
+            resultType="codedriver.framework.report.dto.ReportStatementVo">
+        select
+        id,
+        name,
+        is_active as isActive,
+        description,
+        fcd,
+        fcu,
+        lcd,
+        lcu
+        from report_statement
+        <include refid="searchReportStatementSql"></include>
+    </select>
+    <sql id="searchReportStatementSql">
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and name like concat('%', #{keyword}, '%')
+            </if>
+        </where>
+    </sql>
+
+    <update id="updateReportStatementActive" parameterType="codedriver.framework.report.dto.ReportStatementVo">
+        update report_statement
+        set is_active = #{isActive}
+        where id = #{id}
+    </update>
+
     <update id="updateReportStatement" parameterType="codedriver.framework.report.dto.ReportStatementVo">
         update report_statement
         set name      = #{name},
             is_active = #{isActive},
-            config    = #{configStr}
+            config    = #{configStr,typeHandler=CompressHandler},
+            lcd       = now(3),
+            lcu       = #{lcu}
         where id = #{id}
     </update>
 
@@ -26,11 +63,15 @@
         (id,
          name,
          is_active,
-         config)
+         config,
+         fcd,
+         fcu)
         values (#{id},
                 #{name},
                 #{isActive},
-                #{configStr})
+                #{configStr,typeHandler=CompressHandler},
+                now(3),
+                #{fcu})
     </insert>
 
     <delete id="deleteStatementById" parameterType="java.lang.Long">

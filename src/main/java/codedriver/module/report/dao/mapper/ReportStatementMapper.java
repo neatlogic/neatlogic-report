@@ -7,12 +7,20 @@ package codedriver.module.report.dao.mapper;
 
 import codedriver.framework.report.dto.ReportStatementVo;
 
+import java.util.List;
+
 public interface ReportStatementMapper {
+    int searchReportStatementCount(ReportStatementVo reportStatementVo);
+
+    List<ReportStatementVo> searchReportStatement(ReportStatementVo reportStatementVo);
+
     ReportStatementVo getReportStatementById(Long id);
 
     void insertReportStatement(ReportStatementVo reportStatementVo);
 
     void updateReportStatement(ReportStatementVo reportStatementVo);
+
+    void updateReportStatementActive(ReportStatementVo reportStatementVo);
 
     void deleteStatementById(Long id);
 }
