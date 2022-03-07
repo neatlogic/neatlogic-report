@@ -1,3 +1,8 @@
+/*
+ * Copyright(c) 2022 TechSure Co., Ltd. All Rights Reserved.
+ * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+ */
+
 package codedriver.module.report.api;
 
 import codedriver.framework.auth.core.AuthAction;
@@ -49,8 +54,11 @@ public class GetReportTypeApi extends PrivateApiComponentBase {
         for (ReportTypeVo reportTypeVo : reportTypeList) {
             JSONObject obj = new JSONObject();
             if (reportTypeVo.getReportCount() > 0) {
-                obj.put("name", reportTypeVo.getName() + "(" + reportTypeVo.getReportCount() + ")");
+                obj.put("label", reportTypeVo.getLabel() + "(" + reportTypeVo.getReportCount() + ")");
+            } else {
+                obj.put("label", reportTypeVo.getLabel());
             }
+            obj.put("name", reportTypeVo.getName());
             obj.put("id", reportTypeVo.getName());
             returnList.add(obj);
         }

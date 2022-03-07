@@ -1,3 +1,8 @@
+/*
+ * Copyright(c) 2022 TechSure Co., Ltd. All Rights Reserved.
+ * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+ */
+
 package codedriver.module.report.dto;
 
 import org.apache.commons.lang3.StringUtils;
@@ -6,27 +11,37 @@ import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.restful.annotation.EntityField;
 
 public class ReportTypeVo {
-	@EntityField(name = "分类名称", type = ApiParamType.STRING)
-	private String name;
-	@EntityField(name = "报表数量", type = ApiParamType.INTEGER)
-	private int reportCount;
+    @EntityField(name = "分类唯一标识", type = ApiParamType.STRING)
+    private String name;
+    @EntityField(name = "分类名称", type = ApiParamType.STRING)
+    private String label;
+    @EntityField(name = "报表数量", type = ApiParamType.INTEGER)
+    private int reportCount;
 
-	public String getName() {
-		if (StringUtils.isBlank(name)) {
-			name = "未分类";
-		}
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getLabel() {
+        if (StringUtils.isBlank(label)) {
+            label = "未分类";
+        }
+        return label;
+    }
 
-	public int getReportCount() {
-		return reportCount;
-	}
+    public void setLabel(String label) {
+        this.label = label;
+    }
 
-	public void setReportCount(int reportCount) {
-		this.reportCount = reportCount;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getReportCount() {
+        return reportCount;
+    }
+
+    public void setReportCount(int reportCount) {
+        this.reportCount = reportCount;
+    }
 }

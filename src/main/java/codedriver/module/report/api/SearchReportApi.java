@@ -1,3 +1,8 @@
+/*
+ * Copyright(c) 2022 TechSure Co., Ltd. All Rights Reserved.
+ * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+ */
+
 package codedriver.module.report.api;
 
 import codedriver.framework.auth.core.AuthAction;
@@ -41,6 +46,7 @@ public class SearchReportApi extends PrivateApiComponentBase {
 
     @Input({
             @Param(name = "isActive", type = ApiParamType.ENUM, rule = "0,1", desc = "是否激活"),
+            @Param(name = "type", type = ApiParamType.STRING, desc = "类型"),
             @Param(name = "keyword", type = ApiParamType.STRING, desc = "关键字", xss = true),
             @Param(name = "needPage", type = ApiParamType.BOOLEAN, desc = "是否需要分页"),
             @Param(name = "pageSize", type = ApiParamType.INTEGER, desc = "每页数量"),
