@@ -8,7 +8,13 @@
 <mapper namespace="codedriver.module.report.dao.mapper.ReportStatementMapper">
     <select id="getReportStatementById" parameterType="java.lang.Long"
             resultType="codedriver.framework.report.dto.ReportStatementVo">
-        select id, name, is_active as isActive, config as configStr
+        select id,
+               name,
+               is_active   as isActive,
+               description,
+               width,
+               height,
+               widget_list as widgetListStr
         from report_statement
         where id = #{id}
     </select>
@@ -26,7 +32,11 @@
         id,
         name,
         is_active as isActive,
+        width,
+        height,
         description,
+        width,
+        height,
         fcd,
         fcu,
         lcd,
@@ -34,10 +44,11 @@
         from report_statement
         <include refid="searchReportStatementSql"></include>
     </select>
+
     <sql id="searchReportStatementSql">
         <where>
             <if test="keyword != null and keyword != ''">
-                and name like concat('%', #{keyword}, '%')
+                and (name like concat('%', #{keyword}, '%') or description like concat('%', #{keyword}, '%'))
             </if>
         </where>
     </sql>
@@ -50,11 +61,14 @@
 
     <update id="updateReportStatement" parameterType="codedriver.framework.report.dto.ReportStatementVo">
         update report_statement
-        set name      = #{name},
-            is_active = #{isActive},
-            config    = #{configStr,typeHandler=CompressHandler},
-            lcd       = now(3),
-            lcu       = #{lcu}
+        set name        = #{name},
+            is_active   = #{isActive},
+            width       = #{width},
+            height      = #{height},
+            widget_list = #{widgetListStr,typeHandler=CompressHandler},
+            description = #{description},
+            lcd         = now(3),
+            lcu         = #{lcu}
         where id = #{id}
     </update>
 
@@ -63,13 +77,19 @@
         (id,
          name,
          is_active,
-         config,
+         widget_list,
+         width,
+         height,
+         description,
          fcd,
          fcu)
         values (#{id},
                 #{name},
                 #{isActive},
-                #{configStr,typeHandler=CompressHandler},
+                #{widgetListStr,typeHandler=CompressHandler},
+                #{width},
+                #{height},
+                #{description},
                 now(3),
                 #{fcu})
     </insert>
