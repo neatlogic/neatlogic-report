@@ -52,6 +52,7 @@ public class SaveReportStatementApi extends PrivateApiComponentBase {
             @Param(name = "description", type = ApiParamType.STRING, desc = "说明", xss = true, maxLength = 500),
             @Param(name = "isActive", type = ApiParamType.INTEGER, desc = "是否激活", defaultValue = "0"),
             @Param(name = "width", type = ApiParamType.INTEGER, desc = "画布宽度"),
+            @Param(name = "config", type = ApiParamType.JSONOBJECT, desc = "额外配置"),
             @Param(name = "height", type = ApiParamType.INTEGER, desc = "画布高度"),
             @Param(name = "widgetList", type = ApiParamType.JSONARRAY, desc = "组件列表", isRequired = true)})
     @Description(desc = "保存报表接口")

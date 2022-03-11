@@ -14,7 +14,8 @@
                description,
                width,
                height,
-               widget_list as widgetListStr
+               widget_list as widgetListStr,
+               config      as configStr
         from report_statement
         where id = #{id}
     </select>
@@ -66,6 +67,7 @@
             width       = #{width},
             height      = #{height},
             widget_list = #{widgetListStr,typeHandler=CompressHandler},
+            config      = #{configStr,typeHandler=CompressHandler},
             description = #{description},
             lcd         = now(3),
             lcu         = #{lcu}
@@ -78,6 +80,7 @@
          name,
          is_active,
          widget_list,
+         config,
          width,
          height,
          description,
@@ -87,6 +90,7 @@
                 #{name},
                 #{isActive},
                 #{widgetListStr,typeHandler=CompressHandler},
+                #{configStr,typeHandler=CompressHandler},
                 #{width},
                 #{height},
                 #{description},
