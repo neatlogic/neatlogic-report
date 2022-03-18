@@ -71,11 +71,11 @@
     </select>
 
     <select id="getAllReportType" resultType="codedriver.module.report.dto.ReportTypeVo">
-        SELECT COUNT(1) AS reportCount,
-               TYPE     as name,
-               TYPE     as label
+        SELECT COUNT(1)         AS reportCount,
+               IFNULL(TYPE, '') as name,
+               IFNULL(TYPE, '') as label
         FROM `report`
-        GROUP BY TYPE
+        GROUP BY IFNULL(TYPE, '')
     </select>
 
     <select id="getReportById" parameterType="java.lang.Long" resultType="codedriver.module.report.dto.ReportVo">

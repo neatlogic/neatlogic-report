@@ -19,6 +19,10 @@ public class ReportTypeVo {
     private int reportCount;
 
     public String getName() {
+        //name不能为null，主要是为了前端能正确回选数据
+        if (name == null) {
+            name = "";
+        }
         return name;
     }
 

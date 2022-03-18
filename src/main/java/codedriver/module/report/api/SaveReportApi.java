@@ -1,3 +1,8 @@
+/*
+ * Copyright(c) 2022 TechSure Co., Ltd. All Rights Reserved.
+ * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+ */
+
 package codedriver.module.report.api;
 
 import codedriver.framework.asynchronization.threadlocal.UserContext;
@@ -44,7 +49,7 @@ public class SaveReportApi extends PrivateApiComponentBase {
 
     @Input({@Param(name = "id", type = ApiParamType.LONG, desc = "报表定义id"),
             @Param(name = "name", type = ApiParamType.STRING, desc = "报表定义名称"),
-            @Param(name = "type", type = ApiParamType.STRING, desc = "报表定义类型"),
+            @Param(name = "type", type = ApiParamType.STRING, desc = "报表定义类型", defaultValue = ""),
             @Param(name = "isActive", type = ApiParamType.INTEGER, desc = "是否激活"),
             @Param(name = "sql", type = ApiParamType.STRING, desc = "报表定义数据源配置"),
             @Param(name = "condition", type = ApiParamType.STRING, desc = "报表定义条件配置"),
@@ -55,7 +60,10 @@ public class SaveReportApi extends PrivateApiComponentBase {
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
         ReportVo reportVo = JSONObject.toJavaObject(jsonObj, ReportVo.class);
-
+        if (reportVo.getType() == null) {
+            //type不能为null，兼容前端回选
+            reportVo.setType("");
+        }
         reportVo.setLcu(UserContext.get().getUserUuid());
         if (jsonObj.getLong("id") != null) {
             reportMapper.deleteReportAuthByReportId(reportVo.getId());
