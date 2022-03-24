@@ -37,7 +37,7 @@ public class SearchReportDataSourceApi extends PrivateApiComponentBase {
 
     @Override
     public String getName() {
-        return "查询报表数据源";
+        return "查询大屏数据源";
     }
 
     @Override
@@ -48,7 +48,7 @@ public class SearchReportDataSourceApi extends PrivateApiComponentBase {
     @Input({@Param(name = "keyword", type = ApiParamType.STRING, desc = "关键字", xss = true)})
     @Output({@Param(explode = BasePageVo.class),
             @Param(name = "tbodyList", explode = ReportDataSourceVo[].class)})
-    @Description(desc = "查询报表数据源接口")
+    @Description(desc = "查询大屏数据源接口")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
         ReportDataSourceVo reportDataSourceVo = JSONObject.toJavaObject(jsonObj, ReportDataSourceVo.class);

@@ -47,7 +47,7 @@ public class SaveReportDataSourceApi extends PrivateApiComponentBase {
 
     @Override
     public String getName() {
-        return "保存报表数据源";
+        return "保存大屏数据源";
     }
 
     @Override
@@ -55,14 +55,9 @@ public class SaveReportDataSourceApi extends PrivateApiComponentBase {
         return null;
     }
 
-    @Input({@Param(name = "id", type = ApiParamType.LONG, desc = "id，不存在代表添加"),
-            @Param(name = "label", type = ApiParamType.STRING, desc = "名称", maxLength = 50, isRequired = true, xss = true),
-            @Param(name = "description", type = ApiParamType.STRING, desc = "说明", xss = true, maxLength = 500),
-            @Param(name = "conditionList", type = ApiParamType.JSONARRAY, desc = "条件列表"),
-            @Param(name = "cronExpression", type = ApiParamType.STRING, desc = "定时策略")})
-    @Output({@Param(explode = BasePageVo.class),
-            @Param(name = "tbodyList", explode = ReportDataSourceVo[].class)})
-    @Description(desc = "保存报表数据源接口")
+    @Input({@Param(name = "id", type = ApiParamType.LONG, desc = "id，不存在代表添加"), @Param(name = "label", type = ApiParamType.STRING, desc = "名称", maxLength = 50, isRequired = true, xss = true), @Param(name = "description", type = ApiParamType.STRING, desc = "说明", xss = true, maxLength = 500), @Param(name = "conditionList", type = ApiParamType.JSONARRAY, desc = "条件列表"), @Param(name = "cronExpression", type = ApiParamType.STRING, desc = "定时策略")})
+    @Output({@Param(explode = BasePageVo.class), @Param(name = "tbodyList", explode = ReportDataSourceVo[].class)})
+    @Description(desc = "保存大屏数据源接口")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
         ReportDataSourceVo reportDataSourceVo = JSONObject.toJavaObject(jsonObj, ReportDataSourceVo.class);
@@ -78,7 +73,10 @@ public class SaveReportDataSourceApi extends PrivateApiComponentBase {
 
         String tenantUuid = TenantContext.get().getTenantUuid();
         IJob jobHandler = SchedulerManager.getHandler(ReportDataSourceJob.class.getName());
-        JobObject jobObject = new JobObject.Builder(reportDataSourceVo.getId().toString(), jobHandler.getGroupName(), jobHandler.getClassName(), tenantUuid).build();
+        JobObject jobObject = new JobObject.Builder(reportDataSourceVo.getId().toString(), jobHandler.getGroupName(), jobHandler.getClassName(), tenantUuid)
+                .withCron(reportDataSourceVo.getCronExpression())
+                .addData("datasourceId", reportDataSourceVo.getId())
+                .build();
         if (StringUtils.isNotBlank(reportDataSourceVo.getCronExpression())) {
             schedulerManager.loadJob(jobObject);
         } else {

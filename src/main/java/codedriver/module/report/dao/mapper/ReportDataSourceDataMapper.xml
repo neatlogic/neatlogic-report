@@ -12,6 +12,17 @@
         from ${tableName}
     </select>
 
+    <sql id="searchDataSourceDataCondition">
+        <where>
+            (expire_time is null or expire_time &gt;= now())
+            <if test="conditionList != null and conditionList.size() > 0">
+                <foreach collection="conditionList" item="item" separator="and">
+                    `${item.id}` like concat('%', #{item.value}, '%')
+                </foreach>
+            </if>
+        </where>
+    </sql>
+
     <select id="searchDataSourceData" parameterType="codedriver.framework.report.dto.ReportDataSourceDataVo"
             resultType="java.util.HashMap">
         select
@@ -22,11 +33,7 @@
         insert_time as intertTime,
         expire_time as expireTime
         from ${tableName}
-        <if test="conditionList != null and conditionList.size() > 0">
-            <foreach collection="conditionList" item="item" separator="and">
-                `${item.id}` like concat('%', #{item.value}, '%')
-            </foreach>
-        </if>
+        <include refid="searchDataSourceDataCondition"></include>
         limit #{startNum},#{pageSize}
     </select>
 
@@ -35,11 +42,7 @@
         select
         count(1)
         from ${tableName}
-        <if test="conditionList != null and conditionList.size() > 0">
-            <foreach collection="conditionList" item="item" separator="and">
-                `${item.id}` like concat('%', #{item.value}, '%')
-            </foreach>
-        </if>
+        <include refid="searchDataSourceDataCondition"></include>
     </select>
 
     <insert id="insertDataSourceData" parameterType="codedriver.framework.report.dto.ReportDataSourceDataVo">
@@ -66,12 +69,19 @@
         </foreach>
         insert_time = now(3)
         <choose>
-            <when test="expireDay != null">, expire_time = DATE_ADD(curdate(),INTERVAL #{expireDay} day)</when>
+            <when test="expireDay != null">, expire_time = DATE_ADD(now(),INTERVAL #{expireDay} day)</when>
             <otherwise>,expire_time = null</otherwise>
         </choose>
     </insert>
 
     <delete id="truncateTable" parameterType="codedriver.framework.report.dto.ReportDataSourceVo">
         truncate table ${tableName}
+    </delete>
+
+    <delete id="clearExpiredData" parameterType="codedriver.framework.report.dto.ReportDataSourceDataVo">
+        delete
+        from ${tableName}
+        where expire_time is not null
+          and expire_time &lt; now()
     </delete>
 </mapper>

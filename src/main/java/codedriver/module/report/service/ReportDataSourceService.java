@@ -10,5 +10,7 @@ import codedriver.framework.report.dto.ReportDataSourceVo;
 import java.sql.SQLException;
 
 public interface ReportDataSourceService {
+    void deleteReportDataSource(ReportDataSourceVo reportDataSourceVo);
+
     void executeReportDataSource(ReportDataSourceVo dataSourceVo) throws SQLException;
 }

@@ -10,15 +10,14 @@ import codedriver.framework.report.dto.ReportDataSourceVo;
 import codedriver.framework.scheduler.core.JobBase;
 import codedriver.framework.scheduler.dto.JobObject;
 import codedriver.module.report.dao.mapper.ReportDataSourceMapper;
+import codedriver.module.report.service.ReportDataSourceService;
 import codedriver.module.report.service.ReportService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,10 +26,13 @@ import java.util.Objects;
  */
 @Component
 public class ReportDataSourceJob extends JobBase {
-    static Logger logger = LoggerFactory.getLogger(ReportDataSourceJob.class);
+    //static Logger logger = LoggerFactory.getLogger(ReportDataSourceJob.class);
 
     @Resource
     private ReportDataSourceMapper reportDataSourceMapper;
+
+    @Resource
+    private ReportDataSourceService reportDataSourceService;
 
 
     @Resource
@@ -51,7 +53,10 @@ public class ReportDataSourceJob extends JobBase {
         TenantContext.get().switchTenant(tenantUuid);
         ReportDataSourceVo dataSourceVo = reportDataSourceMapper.getReportDataSourceById(Long.valueOf(jobObject.getJobName()));
         if (dataSourceVo != null && Objects.equals(dataSourceVo.getIsActive(), 1)) {
-            JobObject newJobObject = new JobObject.Builder(dataSourceVo.getId().toString(), this.getGroupName(), this.getClassName(), tenantUuid).withCron(dataSourceVo.getCronExpression()).build();
+            JobObject newJobObject = new JobObject.Builder(dataSourceVo.getId().toString(), this.getGroupName(), this.getClassName(), tenantUuid)
+                    .withCron(dataSourceVo.getCronExpression())
+                    .addData("datasourceId", dataSourceVo.getId())
+                    .build();
             schedulerManager.loadJob(newJobObject);
         } else {
             schedulerManager.unloadJob(jobObject);
@@ -63,15 +68,20 @@ public class ReportDataSourceJob extends JobBase {
         List<ReportDataSourceVo> dataSourceList = reportDataSourceMapper.getAllHasCronReportDataSource();
         if (CollectionUtils.isNotEmpty(dataSourceList)) {
             for (ReportDataSourceVo vo : dataSourceList) {
-                JobObject newJobObject = new JobObject.Builder(vo.getId().toString(), this.getGroupName(), this.getClassName(), tenantUuid).withCron(vo.getCronExpression()).build();
+                JobObject newJobObject = new JobObject.Builder(vo.getId().toString(), this.getGroupName(), this.getClassName(), tenantUuid)
+                        .withCron(vo.getCronExpression())
+                        .addData("datasourceId", vo.getId())
+                        .build();
                 schedulerManager.loadJob(newJobObject);
             }
         }
     }
 
     @Override
-    public void executeInternal(JobExecutionContext context, JobObject jobObject) throws JobExecutionException {
-
+    public void executeInternal(JobExecutionContext context, JobObject jobObject) throws SQLException {
+        Long datasourceId = (Long) jobObject.getData("datasourceId");
+        ReportDataSourceVo reportDataSourceVo = reportDataSourceMapper.getReportDataSourceById(datasourceId);
+        reportDataSourceService.executeReportDataSource(reportDataSourceVo);
     }
 
 

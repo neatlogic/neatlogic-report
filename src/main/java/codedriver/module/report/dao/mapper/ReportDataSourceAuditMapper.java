@@ -11,4 +11,6 @@ public interface ReportDataSourceAuditMapper {
     void insertReportDataSourceAudit(ReportDataSourceAuditVo reportDataSourceAuditVo);
 
     void updateReportDataSourceAudit(ReportDataSourceAuditVo reportDataSourceAuditVo);
+
+    void deleteReportDataSourceAuditByDatasourceId(Long datasourceId);
 }

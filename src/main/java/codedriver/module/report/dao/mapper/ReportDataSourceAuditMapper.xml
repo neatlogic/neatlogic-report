@@ -19,4 +19,10 @@
             error= #{error,typeHandler=CompressHandler}
         where id = #{id}
     </update>
+
+    <delete id="deleteReportDataSourceAuditByDatasourceId" parameterType="java.lang.Long">
+        delete
+        from report_datasource_audit
+        where datasource_id = #{value}
+    </delete>
 </mapper>

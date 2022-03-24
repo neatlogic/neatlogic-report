@@ -1,5 +1,5 @@
 /*
- * Copyright(c) 2021 TechSure Co., Ltd. All Rights Reserved.
+ * Copyright(c) 2022 TechSure Co., Ltd. All Rights Reserved.
  * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
  */
 
@@ -7,7 +7,6 @@ package codedriver.module.report.schedule.plugin;
 
 import codedriver.framework.asynchronization.threadlocal.TenantContext;
 import codedriver.framework.common.constvalue.MimeType;
-import codedriver.framework.dao.mapper.MailServerMapper;
 import codedriver.framework.dao.mapper.UserMapper;
 import codedriver.framework.dto.UserVo;
 import codedriver.framework.scheduler.core.JobBase;
@@ -29,8 +28,6 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -45,7 +42,7 @@ import java.util.*;
  */
 @Component
 public class ReportSendJob extends JobBase {
-    static Logger logger = LoggerFactory.getLogger(ReportSendJob.class);
+    //static Logger logger = LoggerFactory.getLogger(ReportSendJob.class);
 
     @Resource
     private ReportSendJobMapper reportSendJobMapper;
@@ -56,8 +53,6 @@ public class ReportSendJob extends JobBase {
     @Resource
     private UserMapper userMapper;
 
-    @Resource
-    private MailServerMapper mailServerMapper;
 
     @Resource
     private ReportService reportService;
@@ -86,7 +81,7 @@ public class ReportSendJob extends JobBase {
 
     @Override
     public void initJob(String tenantUuid) {
-        /** 初始化所有已激活的发送计划 */
+        /* 初始化所有已激活的发送计划 */
         List<ReportSendJobVo> jobList = reportSendJobMapper.getAllActiveJob();
         if (CollectionUtils.isNotEmpty(jobList)) {
             for (ReportSendJobVo vo : jobList) {
@@ -99,7 +94,7 @@ public class ReportSendJob extends JobBase {
     @Override
     public void executeInternal(JobExecutionContext context, JobObject jobObject) throws JobExecutionException {
         Long id = (Long) jobObject.getData("sendJobId");
-        /** 获取报表发送计划*/
+        /* 获取报表发送计划*/
         ReportSendJobVo sendJob = reportSendJobMapper.getJobById(id);
         Map<String, InputStream> reportMap = null;
         String to = null;
@@ -107,11 +102,11 @@ public class ReportSendJob extends JobBase {
         boolean canExec = false;
         if (sendJob != null && Objects.equals(sendJob.getIsActive(), 1)) {
             List<ReportSendJobRelationVo> relatedReportList = sendJob.getReportRelationList();
-            /** 获取报表 */
+            /* 获取报表 */
             if (CollectionUtils.isNotEmpty(relatedReportList)) {
                 reportMap = getReport(relatedReportList);
             }
-            /** 获取收件人与抄送人 */
+            /* 获取收件人与抄送人 */
             List<ReportReceiverVo> receiverList = sendJob.getReceiverList();
             List<String> toEmailList = new ArrayList<>();
             List<String> ccEmailList = new ArrayList<>();
@@ -127,7 +122,7 @@ public class ReportSendJob extends JobBase {
             }
         }
         if (canExec) {
-            /** 发送邮件 */
+            /* 发送邮件 */
             try {
                 EmailUtil.sendEmailWithFile(sendJob.getEmailTitle(), sendJob.getEmailContent(), to, cc, reportMap, MimeType.PDF);
             } catch (Exception e) {
@@ -144,9 +139,9 @@ public class ReportSendJob extends JobBase {
      * receiverList包含收件人与抄送人的UUID或email
      * 此方法根据UUID找到用户的email
      *
-     * @param receiverList
-     * @param toEmailList
-     * @param ccEmailList
+     * @param receiverList 所有接收者
+     * @param toEmailList  接收者
+     * @param ccEmailList  被抄送
      */
     private void getReceiverList(List<ReportReceiverVo> receiverList, List<String> toEmailList, List<String> ccEmailList) {
         if (CollectionUtils.isNotEmpty(receiverList)) {
@@ -172,9 +167,6 @@ public class ReportSendJob extends JobBase {
 
     /**
      * 获取报表
-     *
-     * @param relatedReportList
-     * @return
      */
     private Map<String, InputStream> getReport(List<ReportSendJobRelationVo> relatedReportList) {
         Map<String, InputStream> reportMap = null;

@@ -37,6 +37,8 @@
                 KEY `idx_${item.id}` (`${item.id}`) USING BTREE,
             </if>
         </foreach>
+        KEY `idx_insert_time` (`insert_time`) USING BTREE,
+        KEY `idx_expire_time` (`expire_time`) USING BTREE,
         <if test="keyList != null and keyList.size() > 0">
             UNIQUE KEY `uk`
             <foreach collection="keyList" item="item" open="(" close=")" separator=",">

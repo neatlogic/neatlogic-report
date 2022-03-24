@@ -60,7 +60,7 @@ public class ImportReportDataSourceApi extends PrivateApiComponentBase {
 
     @Override
     public String getName() {
-        return "导入报表数据源";
+        return "导入大屏数据源";
     }
 
     @Override
@@ -72,7 +72,7 @@ public class ImportReportDataSourceApi extends PrivateApiComponentBase {
             @Param(name = "name", type = ApiParamType.REGEX, desc = "唯一标识", rule = "^[A-Za-z_]+$", maxLength = 50, isRequired = true, xss = true),
             @Param(name = "label", type = ApiParamType.STRING, desc = "名称", maxLength = 50, isRequired = true, xss = true),
             @Param(name = "fileId", type = ApiParamType.LONG, desc = "配置文件id", isRequired = true)})
-    @Description(desc = "导入报表数据源接口")
+    @Description(desc = "导入大屏数据源接口")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
         ReportDataSourceVo reportDataSourceVo = JSONObject.toJavaObject(jsonObj, ReportDataSourceVo.class);
@@ -87,6 +87,7 @@ public class ImportReportDataSourceApi extends PrivateApiComponentBase {
         ReportDataSourceVo dataSourceVo = ReportXmlUtil.generateDataSourceFromXml(xml);
         reportDataSourceVo.setXml(xml);
         reportDataSourceVo.setIsActive(0);
+        reportDataSourceVo.setDataCount(0);
         reportDataSourceVo.setFieldList(dataSourceVo.getFieldList());
         reportDataSourceVo.setConditionList(dataSourceVo.getConditionList());
         Long id = jsonObj.getLong("id");

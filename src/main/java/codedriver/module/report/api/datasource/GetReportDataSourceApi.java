@@ -33,7 +33,7 @@ public class GetReportDataSourceApi extends PrivateApiComponentBase {
 
     @Override
     public String getName() {
-        return "获取报表数据源";
+        return "获取大屏数据源";
     }
 
     @Override
@@ -43,7 +43,7 @@ public class GetReportDataSourceApi extends PrivateApiComponentBase {
 
     @Input({@Param(name = "id", type = ApiParamType.LONG, desc = "id", isRequired = true)})
     @Output({@Param(explode = ReportDataSourceVo.class)})
-    @Description(desc = "获取报表数据源接口")
+    @Description(desc = "获取大屏数据源接口")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
         Long id = jsonObj.getLong("id");

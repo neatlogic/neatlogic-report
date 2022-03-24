@@ -36,7 +36,7 @@ public class GetReportDataSourceStatusApi extends PrivateApiComponentBase {
 
     @Override
     public String getName() {
-        return "获取报表数据源状态";
+        return "获取大屏数据源状态";
     }
 
     @Override
@@ -46,7 +46,7 @@ public class GetReportDataSourceStatusApi extends PrivateApiComponentBase {
 
     @Input({@Param(name = "idList", type = ApiParamType.JSONARRAY, desc = "idl列表", isRequired = true)})
     @Output({@Param(explode = ReportDataSourceVo[].class)})
-    @Description(desc = "获取报表数据源状态接口")
+    @Description(desc = "获取大屏数据源状态接口")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
         List<Long> idList = new ArrayList<>();

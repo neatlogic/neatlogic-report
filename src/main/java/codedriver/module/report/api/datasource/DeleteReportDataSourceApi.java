@@ -8,6 +8,7 @@ package codedriver.module.report.api.datasource;
 import codedriver.framework.auth.core.AuthAction;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.report.dto.ReportDataSourceVo;
+import codedriver.framework.report.exception.DataSourceIsNotFoundException;
 import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.OperationType;
@@ -25,9 +26,9 @@ import javax.annotation.Resource;
 
 @Service
 @AuthAction(action = REPORT_DATASOURCE_MODIFY.class)
-@OperationType(type = OperationTypeEnum.OPERATE)
+@OperationType(type = OperationTypeEnum.DELETE)
 @Transactional
-public class ExecuteReportDataSourceApi extends PrivateApiComponentBase {
+public class DeleteReportDataSourceApi extends PrivateApiComponentBase {
 
     @Resource
     private ReportDataSourceMapper reportDataSourceMapper;
@@ -39,12 +40,12 @@ public class ExecuteReportDataSourceApi extends PrivateApiComponentBase {
 
     @Override
     public String getToken() {
-        return "report/datasource/execute";
+        return "report/datasource/delete";
     }
 
     @Override
     public String getName() {
-        return "执行大屏数据源数据同步";
+        return "删除大屏数据源";
     }
 
     @Override
@@ -53,12 +54,15 @@ public class ExecuteReportDataSourceApi extends PrivateApiComponentBase {
     }
 
     @Input({@Param(name = "id", type = ApiParamType.LONG, desc = "id", isRequired = true)})
-    @Description(desc = "执行大屏数据源数据同步接口")
+    @Description(desc = "执行报表数据源数据同步接口")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
         Long id = jsonObj.getLong("id");
-        ReportDataSourceVo dataSourceVo = reportDataSourceMapper.getReportDataSourceById(id);
-        reportDataSourceService.executeReportDataSource(dataSourceVo);
+        ReportDataSourceVo reportDataSourceVo = reportDataSourceMapper.getReportDataSourceById(id);
+        if (reportDataSourceVo == null) {
+            throw new DataSourceIsNotFoundException(id);
+        }
+        reportDataSourceService.deleteReportDataSource(reportDataSourceVo);
         return null;
     }
 

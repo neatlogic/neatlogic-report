@@ -12,12 +12,11 @@ import codedriver.framework.report.enums.DatabaseVersion;
 import codedriver.framework.report.enums.Mode;
 import codedriver.framework.report.enums.Status;
 import codedriver.framework.report.exception.DatabaseVersionNotFoundException;
+import codedriver.framework.report.exception.DeleteDataSourceSchemaException;
 import codedriver.framework.report.exception.ReportDataSourceIsSyncingException;
 import codedriver.framework.report.exception.ReportDataSourceSyncException;
-import codedriver.module.report.dao.mapper.ReportConnectionMapper;
-import codedriver.module.report.dao.mapper.ReportDataSourceAuditMapper;
-import codedriver.module.report.dao.mapper.ReportDataSourceDataMapper;
-import codedriver.module.report.dao.mapper.ReportDataSourceMapper;
+import codedriver.framework.transaction.core.EscapeTransactionJob;
+import codedriver.module.report.dao.mapper.*;
 import codedriver.module.report.dto.ReportConnectionVo;
 import codedriver.module.report.dto.SelectVo;
 import com.alibaba.fastjson.JSONObject;
@@ -56,6 +55,9 @@ public class ReportDataSourceServiceImpl implements ReportDataSourceService {
 
     @Resource
     private ReportDataSourceDataMapper reportDataSourceDataMapper;
+
+    @Resource
+    private ReportDataSourceSchemaMapper reportDataSourceSchemaMapper;
 
     @Resource
     private ReportDataSourceAuditMapper reportDataSourceAuditMapper;
@@ -269,8 +271,22 @@ public class ReportDataSourceServiceImpl implements ReportDataSourceService {
     }
 
     @Override
-    public void executeReportDataSource(ReportDataSourceVo dataSourceVo) {
+    public void deleteReportDataSource(ReportDataSourceVo reportDataSourceVo) {
+        if (reportDataSourceVo != null) {
+            reportDataSourceMapper.deleteReportDataSourceFieldByDataSourceId(reportDataSourceVo.getId());
+            reportDataSourceMapper.deleteReportDataSourceConditionByDataSourceId(reportDataSourceVo.getId());
+            reportDataSourceMapper.deleteReportDataSourceById(reportDataSourceVo.getId());
+            reportDataSourceAuditMapper.deleteReportDataSourceAuditByDatasourceId(reportDataSourceVo.getId());
+            //由于以下操作是DDL操作，所以需要使用EscapeTransactionJob避开当前事务，否则在进行DDL操作之前事务就会提交，如果DDL出错，则上面的事务就无法回滚了
+            EscapeTransactionJob.State s = new EscapeTransactionJob(() -> reportDataSourceSchemaMapper.deleteDataSourceTable(reportDataSourceVo)).execute();
+            if (!s.isSucceed()) {
+                throw new DeleteDataSourceSchemaException(reportDataSourceVo);
+            }
+        }
+    }
 
+    @Override
+    public void executeReportDataSource(ReportDataSourceVo dataSourceVo) {
         if (dataSourceVo != null && CollectionUtils.isNotEmpty(dataSourceVo.getFieldList())) {
             if (Objects.equals(dataSourceVo.getStatus(), Status.DOING.getValue())) {
                 throw new ReportDataSourceIsSyncingException(dataSourceVo);
@@ -331,6 +347,7 @@ public class ReportDataSourceServiceImpl implements ReportDataSourceService {
 
                         while (resultSet.next()) {
                             ReportDataSourceDataVo reportDataSourceDataVo = new ReportDataSourceDataVo(dataSourceVo.getId());
+                            reportDataSourceDataVo.setExpireDay(dataSourceVo.getExpireDay());
                             for (ReportDataSourceFieldVo fieldVo : dataSourceVo.getFieldList()) {
                                 if (fieldMap.containsKey(fieldVo.getName())) {
                                     fieldVo.setValue(resultSet.getObject(fieldMap.get(fieldVo.getName())));
@@ -359,7 +376,7 @@ public class ReportDataSourceServiceImpl implements ReportDataSourceService {
                             logger.error(e.getMessage(), e);
                         }
                         dataSourceVo.setStatus(Status.DONE.getValue());
-                        int dataCount = reportDataSourceDataMapper.getDataSourceDataCount(dataSourceVo);
+                        int dataCount = reportDataSourceDataMapper.getDataSourceDataCount(new ReportDataSourceDataVo(dataSourceVo.getId()));
                         dataSourceVo.setDataCount(dataCount);
                         reportDataSourceMapper.updateReportDataSourceStatus(dataSourceVo);
                         reportDataSourceAuditMapper.updateReportDataSourceAudit(reportDataSourceAuditVo);

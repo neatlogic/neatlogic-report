@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public interface ReportDataSourceDataMapper {
-    int getDataSourceDataCount(ReportDataSourceVo reportDataSourceVo);
+    int getDataSourceDataCount(ReportDataSourceDataVo reportDataSourceDataVo);
 
     int searchDataSourceDataCount(ReportDataSourceDataVo reportDataSourceDataVo);
 
@@ -21,4 +21,7 @@ public interface ReportDataSourceDataMapper {
     void insertDataSourceData(ReportDataSourceDataVo reportDataSourceDataVo);
 
     void truncateTable(ReportDataSourceVo reportDataSourceVo);
+
+    //需要返回删除行数
+    int clearExpiredData(ReportDataSourceDataVo reportDataSourceDataVo);
 }
