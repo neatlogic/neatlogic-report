@@ -8,8 +8,8 @@
 <mapper namespace="codedriver.module.report.dao.mapper.ReportDataSourceAuditMapper">
     <sql id="searchReportDataSourceAuditCondition">
         <where>
-            <if test="datasourceId != null">
-                datasource_id = #{datasourceId}
+            <if test="dataSourceId != null">
+                datasource_id = #{dataSourceId}
             </if>
         </where>
     </sql>
@@ -17,13 +17,14 @@
     <select id="searchReportDataSourceAudit" parameterType="codedriver.framework.report.dto.ReportDataSourceAuditVo"
             resultType="codedriver.framework.report.dto.ReportDataSourceAuditVo">
         SELECT id,
-        datasource_id AS datasourceId,
+        datasource_id AS dataSourceId,
         start_time AS startTime,
         end_time AS endTime,
         data_count AS dataCount,
         error
         FROM report_datasource_audit
         <include refid="searchReportDataSourceAuditCondition"></include>
+        order by id desc
         limit #{startNum}, #{pageSize}
     </select>
 

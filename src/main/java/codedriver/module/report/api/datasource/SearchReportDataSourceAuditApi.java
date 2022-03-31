@@ -47,7 +47,7 @@ public class SearchReportDataSourceAuditApi extends PrivateApiComponentBase {
         return null;
     }
 
-    @Input({@Param(name = "datasourceId", type = ApiParamType.LONG, desc = "数据源id", isRequired = true)})
+    @Input({@Param(name = "dataSourceId", type = ApiParamType.LONG, desc = "数据源id", isRequired = true)})
     @Description(desc = "搜索数据源同步审计信息接口")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
