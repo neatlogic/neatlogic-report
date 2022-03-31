@@ -7,7 +7,13 @@ package codedriver.module.report.dao.mapper;
 
 import codedriver.framework.report.dto.ReportDataSourceAuditVo;
 
+import java.util.List;
+
 public interface ReportDataSourceAuditMapper {
+    int searchReportDataSourceAuditCount(ReportDataSourceAuditVo reportDataSourceAuditVo);
+
+    List<ReportDataSourceAuditVo> searchReportDataSourceAudit(ReportDataSourceAuditVo reportDataSourceAuditVo);
+
     void insertReportDataSourceAudit(ReportDataSourceAuditVo reportDataSourceAuditVo);
 
     void updateReportDataSourceAudit(ReportDataSourceAuditVo reportDataSourceAuditVo);
