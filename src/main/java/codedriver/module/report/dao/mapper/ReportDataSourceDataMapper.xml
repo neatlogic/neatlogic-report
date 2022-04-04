@@ -14,8 +14,17 @@
 
     <sql id="searchDataSourceDataCondition">
         <where>
-            (expire_time is null or expire_time &gt;= now())
+            true
+            <choose>
+                <when test="isExpired == 0">
+                    and (expire_time is null or expire_time &gt;= now())
+                </when>
+                <when test="isExpired == 1">
+                    and expire_time &lt;= now()
+                </when>
+            </choose>
             <if test="conditionList != null and conditionList.size() > 0">
+                and
                 <foreach collection="conditionList" item="item" separator="and">
                     `${item.id}` like concat('%', #{item.value}, '%')
                 </foreach>
@@ -30,7 +39,7 @@
             `${item.id}` as `field_${item.id}`,
         </foreach>
         id,
-        insert_time as intertTime,
+        insert_time as insertTime,
         expire_time as expireTime
         from ${tableName}
         <include refid="searchDataSourceDataCondition"></include>
@@ -52,7 +61,7 @@
             `${item.id}`,
             `${item.id}_hash`,
         </foreach>
-        id, insert_time<if test="expireDay != null">, expire_time</if>)
+        id, insert_time<if test="expireMinute != null">, expire_time</if>)
         values
         (
         <foreach collection="fieldList" item="item">
@@ -60,7 +69,7 @@
             #{item.value,typeHandler=Md5Handler},
         </foreach>
         #{id},now(3)
-        <if test="expireDay != null">, DATE_ADD(curdate(),INTERVAL #{expireDay} day)</if>
+        <if test="expireMinute != null">, DATE_ADD(now(),INTERVAL #{expireMinute} minute)</if>
         ) ON DUPLICATE KEY
         UPDATE
         <foreach collection="fieldList" item="item">
@@ -69,7 +78,7 @@
         </foreach>
         insert_time = now(3)
         <choose>
-            <when test="expireDay != null">, expire_time = DATE_ADD(now(),INTERVAL #{expireDay} day)</when>
+            <when test="expireMinute != null">, expire_time = DATE_ADD(now(),INTERVAL #{expireMinute} minute)</when>
             <otherwise>,expire_time = null</otherwise>
         </choose>
     </insert>
