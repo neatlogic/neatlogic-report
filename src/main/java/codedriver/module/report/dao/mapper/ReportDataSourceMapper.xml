@@ -36,7 +36,8 @@
         <result column="mode" property="mode"/>
         <result column="xml" property="xml"/>
         <result column="status" property="status"/>
-        <result column="expireDay" property="expireDay"/>
+        <result column="expireCount" property="expireCount"/>
+        <result column="expireUnit" property="expireUnit"/>
         <result column="isActive" property="isActive"/>
         <result column="dataCount" property="dataCount"/>
         <collection property="fieldList" ofType="codedriver.framework.report.dto.ReportDataSourceFieldVo">
@@ -64,7 +65,8 @@
         a.description,
         a.mode,
         a.data_count as dataCount,
-        a.expire_day as expireDay,
+        a.expire_count as expireCount,
+        a.expire_unit as expireUnit,
         a.cron_expression as cronExpression,
         a.is_active as isActive,
         a.status as status
@@ -81,7 +83,8 @@
                a.description,
                a.`xml`,
                a.mode,
-               a.expire_day      as expireDay,
+               a.expire_count    as expireCount,
+               a.expire_unit     as expireUnit,
                a.cron_expression as cronExpression,
                a.is_active       as isActive,
                a.status          as status,
@@ -127,7 +130,8 @@
         mode,
         status,
         data_count AS dataCount,
-        expire_day as expireDay,
+        expire_count as expireCount,
+        expire_unit as expireUnit,
         cron_expression as cronExpression,
         is_active as isActive
         from report_datasource
@@ -148,7 +152,8 @@
             cron_expression = #{cronExpression},
             description     = #{description},
             mode            = #{mode},
-            expire_day      = #{expireDay},
+            expire_count    = #{expireCount},
+            expire_unit     = #{expireUnit},
             is_active       = #{isActive},
             data_count      = #{dataCount}
         where id = #{id}

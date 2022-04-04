@@ -347,7 +347,7 @@ public class ReportDataSourceServiceImpl implements ReportDataSourceService {
 
                         while (resultSet.next()) {
                             ReportDataSourceDataVo reportDataSourceDataVo = new ReportDataSourceDataVo(dataSourceVo.getId());
-                            reportDataSourceDataVo.setExpireDay(dataSourceVo.getExpireDay());
+                            reportDataSourceDataVo.setExpireMinute(dataSourceVo.getExpireMinute());
                             for (ReportDataSourceFieldVo fieldVo : dataSourceVo.getFieldList()) {
                                 if (fieldMap.containsKey(fieldVo.getName())) {
                                     fieldVo.setValue(resultSet.getObject(fieldMap.get(fieldVo.getName())));
