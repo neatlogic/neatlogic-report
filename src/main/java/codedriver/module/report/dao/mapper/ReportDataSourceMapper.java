@@ -41,6 +41,8 @@ public interface ReportDataSourceMapper {
 
     void updateReportDataSourceConditionValue(ReportDataSourceConditionVo reportDataSourceConditionVo);
 
+    void resetReportDataSourceStatus();
+
     void deleteReportDataSourceById(Long id);
 
     void deleteReportDataSourceConditionByDataSourceId(Long dataSourceId);

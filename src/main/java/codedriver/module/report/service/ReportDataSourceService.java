@@ -6,11 +6,13 @@
 package codedriver.module.report.service;
 
 import codedriver.framework.report.dto.ReportDataSourceVo;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
 
 public interface ReportDataSourceService {
     void deleteReportDataSource(ReportDataSourceVo reportDataSourceVo);
 
+    @Transactional
     void executeReportDataSource(ReportDataSourceVo dataSourceVo) throws SQLException;
 }

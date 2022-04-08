@@ -5,8 +5,6 @@
 
 package codedriver.module.report.service;
 
-import codedriver.framework.asynchronization.thread.CodeDriverThread;
-import codedriver.framework.asynchronization.threadpool.CachedThreadPool;
 import codedriver.framework.report.dto.*;
 import codedriver.framework.report.enums.DatabaseVersion;
 import codedriver.framework.report.enums.Mode;
@@ -15,6 +13,7 @@ import codedriver.framework.report.exception.DatabaseVersionNotFoundException;
 import codedriver.framework.report.exception.DeleteDataSourceSchemaException;
 import codedriver.framework.report.exception.ReportDataSourceIsSyncingException;
 import codedriver.framework.report.exception.ReportDataSourceSyncException;
+import codedriver.framework.transaction.core.AfterTransactionJob;
 import codedriver.framework.transaction.core.EscapeTransactionJob;
 import codedriver.module.report.dao.mapper.*;
 import codedriver.module.report.dto.ReportConnectionVo;
@@ -286,101 +285,99 @@ public class ReportDataSourceServiceImpl implements ReportDataSourceService {
     }
 
     @Override
-    public void executeReportDataSource(ReportDataSourceVo dataSourceVo) {
-        if (dataSourceVo != null && CollectionUtils.isNotEmpty(dataSourceVo.getFieldList())) {
-            if (Objects.equals(dataSourceVo.getStatus(), Status.DOING.getValue())) {
-                throw new ReportDataSourceIsSyncingException(dataSourceVo);
+    public void executeReportDataSource(ReportDataSourceVo pDataSourceVo) {
+        if (pDataSourceVo != null && CollectionUtils.isNotEmpty(pDataSourceVo.getFieldList())) {
+            if (Objects.equals(pDataSourceVo.getStatus(), Status.DOING.getValue())) {
+                throw new ReportDataSourceIsSyncingException(pDataSourceVo);
             }
             //更新数据源状态，写入审计信息
-            dataSourceVo.setStatus(Status.DOING.getValue());
-            reportDataSourceMapper.updateReportDataSourceStatus(dataSourceVo);
+            pDataSourceVo.setStatus(Status.DOING.getValue());
+            reportDataSourceMapper.updateReportDataSourceStatus(pDataSourceVo);
             ReportDataSourceAuditVo reportDataSourceAuditVo = new ReportDataSourceAuditVo();
-            reportDataSourceAuditVo.setDataSourceId(dataSourceVo.getId());
+            reportDataSourceAuditVo.setDataSourceId(pDataSourceVo.getId());
             reportDataSourceAuditMapper.insertReportDataSourceAudit(reportDataSourceAuditVo);
-            CachedThreadPool.execute(new CodeDriverThread("REPORT-DATASOURCE-SYNC") {
-                @Override
-                protected void execute() {
-                    //如果是替换模式，则需要先清理数据
-                    if (StringUtils.isNotBlank(dataSourceVo.getMode()) && dataSourceVo.getMode().equals(Mode.REPLACE.getValue())) {
-                        reportDataSourceDataMapper.truncateTable(dataSourceVo);
+            AfterTransactionJob<ReportDataSourceVo> afterTransactionJob = new AfterTransactionJob<>("REPORT-DATASOURCE-SYNC");
+            afterTransactionJob.execute(pDataSourceVo, dataSourceVo -> {
+                //如果是替换模式，则需要先清理数据
+                if (StringUtils.isNotBlank(dataSourceVo.getMode()) && dataSourceVo.getMode().equals(Mode.REPLACE.getValue())) {
+                    reportDataSourceDataMapper.truncateTable(dataSourceVo);
+                }
+
+                Connection conn = null;
+                PreparedStatement queryStatement = null;
+                ResultSet resultSet = null;
+
+                try {
+                    SelectVo select = getSqlFromDataSource(dataSourceVo);
+                    conn = getConnection(dataSourceVo);
+                    String sqlText = select.getSql();
+                    queryStatement = conn.prepareStatement(sqlText, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+                    queryStatement.setFetchSize(FETCH_SIZE);
+                    queryStatement.setFetchDirection(ResultSet.FETCH_FORWARD);
+                    if (dataSourceVo.getQueryTimeout() != null && dataSourceVo.getQueryTimeout() > 0) {
+                        queryStatement.setQueryTimeout(dataSourceVo.getQueryTimeout());
                     }
 
-                    Connection conn = null;
-                    PreparedStatement queryStatement = null;
-                    ResultSet resultSet = null;
-
-                    try {
-                        SelectVo select = getSqlFromDataSource(dataSourceVo);
-                        conn = getConnection(dataSourceVo);
-                        String sqlText = select.getSql();
-                        queryStatement = conn.prepareStatement(sqlText, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-                        queryStatement.setFetchSize(FETCH_SIZE);
-                        queryStatement.setFetchDirection(ResultSet.FETCH_FORWARD);
-                        if (dataSourceVo.getQueryTimeout() != null && dataSourceVo.getQueryTimeout() > 0) {
-                            queryStatement.setQueryTimeout(dataSourceVo.getQueryTimeout());
-                        }
-
-                        if (CollectionUtils.isNotEmpty(select.getParamList())) {
-                            for (int p = 0; p < select.getParamList().size(); p++) {
-                                if (select.getParamList().get(p) instanceof String) {
-                                    queryStatement.setObject(p + 1, select.getParamList().get(p));
-                                } else {
-                                    // 数组参数有待处理
-                                    queryStatement.setObject(p + 1, ((String[]) select.getParamList().get(p))[0]);
-                                }
+                    if (CollectionUtils.isNotEmpty(select.getParamList())) {
+                        for (int p = 0; p < select.getParamList().size(); p++) {
+                            if (select.getParamList().get(p) instanceof String) {
+                                queryStatement.setObject(p + 1, select.getParamList().get(p));
+                            } else {
+                                // 数组参数有待处理
+                                queryStatement.setObject(p + 1, ((String[]) select.getParamList().get(p))[0]);
                             }
                         }
+                    }
                     /*
                       新增日志记录
                      */
-                        if (logger.isInfoEnabled()) {
-                            logger.info("REPORT RUN SQL::" + sqlText);
-                        }
-
-                        resultSet = queryStatement.executeQuery();
-
-                        ResultSetMetaData metaData = resultSet.getMetaData();
-                        Map<String, Integer> fieldMap = new HashMap<>();
-                        for (int i = 1; i <= metaData.getColumnCount(); i++) {
-                            fieldMap.put(metaData.getColumnName(i), i);
-                        }
-
-                        while (resultSet.next()) {
-                            ReportDataSourceDataVo reportDataSourceDataVo = new ReportDataSourceDataVo(dataSourceVo.getId());
-                            reportDataSourceDataVo.setExpireMinute(dataSourceVo.getExpireMinute());
-                            for (ReportDataSourceFieldVo fieldVo : dataSourceVo.getFieldList()) {
-                                if (fieldMap.containsKey(fieldVo.getName())) {
-                                    fieldVo.setValue(resultSet.getObject(fieldMap.get(fieldVo.getName())));
-                                }
-                                reportDataSourceDataVo.addField(fieldVo);
-                            }
-                            reportDataSourceDataMapper.insertDataSourceData(reportDataSourceDataVo);
-                            reportDataSourceAuditVo.addCount();
-                        }
-                    } catch (SQLException | DocumentException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-                        logger.error(e.getMessage(), e);
-                        reportDataSourceAuditVo.setError(e.getMessage());
-                        throw new ReportDataSourceSyncException(dataSourceVo, e);
-                    } finally {
-                        try {
-                            if (resultSet != null) {
-                                resultSet.close();
-                            }
-                            if (queryStatement != null) {
-                                queryStatement.close();
-                            }
-                            if (conn != null) {
-                                conn.close();
-                            }
-                        } catch (SQLException e) {
-                            logger.error(e.getMessage(), e);
-                        }
-                        dataSourceVo.setStatus(Status.DONE.getValue());
-                        int dataCount = reportDataSourceDataMapper.getDataSourceDataCount(new ReportDataSourceDataVo(dataSourceVo.getId()));
-                        dataSourceVo.setDataCount(dataCount);
-                        reportDataSourceMapper.updateReportDataSourceStatus(dataSourceVo);
-                        reportDataSourceAuditMapper.updateReportDataSourceAudit(reportDataSourceAuditVo);
+                    if (logger.isInfoEnabled()) {
+                        logger.info("REPORT RUN SQL::" + sqlText);
                     }
+
+                    resultSet = queryStatement.executeQuery();
+
+                    ResultSetMetaData metaData = resultSet.getMetaData();
+                    Map<String, Integer> fieldMap = new HashMap<>();
+                    for (int i = 1; i <= metaData.getColumnCount(); i++) {
+                        fieldMap.put(metaData.getColumnName(i), i);
+                    }
+
+                    while (resultSet.next()) {
+                        ReportDataSourceDataVo reportDataSourceDataVo = new ReportDataSourceDataVo(dataSourceVo.getId());
+                        reportDataSourceDataVo.setExpireMinute(dataSourceVo.getExpireMinute());
+                        for (ReportDataSourceFieldVo fieldVo : dataSourceVo.getFieldList()) {
+                            if (fieldMap.containsKey(fieldVo.getName())) {
+                                fieldVo.setValue(resultSet.getObject(fieldMap.get(fieldVo.getName())));
+                            }
+                            reportDataSourceDataVo.addField(fieldVo);
+                        }
+                        reportDataSourceDataMapper.insertDataSourceData(reportDataSourceDataVo);
+                        reportDataSourceAuditVo.addCount();
+                    }
+                } catch (SQLException | DocumentException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                    logger.error(e.getMessage(), e);
+                    reportDataSourceAuditVo.setError(e.getMessage());
+                    throw new ReportDataSourceSyncException(dataSourceVo, e);
+                } finally {
+                    try {
+                        if (resultSet != null) {
+                            resultSet.close();
+                        }
+                        if (queryStatement != null) {
+                            queryStatement.close();
+                        }
+                        if (conn != null) {
+                            conn.close();
+                        }
+                    } catch (SQLException e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                    dataSourceVo.setStatus(Status.DONE.getValue());
+                    int dataCount = reportDataSourceDataMapper.getDataSourceDataCount(new ReportDataSourceDataVo(dataSourceVo.getId()));
+                    dataSourceVo.setDataCount(dataCount);
+                    reportDataSourceMapper.updateReportDataSourceStatus(dataSourceVo);
+                    reportDataSourceAuditMapper.updateReportDataSourceAudit(reportDataSourceAuditVo);
                 }
             });
         }

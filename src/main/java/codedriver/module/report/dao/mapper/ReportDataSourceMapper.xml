@@ -180,6 +180,12 @@
                 #{isActive})
     </select>
 
+    <update id="resetReportDataSourceStatus">
+        update report_datasource
+        set status = 'done'
+        where status != 'done'
+    </update>
+
     <update id="updateReportDataSourceDataCount" parameterType="codedriver.framework.report.dto.ReportDataSourceVo">
         update report_datasource
         set data_count = #{dataCount}
