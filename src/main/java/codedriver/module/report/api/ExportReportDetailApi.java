@@ -16,6 +16,7 @@ import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiCompon
 import codedriver.framework.util.DocType;
 import codedriver.framework.util.ExcelUtil;
 import codedriver.framework.util.ExportUtil;
+import codedriver.framework.util.HtmlUtil;
 import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.constvalue.ActionType;
 import codedriver.module.report.dao.mapper.ReportMapper;
@@ -194,7 +195,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
                                 List<Element> tdList = tdEls.subList(0, tdEls.size());
                                 Map<String, Object> map = new LinkedHashMap<>();
                                 for (int i = 0; i < tdList.size(); i++) {
-                                    map.put(thValueList.get(i), tdList.get(i).ownText());
+                                    map.put(thValueList.get(i), tdList.get(i).text()); // text()返回剥离HTML标签的内容
                                 }
                                 valueList.add(map);
                             }
