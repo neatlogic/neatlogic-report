@@ -34,6 +34,8 @@ public interface ReportMapper {
 
 	int updateReportVisitCount(Long reportId);
 
+	int updateReportInstanceVisitCount(Long reportInstanceId);
+
 	int insertReport(ReportVo reportVo);
 
 	int insertReportParam(ReportParamVo reportParamVo);
