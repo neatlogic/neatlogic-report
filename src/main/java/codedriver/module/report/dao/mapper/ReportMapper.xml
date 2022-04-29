@@ -162,6 +162,12 @@
         WHERE id = #{value}
     </update>
 
+    <update id="updateReportInstanceVisitCount">
+        UPDATE `reportinstance`
+        SET visit_count = visit_count + 1
+        WHERE id = #{value}
+    </update>
+
     <insert id="insertReportParam" parameterType="codedriver.module.report.dto.ReportParamVo">
         INSERT INTO `report_param` (`id`,
                                     `report_id`,
