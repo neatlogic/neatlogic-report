@@ -14,12 +14,12 @@ public class REPORT_STATEMENT_MODIFY extends AuthBase {
 
     @Override
     public String getAuthDisplayName() {
-        return "报表管理权限";
+        return "大屏管理权限";
     }
 
     @Override
     public String getAuthIntroduction() {
-        return "拥有包括创建和修改报表的权限";
+        return "拥有包括创建和修改大屏的权限";
     }
 
     @Override
@@ -29,7 +29,7 @@ public class REPORT_STATEMENT_MODIFY extends AuthBase {
 
     @Override
     public Integer getSort() {
-        return 7;
+        return 4;
     }
 
     @Override

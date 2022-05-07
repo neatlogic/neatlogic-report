@@ -14,7 +14,7 @@ public class REPORT_TEMPLATE_MODIFY extends AuthBase {
 
     @Override
     public String getAuthDisplayName() {
-        return "报表管理员权限";
+        return "报表模板管理员权限";
     }
 
     @Override
@@ -29,7 +29,7 @@ public class REPORT_TEMPLATE_MODIFY extends AuthBase {
 
     @Override
     public Integer getSort() {
-        return 2;
+        return 3;
     }
 
     @Override

@@ -14,12 +14,12 @@ public class REPORT_ADMIN extends AuthBase {
 
     @Override
     public String getAuthDisplayName() {
-        return "报表模板管理权限";
+        return "报表模块超级管理员权限";
     }
 
     @Override
     public String getAuthIntroduction() {
-        return "拥有包括配置报表可用对象等所有权限";
+        return "拥有报表模块所有管理功能";
     }
 
     @Override
@@ -29,7 +29,7 @@ public class REPORT_ADMIN extends AuthBase {
 
     @Override
     public Integer getSort() {
-        return 4;
+        return 5;
     }
 
     @Override
