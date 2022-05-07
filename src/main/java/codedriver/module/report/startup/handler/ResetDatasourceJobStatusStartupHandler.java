@@ -6,7 +6,7 @@
 package codedriver.module.report.startup.handler;
 
 import codedriver.framework.startup.StartupBase;
-import codedriver.module.report.dao.mapper.ReportDataSourceMapper;
+import codedriver.framework.datawarehouse.dao.mapper.DataWarehouseDataSourceMapper;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -15,7 +15,7 @@ import javax.annotation.Resource;
 public class ResetDatasourceJobStatusStartupHandler extends StartupBase {
 
     @Resource
-    private ReportDataSourceMapper reportDataSourceMapper;
+    private DataWarehouseDataSourceMapper reportDataSourceMapper;
 
     /**
      * 作业名称

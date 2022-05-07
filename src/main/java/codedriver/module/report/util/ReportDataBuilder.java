@@ -5,9 +5,9 @@
 
 package codedriver.module.report.util;
 
-import codedriver.framework.report.dto.ReportDataSourceDataVo;
-import codedriver.framework.report.dto.ReportDataSourceFieldVo;
-import codedriver.framework.report.dto.ReportDataSourceVo;
+import codedriver.framework.datawarehouse.dto.ReportDataSourceDataVo;
+import codedriver.framework.datawarehouse.dto.ReportDataSourceFieldVo;
+import codedriver.framework.datawarehouse.dto.ReportDataSourceVo;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;

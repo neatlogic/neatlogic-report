@@ -1,7 +1,11 @@
+/*
+ * Copyright(c) 2022 TechSure Co., Ltd. All Rights Reserved.
+ * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+ */
+
 package codedriver.module.report.dto;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -51,9 +55,7 @@ public class SelectVo {
 			returnMap.put(mapName, resultMap);
 			Map<String, ResultMapVo> tmpMap = resultMap.getResultMap();
 			if (tmpMap != null) {
-				Iterator<Map.Entry<String, ResultMapVo>> iter = tmpMap.entrySet().iterator();
-				while (iter.hasNext()) {
-					Map.Entry<String, ResultMapVo> entry = iter.next();
+				for (Map.Entry<String, ResultMapVo> entry : tmpMap.entrySet()) {
 					resultMapRecursion(returnMap, entry.getKey(), entry.getValue());
 				}
 			}
