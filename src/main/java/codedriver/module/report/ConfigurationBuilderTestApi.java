@@ -6,7 +6,7 @@
 package codedriver.module.report;
 
 import codedriver.framework.common.constvalue.ApiParamType;
-import codedriver.framework.dao.config.MybatisConfigurationBuilder;
+import codedriver.framework.dao.util.SqlUtilBuilder;
 import codedriver.framework.dao.util.SqlUtil;
 import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
@@ -16,7 +16,6 @@ import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportVo;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.mapping.*;
-import org.apache.ibatis.session.Configuration;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -60,19 +59,19 @@ public class ConfigurationBuilderTestApi extends PrivateBinaryStreamApiComponent
             return null;
         }
         String sql = reportVo.getSql();
-        Configuration configuration = new MybatisConfigurationBuilder(dataSource).build(sql);
+        SqlUtil sqlUtil = new SqlUtilBuilder(dataSource).withNamespace("reportId_" + reportId).build(sql);
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("reportId", reportId);
-        Map<String, List> map = SqlUtil.executeSelectMappedStatement(configuration, paramMap);
+        Map<String, List> map = sqlUtil.executeAllSelectMappedStatement(paramMap);
 
-        Collection<ResultMap> resultMapList = configuration.getResultMaps();
-        for (ResultMap resultMap : resultMapList) {
-            List<ResultMapping> resultMappingList = resultMap.getResultMappings();
-            for (ResultMapping resultMapping : resultMappingList) {
-                System.out.println(JSONObject.toJSONString(resultMapping));
-            }
-            System.out.println(JSONObject.toJSONString(resultMap));
-        }
+//        Collection<ResultMap> resultMapList = configuration.getResultMaps();
+//        for (ResultMap resultMap : resultMapList) {
+//            List<ResultMapping> resultMappingList = resultMap.getResultMappings();
+//            for (ResultMapping resultMapping : resultMappingList) {
+//                System.out.println(JSONObject.toJSONString(resultMapping));
+//            }
+//            System.out.println(JSONObject.toJSONString(resultMap));
+//        }
         return null;
     }
 }
