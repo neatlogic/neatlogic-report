@@ -6,7 +6,7 @@
 package codedriver.module.report;
 
 import codedriver.framework.common.constvalue.ApiParamType;
-import codedriver.framework.dao.config.ConfigurationBuilder;
+import codedriver.framework.dao.config.MybatisConfigurationBuilder;
 import codedriver.framework.dao.util.SqlUtil;
 import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
@@ -60,7 +60,7 @@ public class ConfigurationBuilderTestApi extends PrivateBinaryStreamApiComponent
             return null;
         }
         String sql = reportVo.getSql();
-        Configuration configuration = new ConfigurationBuilder(dataSource).build(sql);
+        Configuration configuration = new MybatisConfigurationBuilder(dataSource).build(sql);
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("reportId", reportId);
         Map<String, List> map = SqlUtil.executeSelectMappedStatement(configuration, paramMap);
