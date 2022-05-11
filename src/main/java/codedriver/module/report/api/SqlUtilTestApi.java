@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
+//import javax.sql.DataSource;
 import java.util.*;
 
 @Service
@@ -40,8 +40,8 @@ public class SqlUtilTestApi extends PrivateBinaryStreamApiComponentBase {
         return null;
     }
 
-    @Resource
-    private DataSource dataSource;
+//    @Resource
+//    private DataSource dataSource;
 
     @Resource
     private ReportMapper reportMapper;
@@ -58,7 +58,7 @@ public class SqlUtilTestApi extends PrivateBinaryStreamApiComponentBase {
             return null;
         }
         String sql = reportVo.getSql();
-        SqlUtil sqlUtil = new SqlUtil.SqlUtilBuilder(dataSource).withNamespace("reportId_" + reportId).build(sql);
+        SqlUtil sqlUtil = new SqlUtil(sql, "reportId_" + reportId);
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("reportId", reportId);
         Map<String, List> map = sqlUtil.executeAllSelectMappedStatement(paramMap);
