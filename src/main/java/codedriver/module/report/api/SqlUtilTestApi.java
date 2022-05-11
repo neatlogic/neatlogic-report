@@ -6,7 +6,6 @@
 package codedriver.module.report.api;
 
 import codedriver.framework.common.constvalue.ApiParamType;
-import codedriver.framework.dao.util.SqlUtilBuilder;
 import codedriver.framework.dao.util.SqlUtil;
 import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
@@ -59,7 +58,7 @@ public class SqlUtilTestApi extends PrivateBinaryStreamApiComponentBase {
             return null;
         }
         String sql = reportVo.getSql();
-        SqlUtil sqlUtil = new SqlUtilBuilder(dataSource).withNamespace("reportId_" + reportId).build(sql);
+        SqlUtil sqlUtil = new SqlUtil.SqlUtilBuilder(dataSource).withNamespace("reportId_" + reportId).build(sql);
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("reportId", reportId);
         Map<String, List> map = sqlUtil.executeAllSelectMappedStatement(paramMap);
