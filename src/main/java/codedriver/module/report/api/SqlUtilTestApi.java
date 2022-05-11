@@ -28,12 +28,12 @@ public class SqlUtilTestApi extends PrivateBinaryStreamApiComponentBase {
 
     @Override
     public String getToken() {
-        return "configurationBuilder/test";
+        return "sqlutil/test";
     }
 
     @Override
     public String getName() {
-        return "测试ConfigurationBuilder";
+        return "测试SqlUtil";
     }
 
     @Override
@@ -50,7 +50,7 @@ public class SqlUtilTestApi extends PrivateBinaryStreamApiComponentBase {
     @Input({
             @Param(name = "reportId", type = ApiParamType.LONG, isRequired = true, desc = "报表id")
     })
-    @Description(desc = "测试ConfigurationBuilder")
+    @Description(desc = "测试SqlUtil")
     @Override
     public Object myDoService(JSONObject paramObj, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Long reportId = paramObj.getLong("reportId");
