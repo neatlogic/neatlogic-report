@@ -15,7 +15,6 @@ import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiCompon
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportVo;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.ibatis.mapping.*;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -63,15 +62,15 @@ public class ConfigurationBuilderTestApi extends PrivateBinaryStreamApiComponent
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("reportId", reportId);
         Map<String, List> map = sqlUtil.executeAllSelectMappedStatement(paramMap);
-
-//        Collection<ResultMap> resultMapList = configuration.getResultMaps();
-//        for (ResultMap resultMap : resultMapList) {
-//            List<ResultMapping> resultMappingList = resultMap.getResultMappings();
-//            for (ResultMapping resultMapping : resultMappingList) {
-//                System.out.println(JSONObject.toJSONString(resultMapping));
-//            }
-//            System.out.println(JSONObject.toJSONString(resultMap));
-//        }
+        List<String> idList = sqlUtil.getAllSelectMappedStatementIdList();
+        for (String id : idList) {
+            List list = sqlUtil.executeAllSelectMappedStatementById(id, paramMap);
+        }
+        List<Map<String, String>> resultMappingList = sqlUtil.getAllResultMappingList();
+        List<String> resultMapIdList = sqlUtil.getResultMapIdList();
+        for (String resultMapId : resultMapIdList) {
+            List<Map<String, String>> resultMappingList2 = sqlUtil.getResultMappingListByResultMapId(resultMapId);
+        }
         return null;
     }
 }
