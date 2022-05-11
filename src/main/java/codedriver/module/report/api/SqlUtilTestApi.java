@@ -10,7 +10,8 @@ import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.Param;
 import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
-import codedriver.framework.sqlrunner.SqlUtil;
+import codedriver.framework.sqlrunner.SqlInfo;
+import codedriver.framework.sqlrunner.SqlRunner;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportVo;
 import com.alibaba.fastjson.JSONObject;
@@ -19,7 +20,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-//import javax.sql.DataSource;
 import java.util.*;
 
 @Service
@@ -40,9 +40,6 @@ public class SqlUtilTestApi extends PrivateBinaryStreamApiComponentBase {
         return null;
     }
 
-//    @Resource
-//    private DataSource dataSource;
-
     @Resource
     private ReportMapper reportMapper;
 
@@ -58,25 +55,18 @@ public class SqlUtilTestApi extends PrivateBinaryStreamApiComponentBase {
             return null;
         }
         String sql = reportVo.getSql();
-        SqlUtil sqlUtil = new SqlUtil(sql, "reportId_" + reportId);
+        SqlRunner sqlRunner = new SqlRunner(sql, "reportId_" + reportId);
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("reportId", reportId);
-        Map<String, List> map = sqlUtil.executeAllSelectMappedStatement(paramMap);
-        List<String> idList = sqlUtil.getAllSelectMappedStatementIdList();
-        for (String id : idList) {
-            System.out.println(id);
-            List list = sqlUtil.executeAllSelectMappedStatementById(id, paramMap);
-            for (Object obj : list) {
-                System.out.println(JSONObject.toJSONString(obj));
-            }
-        }
-        List<Map<String, String>> resultMappingList = sqlUtil.getAllResultMappingList();
-        for (Map<String, String> resultMapping : resultMappingList) {
-            System.out.println(JSONObject.toJSONString(resultMapping));
-        }
-        List<String> resultMapIdList = sqlUtil.getResultMapIdList();
-        for (String resultMapId : resultMapIdList) {
-            List<Map<String, String>> resultMappingList2 = sqlUtil.getResultMappingListByResultMapId(resultMapId);
+        List<Long> reportIdList = new ArrayList<>();
+        reportIdList.add(reportId);
+        paramMap.put("reportIdList", reportIdList);
+        Map<String, List> map = sqlRunner.runAllSql(paramMap);
+
+        List<SqlInfo> sqlInfoList = sqlRunner.getAllSqlInfoList(paramMap);
+        for (SqlInfo sqlInfo : sqlInfoList) {
+            System.out.println(JSONObject.toJSONString(sqlInfo));
+            List list = sqlRunner.runSqlById(sqlInfo.getId(), paramMap);
         }
         return null;
     }
