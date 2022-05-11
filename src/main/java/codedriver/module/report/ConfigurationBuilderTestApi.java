@@ -30,6 +30,7 @@ public class ConfigurationBuilderTestApi extends PrivateBinaryStreamApiComponent
     public String getToken() {
         return "configurationBuilder/test";
     }
+
     @Override
     public String getName() {
         return "测试ConfigurationBuilder";
@@ -64,9 +65,16 @@ public class ConfigurationBuilderTestApi extends PrivateBinaryStreamApiComponent
         Map<String, List> map = sqlUtil.executeAllSelectMappedStatement(paramMap);
         List<String> idList = sqlUtil.getAllSelectMappedStatementIdList();
         for (String id : idList) {
+            System.out.println(id);
             List list = sqlUtil.executeAllSelectMappedStatementById(id, paramMap);
+            for (Object obj : list) {
+                System.out.println(JSONObject.toJSONString(obj));
+            }
         }
         List<Map<String, String>> resultMappingList = sqlUtil.getAllResultMappingList();
+        for (Map<String, String> resultMapping : resultMappingList) {
+            System.out.println(JSONObject.toJSONString(resultMapping));
+        }
         List<String> resultMapIdList = sqlUtil.getResultMapIdList();
         for (String resultMapId : resultMapIdList) {
             List<Map<String, String>> resultMappingList2 = sqlUtil.getResultMappingListByResultMapId(resultMapId);
