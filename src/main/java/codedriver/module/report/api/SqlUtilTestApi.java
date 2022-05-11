@@ -6,11 +6,11 @@
 package codedriver.module.report.api;
 
 import codedriver.framework.common.constvalue.ApiParamType;
-import codedriver.framework.dao.util.SqlUtil;
 import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.Param;
 import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
+import codedriver.framework.sqlrunner.SqlUtil;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportVo;
 import com.alibaba.fastjson.JSONObject;
