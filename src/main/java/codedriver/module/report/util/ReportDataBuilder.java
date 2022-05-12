@@ -5,16 +5,16 @@
 
 package codedriver.module.report.util;
 
-import codedriver.framework.datawarehouse.dto.ReportDataSourceDataVo;
-import codedriver.framework.datawarehouse.dto.ReportDataSourceFieldVo;
-import codedriver.framework.datawarehouse.dto.ReportDataSourceVo;
+import codedriver.framework.datawarehouse.dto.DataSourceDataVo;
+import codedriver.framework.datawarehouse.dto.DataSourceFieldVo;
+import codedriver.framework.datawarehouse.dto.DataSourceVo;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;
 
 public class ReportDataBuilder {
     private final List<HashMap<String, Object>> resultList;
-    private final ReportDataSourceVo reportDataSourceVo;
+    private final DataSourceVo reportDataSourceVo;
 
 
     private ReportDataBuilder(Builder builder) {
@@ -22,18 +22,18 @@ public class ReportDataBuilder {
         reportDataSourceVo = builder.reportDataSourceVo;
     }
 
-    public List<ReportDataSourceDataVo> getDataList() {
-        Map<Long, ReportDataSourceDataVo> dataMap = new LinkedHashMap<>();
+    public List<DataSourceDataVo> getDataList() {
+        Map<Long, DataSourceDataVo> dataMap = new LinkedHashMap<>();
         if (CollectionUtils.isNotEmpty(resultList)) {
             for (Map<String, Object> result : resultList) {
-                ReportDataSourceDataVo dataVo;
+                DataSourceDataVo dataVo;
 
                 Long id = result.get("id") != null ? Long.valueOf(String.valueOf(result.get("id"))) : null;
                 Date insertTime = result.get("insertTime") != null ? new Date(Long.parseLong(String.valueOf(result.get("insertTime")))) : null;
                 Date expireTime = result.get("expireTime") != null ? new Date(Long.parseLong(String.valueOf(result.get("expireTime")))) : null;
 
                 if (!dataMap.containsKey(id)) {
-                    dataVo = new ReportDataSourceDataVo(reportDataSourceVo.getId());
+                    dataVo = new DataSourceDataVo(reportDataSourceVo.getId());
                     dataVo.setId(id);
                     dataVo.setInsertTime(insertTime);
                     dataVo.setExpireTime(expireTime);
@@ -46,9 +46,9 @@ public class ReportDataBuilder {
                     if (key.startsWith("field_")) {
                         Long fieldId = Long.parseLong(key.substring(6));
                         Object value = result.get(key);
-                        ReportDataSourceFieldVo fieldVo = reportDataSourceVo.getFieldById(fieldId);
+                        DataSourceFieldVo fieldVo = reportDataSourceVo.getFieldById(fieldId);
                         if (fieldVo != null && !dataVo.containField(fieldId)) {
-                            ReportDataSourceFieldVo fieldValueVo = new ReportDataSourceFieldVo(fieldVo);
+                            DataSourceFieldVo fieldValueVo = new DataSourceFieldVo(fieldVo);
                             fieldValueVo.setValue(value);
                             dataVo.addField(fieldValueVo);
                         }
@@ -56,16 +56,16 @@ public class ReportDataBuilder {
                 }
             }
         }
-        List<ReportDataSourceDataVo> dataList = new ArrayList<>();
+        List<DataSourceDataVo> dataList = new ArrayList<>();
         for (Long key : dataMap.keySet()) {
-            ReportDataSourceDataVo dataVo = dataMap.get(key);
+            DataSourceDataVo dataVo = dataMap.get(key);
             dataList.add(dataVo);
         }
         return dataList;
     }
 
-    public ReportDataSourceDataVo getData() {
-        ReportDataSourceDataVo dataVo = new ReportDataSourceDataVo(reportDataSourceVo.getId());
+    public DataSourceDataVo getData() {
+        DataSourceDataVo dataVo = new DataSourceDataVo(reportDataSourceVo.getId());
         if (CollectionUtils.isNotEmpty(resultList)) {
             for (Map<String, Object> result : resultList) {
                 Long id = result.get("id") != null ? Long.valueOf(String.valueOf(result.get("id"))) : null;
@@ -78,9 +78,9 @@ public class ReportDataBuilder {
                     if (key.startsWith("field_")) {
                         Long fieldId = Long.parseLong(key.substring(6));
                         Object value = result.get(key);
-                        ReportDataSourceFieldVo fieldVo = reportDataSourceVo.getFieldById(fieldId);
+                        DataSourceFieldVo fieldVo = reportDataSourceVo.getFieldById(fieldId);
                         if (fieldVo != null && !dataVo.containField(fieldId)) {
-                            ReportDataSourceFieldVo fieldValueVo = new ReportDataSourceFieldVo(fieldVo);
+                            DataSourceFieldVo fieldValueVo = new DataSourceFieldVo(fieldVo);
                             fieldValueVo.setValue(value);
                             dataVo.addField(fieldValueVo);
                         }
@@ -94,9 +94,9 @@ public class ReportDataBuilder {
 
     public static class Builder {
         private final List<HashMap<String, Object>> resultList;
-        private final ReportDataSourceVo reportDataSourceVo;
+        private final DataSourceVo reportDataSourceVo;
 
-        public Builder(ReportDataSourceVo _reportDataSourceVo, List<HashMap<String, Object>> _resultList) {
+        public Builder(DataSourceVo _reportDataSourceVo, List<HashMap<String, Object>> _resultList) {
             resultList = _resultList;
             reportDataSourceVo = _reportDataSourceVo;
         }
