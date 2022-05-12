@@ -62,11 +62,12 @@ public class SqlUtilTestApi extends PrivateBinaryStreamApiComponentBase {
         reportIdList.add(reportId);
         paramMap.put("reportIdList", reportIdList);
         Map<String, List> map = sqlRunner.runAllSql(paramMap);
-
+        Map<String, Object> returnResultMap = new HashMap<>();
         List<SqlInfo> sqlInfoList = sqlRunner.getAllSqlInfoList(paramMap);
         for (SqlInfo sqlInfo : sqlInfoList) {
-            System.out.println(JSONObject.toJSONString(sqlInfo));
             List list = sqlRunner.runSqlById(sqlInfo.getId(), paramMap);
+            returnResultMap.put(sqlInfo.getId(), list);
+            System.out.println(JSONObject.toJSONString(sqlInfo));
         }
         return null;
     }
