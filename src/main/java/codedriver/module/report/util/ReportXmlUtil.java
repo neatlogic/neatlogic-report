@@ -5,7 +5,7 @@
 
 package codedriver.module.report.util;
 
-import codedriver.framework.datawarehouse.dto.ReportDataSourceFieldVo;
+import codedriver.framework.datawarehouse.dto.DataSourceFieldVo;
 import codedriver.framework.datawarehouse.exceptions.DataSourceXmlIrregularException;
 import codedriver.framework.dto.RestVo;
 import codedriver.framework.util.HtmlUtil;
@@ -25,7 +25,7 @@ public class ReportXmlUtil {
     //static Logger logger = LoggerFactory.getLogger(ReportXmlUtil.class);
 
 
-    private static void generateFieldFromXml(List<Element> elementList, Set<String> checkSet, List<ReportDataSourceFieldVo> fieldList) {
+    private static void generateFieldFromXml(List<Element> elementList, Set<String> checkSet, List<DataSourceFieldVo> fieldList) {
         for (Element sub : elementList) {
             if (sub.getName().equals("id") || sub.getName().equals("field")) {
                 String column = sub.attributeValue("column");
@@ -40,7 +40,7 @@ public class ReportXmlUtil {
                         checkSet.add(sub.attributeValue("column"));
                     }
                 }
-                fieldList.add(new ReportDataSourceFieldVo(column, label, type, sub.getName().equals("id") ? 1 : 0));
+                fieldList.add(new DataSourceFieldVo(column, label, type, sub.getName().equals("id") ? 1 : 0));
             }
         }
     }
