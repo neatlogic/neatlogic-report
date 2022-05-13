@@ -5,8 +5,6 @@
 
 package codedriver.module.report.util;
 
-import codedriver.framework.datawarehouse.dto.DataSourceFieldVo;
-import codedriver.framework.datawarehouse.exceptions.DataSourceXmlIrregularException;
 import codedriver.framework.dto.RestVo;
 import codedriver.framework.util.HtmlUtil;
 import codedriver.module.report.dto.ResultMapVo;
@@ -17,33 +15,15 @@ import org.dom4j.*;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ReportXmlUtil {
     //static Logger logger = LoggerFactory.getLogger(ReportXmlUtil.class);
-
-
-    private static void generateFieldFromXml(List<Element> elementList, Set<String> checkSet, List<DataSourceFieldVo> fieldList) {
-        for (Element sub : elementList) {
-            if (sub.getName().equals("id") || sub.getName().equals("field")) {
-                String column = sub.attributeValue("column");
-                String label = sub.attributeValue("label");
-                String type = sub.attributeValue("type");
-                if (StringUtils.isBlank(sub.attributeValue("column"))) {
-                    throw new DataSourceXmlIrregularException("“" + sub.getName() + "”节点必须定义唯一的“column”属性");
-                } else {
-                    if (checkSet.contains(sub.attributeValue("column"))) {
-                        throw new DataSourceXmlIrregularException("column=" + sub.attributeValue("column") + "的" + sub.getName() + "节点已存在");
-                    } else {
-                        checkSet.add(sub.attributeValue("column"));
-                    }
-                }
-                fieldList.add(new DataSourceFieldVo(column, label, type, sub.getName().equals("id") ? 1 : 0));
-            }
-        }
-    }
 
 
     private static ResultMapVo analyseResultMap(Element element) {
