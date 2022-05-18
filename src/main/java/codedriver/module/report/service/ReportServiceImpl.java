@@ -37,9 +37,6 @@ public class ReportServiceImpl implements ReportService {
     @Autowired
     private DataSource dataSource;
 
-    @Autowired
-    private SqlRunner sqlRunner;
-
     private Connection getConnection() throws SQLException {
         return dataSource.getConnection();
     }
