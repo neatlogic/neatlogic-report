@@ -67,16 +67,13 @@ public class SqlUtilTestApi extends PrivateBinaryStreamApiComponentBase {
         Map<String, Object> resultMap = new HashMap<>();
         List<SqlInfo> sqlInfoList = sqlRunner.getAllSqlInfoList(paramMap);
         for (SqlInfo sqlInfo : sqlInfoList) {
-            System.out.println(sqlInfo.getId());
             List<String> parameterList = sqlInfo.getParameterList();
             if (parameterList.contains("startNum") && parameterList.contains("pageSize")) {
                 needPageSelectIdList.add(sqlInfo.getId());
                 continue;
             }
             List list = sqlRunner.runSqlById(sqlInfo, paramMap);
-            System.out.println(list);
             resultMap.put(sqlInfo.getId(), list);
-            System.out.println(JSONObject.toJSONString(sqlInfo));
         }
         if (CollectionUtils.isNotEmpty(needPageSelectIdList)) {
             BasePageVo basePageVo = new BasePageVo();
