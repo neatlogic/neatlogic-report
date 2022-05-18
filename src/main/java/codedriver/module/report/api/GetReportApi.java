@@ -21,6 +21,8 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.DocumentException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -36,6 +38,7 @@ import java.util.regex.Pattern;
 @OperationType(type = OperationTypeEnum.SEARCH)
 public class GetReportApi extends PrivateApiComponentBase {
 
+    private final static Logger logger = LoggerFactory.getLogger(GetReportApi.class);
     /**
      * 匹配表格Id
      */
@@ -71,8 +74,11 @@ public class GetReportApi extends PrivateApiComponentBase {
 
         ReportVo reportVo = reportService.getReportDetailById(jsonObj.getLong("id"));
         /* 查找表格 */
-        getTableList(reportVo);
-
+        try {
+            getTableList(reportVo);
+        } catch (Exception e){
+            logger.error(e.getMessage(), e);
+        }
         return reportVo;
     }
 
