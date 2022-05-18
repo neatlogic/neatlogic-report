@@ -10,6 +10,8 @@ import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.restful.annotation.*;
 import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
+import codedriver.framework.sqlrunner.SqlInfo;
+import codedriver.framework.sqlrunner.SqlRunner;
 import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.dto.ReportVo;
 import codedriver.module.report.dto.SelectVo;
@@ -69,9 +71,61 @@ public class GetReportApi extends PrivateApiComponentBase {
 
         ReportVo reportVo = reportService.getReportDetailById(jsonObj.getLong("id"));
         /* 查找表格 */
-        getTableList(reportVo);
+        getTableList2(reportVo);
 
         return reportVo;
+    }
+
+    private void getTableList2(ReportVo reportVo) throws DocumentException {
+        String content = reportVo.getContent();
+        String sql = reportVo.getSql();
+        if (StringUtils.isNotBlank(content) && StringUtils.isNotBlank(sql)) {
+            Map<String, String> tables = new HashMap<>();
+            Matcher matcher = pattern.matcher(content);
+            /* 寻找是表格的图表，生成[包含id的字符串->title]的map */
+            while (matcher.find()) {
+                String e = matcher.group();
+                Matcher m = namePattern.matcher(e);
+                /* 寻找表格title */
+                if (m.find()) {
+                    String name = m.group();
+                    if (name.contains(",")) {
+                        name = name.substring(name.indexOf("\"") + 1, name.indexOf(",") - 1);
+                    } else {
+                        name = name.substring(name.indexOf("\"") + 1, name.lastIndexOf("\""));
+                    }
+                    tables.put(e, name);
+                } else {
+                    tables.put(e, null);
+                }
+            }
+            /* tableColumnsMap中的key为表格ID与中文名组合而成的字符串,value为表格字段
+              e.g:"tableData-工单上报列表"
+             */
+            List<Map<String, Object>> tableColumnsMapList = null;
+            if (MapUtils.isNotEmpty(tables)) {
+                tableColumnsMapList = new ArrayList<>();
+                /* 从SQL中获取所有图表
+                  从中寻找表格，记录下其id、title与column
+                 */
+                SqlRunner sqlRunner = new SqlRunner(reportVo.getSql(), "reportId_" + reportVo.getId());
+//                sqlRunner.addMapperXml(reportVo.getSql(), "reportId_" + reportVo.getId());
+                List<SqlInfo> sqlInfoList = sqlRunner.getAllSqlInfoList(null);
+                for (Map.Entry<String, String> entry : tables.entrySet()) {
+                    for (SqlInfo sqlInfo : sqlInfoList) {
+                        if (entry.getKey().contains(sqlInfo.getId())) {
+                            Map<String, Object> tableColumnsMap = new HashMap<>();
+                            tableColumnsMap.put("id", sqlInfo.getId());
+                            tableColumnsMap.put("title", entry.getValue());
+                            tableColumnsMap.put("columnList", sqlInfo.getPropertyList());
+                            tableColumnsMapList.add(tableColumnsMap);
+                            break;
+                        }
+                    }
+                }
+            }
+            reportVo.setTableList(tableColumnsMapList);
+        }
     }
 
     private void getTableList(ReportVo reportVo) throws DocumentException {

@@ -6,6 +6,7 @@
 package codedriver.module.report.api;
 
 import codedriver.framework.common.constvalue.ApiParamType;
+import codedriver.framework.common.dto.BasePageVo;
 import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.Param;
@@ -15,6 +16,8 @@ import codedriver.framework.sqlrunner.SqlRunner;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportVo;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.collections4.CollectionUtils;
+import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -54,20 +57,65 @@ public class SqlUtilTestApi extends PrivateBinaryStreamApiComponentBase {
         if (reportVo == null) {
             return null;
         }
+        SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         String sql = reportVo.getSql();
         SqlRunner sqlRunner = new SqlRunner(sql, "reportId_" + reportId);
         Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("reportId", reportId);
-        List<Long> reportIdList = new ArrayList<>();
-        reportIdList.add(reportId);
-        paramMap.put("reportIdList", reportIdList);
+        paramMap.put("id", reportId);
+        List<String> needPageSelectIdList = new ArrayList<>();
         Map<String, List> map = sqlRunner.runAllSql(paramMap);
-        Map<String, Object> returnResultMap = new HashMap<>();
+        Map<String, Object> resultMap = new HashMap<>();
         List<SqlInfo> sqlInfoList = sqlRunner.getAllSqlInfoList(paramMap);
         for (SqlInfo sqlInfo : sqlInfoList) {
-            List list = sqlRunner.runSqlById(sqlInfo.getId(), paramMap);
-            returnResultMap.put(sqlInfo.getId(), list);
+            System.out.println(sqlInfo.getId());
+            List<String> parameterList = sqlInfo.getParameterList();
+            if (parameterList.contains("startNum") && parameterList.contains("pageSize")) {
+                needPageSelectIdList.add(sqlInfo.getId());
+                continue;
+            }
+            List list = sqlRunner.runSqlById(sqlInfo, paramMap);
+            System.out.println(list);
+            resultMap.put(sqlInfo.getId(), list);
             System.out.println(JSONObject.toJSONString(sqlInfo));
+        }
+        if (CollectionUtils.isNotEmpty(needPageSelectIdList)) {
+            BasePageVo basePageVo = new BasePageVo();
+            Integer currentPage = paramObj.getInteger("currentPage");
+            if (currentPage != null) {
+                basePageVo.setCurrentPage(currentPage);
+            }
+            Integer pageSize = paramObj.getInteger("pageSize");
+            if (pageSize != null) {
+                basePageVo.setPageSize(10);
+            }
+            Map<String, Object> pageMap = new HashMap<>();
+            for (SqlInfo sqlInfo : sqlInfoList) {
+                if (needPageSelectIdList.contains(sqlInfo.getId())) {
+                    List list = (List) resultMap.remove(sqlInfo.getId() + "RowNum");
+                    if (CollectionUtils.isNotEmpty(list)) {
+                        Integer rowNum = (Integer) list.get(0);
+                        if (rowNum != null) {
+                            basePageVo.setRowNum(rowNum);
+                            JSONObject pageObj = new JSONObject();
+                            pageObj.put("rowNum", basePageVo.getRowNum());
+                            pageObj.put("currentPage", basePageVo.getCurrentPage());
+                            pageObj.put("pageSize", basePageVo.getPageSize());
+                            pageObj.put("pageCount", basePageVo.getPageCount());
+                            pageObj.put("needPage", true);
+                            pageMap.put(sqlInfo.getId(), pageObj);
+                            if (rowNum > 0) {
+                                paramMap.put("startNum", basePageVo.getStartNum());
+                                paramMap.put("pageSize", basePageVo.getPageSize());
+                                list= sqlRunner.runSqlById(sqlInfo, paramMap);
+                                if (CollectionUtils.isNotEmpty(list)) {
+                                    resultMap.put(sqlInfo.getId(), list);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            resultMap.put("page", pageMap);
         }
         return null;
     }
