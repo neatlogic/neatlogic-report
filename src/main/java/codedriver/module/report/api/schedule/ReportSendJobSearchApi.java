@@ -1,3 +1,8 @@
+/*
+ * Copyright(c) 2022 TechSure Co., Ltd. All Rights Reserved.
+ * 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+ */
+
 package codedriver.module.report.api.schedule;
 
 import codedriver.framework.auth.core.AuthAction;
@@ -83,7 +88,7 @@ public class ReportSendJobSearchApi extends PrivateApiComponentBase {
 			returnObj.put("pageCount", PageUtil.getPageCount(rowNum, vo.getPageSize()));
 		}
 		List<ReportSendJobVo> jobList = reportSendJobMapper.searchJob(vo);
-		/** 查询发送次数与收件人 */
+		/* 查询发送次数与收件人 */
 		if(CollectionUtils.isNotEmpty(jobList)){
 			List<ReportSendJobVo> toList = reportSendJobMapper.getReportToList(jobList.stream().map(ReportSendJobVo::getId).collect(Collectors.toList()));
 			if(CollectionUtils.isNotEmpty(toList)){
