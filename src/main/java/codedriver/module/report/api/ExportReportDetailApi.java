@@ -7,6 +7,7 @@ package codedriver.module.report.api;
 
 import codedriver.framework.auth.core.AuthAction;
 import codedriver.framework.common.constvalue.ApiParamType;
+import codedriver.framework.report.exception.ReportNotFoundException;
 import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.OperationType;
@@ -16,12 +17,10 @@ import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiCompon
 import codedriver.framework.util.DocType;
 import codedriver.framework.util.ExcelUtil;
 import codedriver.framework.util.ExportUtil;
-import codedriver.framework.util.HtmlUtil;
 import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.constvalue.ActionType;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportVo;
-import codedriver.framework.report.exception.ReportNotFoundException;
 import codedriver.module.report.service.ReportService;
 import codedriver.module.report.util.ReportFreemarkerUtil;
 import com.alibaba.fastjson.JSONObject;
@@ -34,9 +33,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
@@ -50,10 +49,10 @@ import java.util.*;
 public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
     private static final Log logger = LogFactory.getLog(ExportReportDetailApi.class);
 
-    @Autowired
+    @Resource
     private ReportMapper reportMapper;
 
-    @Autowired
+    @Resource
     private ReportService reportService;
 
     @Override
@@ -93,8 +92,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             if (reportVo == null) {
                 throw new ReportNotFoundException(reportId);
             }
-            Map<String, Long> timeMap = new HashMap<>();
-            Map<String, Object> returnMap = reportService.getQueryResult(reportId, paramObj, timeMap, false, showColumnsMap);
+            Map<String, Object> returnMap = reportService.getQuerySqlResult(reportVo, paramObj, false, showColumnsMap);
             Map<String, Object> tmpMap = new HashMap<>();
             Map<String, Object> commonMap = new HashMap<>();
             tmpMap.put("report", returnMap);
