@@ -92,7 +92,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             if (reportVo == null) {
                 throw new ReportNotFoundException(reportId);
             }
-            Map<String, Object> returnMap = reportService.getQuerySqlResult(reportVo, paramObj, true, showColumnsMap);
+            Map<String, Object> returnMap = reportService.getQuerySqlResult(reportVo, paramObj, false, showColumnsMap);
             Map<String, Object> tmpMap = new HashMap<>();
             Map<String, Object> commonMap = new HashMap<>();
             tmpMap.put("report", returnMap);
