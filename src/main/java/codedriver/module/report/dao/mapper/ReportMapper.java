@@ -28,6 +28,8 @@ public interface ReportMapper {
 
 	List<ReportParamVo> getReportParamByMatrixUuid(@Param("matrixUuid") String matrixUuid, @Param("startNum") int startNum, @Param("pageSize") int pageSize);
 
+	List<Long> checkReportIdListExists(List<Long> idList);
+
 	int updateReportActive(ReportVo reportVo);
 
 	int updateReport(ReportVo reportVo);

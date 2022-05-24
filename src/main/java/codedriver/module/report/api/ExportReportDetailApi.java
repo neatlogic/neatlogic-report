@@ -57,7 +57,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
 
     @Override
     public String getToken() {
-        return "report/export/{id}/{type}";
+        return "report/detail/export/{id}/{type}";
     }
 
     @Override

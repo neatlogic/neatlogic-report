@@ -133,6 +133,15 @@
         LIMIT #{startNum}, #{pageSize}
     </select>
 
+    <select id="checkReportIdListExists" parameterType="java.util.List" resultType="java.lang.Long">
+        select `id`
+        from `report`
+        where `id` in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
     <update id="updateReportActive" parameterType="codedriver.module.report.dto.ReportVo">
         UPDATE
             `report`
