@@ -127,7 +127,7 @@ public class ReportImportApi extends PrivateBinaryStreamApiComponentBase {
         if (CollectionUtils.isNotEmpty(resultList)) {
             resultObj.put("failureReasonList", resultList);
         }
-        return null;
+        return resultObj;
     }
 
     private JSONObject save(ReportVo reportVo) {
@@ -208,7 +208,7 @@ public class ReportImportApi extends PrivateBinaryStreamApiComponentBase {
         }
         if (CollectionUtils.isNotEmpty(failReasonList)) {
             JSONObject result = new JSONObject();
-            result.put("item", "导入：" + name + "时出现如下问题：");
+            result.put("item", "导入【" + name + "】时出现如下问题：");
             result.put("list", failReasonList);
             return result;
         }
