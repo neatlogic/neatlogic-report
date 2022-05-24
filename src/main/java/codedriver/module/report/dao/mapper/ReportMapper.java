@@ -10,52 +10,54 @@ import org.apache.ibatis.annotations.Param;
 
 public interface ReportMapper {
 
-	List<ReportParamVo> getReportParamByReportId(Long reportId);
+    List<ReportParamVo> getReportParamByReportId(Long reportId);
 
-	int searchReportCount(ReportVo reportVo);
+    int searchReportCount(ReportVo reportVo);
 
-	List<ReportTypeVo> getAllReportType();
+    List<ReportTypeVo> getAllReportType();
 
-	List<ReportVo> searchReport(ReportVo reportVo);
+    List<ReportVo> searchReport(ReportVo reportVo);
 
-	List<ReportAuthVo> getReportAuthByReportId(Long reportId);
+    List<ReportAuthVo> getReportAuthByReportId(Long reportId);
 
-	ReportVo getReportById(Long reportId);
+    ReportVo getReportById(Long reportId);
 
-	ReportVo getReportBaseInfo(Long reportId);
+    ReportVo getReportBaseInfo(Long reportId);
 
-	int getReportParamCountByMatrixUuid(String matrixUuid);
+    int getReportParamCountByMatrixUuid(String matrixUuid);
 
-	List<ReportParamVo> getReportParamByMatrixUuid(@Param("matrixUuid") String matrixUuid, @Param("startNum") int startNum, @Param("pageSize") int pageSize);
+    List<ReportParamVo> getReportParamByMatrixUuid(@Param("matrixUuid") String matrixUuid, @Param("startNum") int startNum, @Param("pageSize") int pageSize);
 
-	ReportVo getReportByIdForUpudate(Long id);
+    ReportVo getReportByIdForUpudate(Long id);
 
-	ReportVo getReportByName(String name);
+    ReportVo getReportByName(String name);
 
-	List<Long> checkReportIdListExists(List<Long> idList);
+    int checkReportNameIsExists(ReportVo reportVo);
 
-	int updateReportActive(ReportVo reportVo);
+    List<Long> checkReportIdListExists(List<Long> idList);
 
-	int updateReport(ReportVo reportVo);
+    int updateReportActive(ReportVo reportVo);
 
-	int updateReportVisitCount(Long reportId);
+    int updateReport(ReportVo reportVo);
 
-	int updateReportInstanceVisitCount(Long reportInstanceId);
+    int updateReportVisitCount(Long reportId);
 
-	int insertReport(ReportVo reportVo);
+    int updateReportInstanceVisitCount(Long reportInstanceId);
 
-	int insertReportParam(ReportParamVo reportParamVo);
+    int insertReport(ReportVo reportVo);
 
-	int insertReportAuth(ReportAuthVo reportAuthVo);
+    int insertReportParam(ReportParamVo reportParamVo);
 
-	int batchInsertReportParam(List<ReportParamVo> list);
+    int insertReportAuth(ReportAuthVo reportAuthVo);
 
-	int batchInsertReportAuth(List<ReportAuthVo> list);
+    int batchInsertReportParam(List<ReportParamVo> list);
 
-	int deleteReportAuthByReportId(Long reportId);
+    int batchInsertReportAuth(List<ReportAuthVo> list);
 
-	int deleteReportById(Long reportId);
+    int deleteReportAuthByReportId(Long reportId);
 
-	int deleteReportParamByReportId(Long reportId);
+    int deleteReportById(Long reportId);
+
+    int deleteReportParamByReportId(Long reportId);
 
 }

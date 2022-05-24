@@ -156,7 +156,7 @@
         </foreach>
     </select>
 
-    <select id="getReportByIdForUpudate" resultType="codedriver.module.report.dto.ReportVo">
+    <select id="getReportByIdForUpudate" parameterType="java.lang.Long" resultType="codedriver.module.report.dto.ReportVo">
         select `id`,
                `name`,
                `type`,
@@ -169,6 +169,10 @@
         from `report`
         where `id` = #{value}
         for update
+    </select>
+
+    <select id="checkReportNameIsExists" parameterType="codedriver.module.report.dto.ReportVo" resultType="java.lang.Integer">
+        select count(1) from `report` where `name` = #{name} and `id` != #{id}
     </select>
 
     <update id="updateReportActive" parameterType="codedriver.module.report.dto.ReportVo">
