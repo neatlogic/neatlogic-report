@@ -19,6 +19,7 @@ import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportAuthVo;
 import codedriver.module.report.dto.ReportParamVo;
 import codedriver.module.report.dto.ReportVo;
+import codedriver.module.report.service.ReportService;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections4.CollectionUtils;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @AuthAction(action = REPORT_MODIFY.class)
 @OperationType(type = OperationTypeEnum.OPERATE)
@@ -35,6 +37,9 @@ public class SaveReportApi extends PrivateApiComponentBase {
 
     @Resource
     private ReportMapper reportMapper;
+
+    @Resource
+    private ReportService reportService;
 
     @Override
     public String getToken() {
@@ -80,9 +85,11 @@ public class SaveReportApi extends PrivateApiComponentBase {
             reportVo.setFcu(UserContext.get().getUserUuid());
             reportMapper.insertReport(reportVo);
         }
-        if (CollectionUtils.isNotEmpty(reportVo.getParamList())) {
+        List<ReportParamVo> paramList = reportVo.getParamList();
+        if (CollectionUtils.isNotEmpty(paramList)) {
+            reportService.validateReportParamList(paramList);
             int i = 0;
-            for (ReportParamVo paramVo : reportVo.getParamList()) {
+            for (ReportParamVo paramVo : paramList) {
                 paramVo.setReportId(reportVo.getId());
                 paramVo.setSort(i);
                 reportMapper.insertReportParam(paramVo);

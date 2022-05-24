@@ -1,5 +1,6 @@
 package codedriver.module.report.service;
 
+import codedriver.module.report.dto.ReportParamVo;
 import codedriver.module.report.dto.ReportVo;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,4 +19,6 @@ public interface ReportService {
     int deleteReportById(Long reportId);
 
     Map<String, Object> getQuerySqlResult(ReportVo reportVo, JSONObject paramMap, boolean isFirst, Map<String, List<String>> showColumnsMap);
+
+    void validateReportParamList(List<ReportParamVo> paramList);
 }

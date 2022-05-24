@@ -13,8 +13,6 @@ import codedriver.framework.dao.mapper.TeamMapper;
 import codedriver.framework.dao.mapper.UserMapper;
 import codedriver.framework.exception.file.FileExtNotAllowedException;
 import codedriver.framework.exception.file.FileNotUploadException;
-import codedriver.framework.exception.type.ParamNotExistsException;
-import codedriver.framework.exception.type.ParamRepeatsException;
 import codedriver.framework.restful.annotation.*;
 import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
@@ -24,12 +22,12 @@ import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportAuthVo;
 import codedriver.module.report.dto.ReportParamVo;
 import codedriver.module.report.dto.ReportVo;
+import codedriver.module.report.service.ReportService;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -42,7 +40,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipInputStream;
 
 @AuthAction(action = REPORT_BASE.class)
@@ -62,6 +63,9 @@ public class ReportImportApi extends PrivateBinaryStreamApiComponentBase {
 
     @Resource
     private RoleMapper roleMapper;
+
+    @Resource
+    private ReportService reportService;
 
     @Override
     public String getToken() {
@@ -142,21 +146,8 @@ public class ReportImportApi extends PrivateBinaryStreamApiComponentBase {
             reportVo.setId(SnowflakeUtil.uniqueLong());
         }
         if (CollectionUtils.isNotEmpty(paramList)) {
-            Set<String> keySet = new HashSet<>();
             try {
-                for (int i = 0; i < paramList.size(); i++) {
-                    ReportParamVo paramVo = paramList.get(i);
-                    paramVo.setReportId(reportVo.getId());
-                    String key = paramVo.getName();
-                    if (StringUtils.isBlank(key)) {
-                        throw new ParamNotExistsException("paramList.[" + i + "].key");
-                    }
-                    if (keySet.contains(key)) {
-                        throw new ParamRepeatsException("paramList.[" + i + "].key");
-                    } else {
-                        keySet.add(key);
-                    }
-                }
+                reportService.validateReportParamList(paramList);
             } catch (Exception ex) {
                 failReasonList.add("报表【" + name + "】：" + ex.getMessage());
             }
@@ -191,13 +182,14 @@ public class ReportImportApi extends PrivateBinaryStreamApiComponentBase {
             if (oldReport != null) {
                 reportMapper.getReportByIdForUpudate(reportVo.getId());
                 reportMapper.updateReport(reportVo);
-                reportMapper.deleteReportParamByReportId(oldReport.getId());
-                reportMapper.deleteReportAuthByReportId(oldReport.getId());
+                reportMapper.deleteReportParamByReportId(reportVo.getId());
+                reportMapper.deleteReportAuthByReportId(reportVo.getId());
             } else {
                 reportMapper.insertReport(reportVo);
             }
             if (CollectionUtils.isNotEmpty(paramList)) {
                 for (int i = 0; i < paramList.size(); i++) {
+                    paramList.get(i).setReportId(reportVo.getId());
                     paramList.get(i).setSort(i);
                 }
                 reportMapper.batchInsertReportParam(paramList);

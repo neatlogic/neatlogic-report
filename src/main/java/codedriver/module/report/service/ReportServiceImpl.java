@@ -3,6 +3,8 @@ package codedriver.module.report.service;
 import codedriver.framework.common.dto.BasePageVo;
 import codedriver.framework.common.util.PageUtil;
 import codedriver.framework.dto.RestVo;
+import codedriver.framework.exception.type.ParamNotExistsException;
+import codedriver.framework.exception.type.ParamRepeatsException;
 import codedriver.framework.sqlrunner.SqlInfo;
 import codedriver.framework.sqlrunner.SqlRunner;
 import codedriver.framework.util.RestUtil;
@@ -14,6 +16,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -445,7 +448,7 @@ public class ReportServiceImpl implements ReportService {
                 needPageSelectIdList.add(sqlInfo.getId());
                 continue;
             }
-            List list= sqlRunner.runSqlById(sqlInfo, paramMap);
+            List list = sqlRunner.runSqlById(sqlInfo, paramMap);
             if (CollectionUtils.isNotEmpty(list)) {
                 resultMap.put(sqlInfo.getId(), list);
             }
@@ -478,7 +481,7 @@ public class ReportServiceImpl implements ReportService {
                             if (rowNum > 0) {
                                 paramMap.put("startNum", basePageVo.getStartNum());
                                 paramMap.put("pageSize", basePageVo.getPageSize());
-                                list= sqlRunner.runSqlById(sqlInfo, paramMap);
+                                list = sqlRunner.runSqlById(sqlInfo, paramMap);
                                 if (CollectionUtils.isNotEmpty(list)) {
                                     resultMap.put(sqlInfo.getId(), list);
                                 }
@@ -517,5 +520,24 @@ public class ReportServiceImpl implements ReportService {
             }
         }
         return resultMap;
+    }
+
+    @Override
+    public void validateReportParamList(List<ReportParamVo> paramList) {
+        if (CollectionUtils.isNotEmpty(paramList)) {
+            Set<String> keySet = new HashSet<>();
+            for (int i = 0; i < paramList.size(); i++) {
+                ReportParamVo paramVo = paramList.get(i);
+                String key = paramVo.getName();
+                if (StringUtils.isBlank(key)) {
+                    throw new ParamNotExistsException("paramList.[" + i + "].key");
+                }
+                if (keySet.contains(key)) {
+                    throw new ParamRepeatsException("paramList.[" + i + "].key");
+                } else {
+                    keySet.add(key);
+                }
+            }
+        }
     }
 }
