@@ -20,8 +20,6 @@ import codedriver.module.report.dto.ReportVo;
 import codedriver.module.report.service.ReportService;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -39,8 +37,8 @@ import java.util.zip.ZipOutputStream;
 @AuthAction(action = REPORT_BASE.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
 @Service
-public class ExportReportApi extends PrivateBinaryStreamApiComponentBase {
-    private static final Logger logger = LoggerFactory.getLogger(ExportReportApi.class);
+public class ReportExportApi extends PrivateBinaryStreamApiComponentBase {
+    private static final Logger logger = LoggerFactory.getLogger(ReportExportApi.class);
 
     @Resource
     private ReportMapper reportMapper;

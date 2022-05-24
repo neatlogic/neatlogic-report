@@ -28,6 +28,10 @@ public interface ReportMapper {
 
 	List<ReportParamVo> getReportParamByMatrixUuid(@Param("matrixUuid") String matrixUuid, @Param("startNum") int startNum, @Param("pageSize") int pageSize);
 
+	ReportVo getReportByIdForUpudate(Long id);
+
+	ReportVo getReportByName(String name);
+
 	List<Long> checkReportIdListExists(List<Long> idList);
 
 	int updateReportActive(ReportVo reportVo);
@@ -43,6 +47,10 @@ public interface ReportMapper {
 	int insertReportParam(ReportParamVo reportParamVo);
 
 	int insertReportAuth(ReportAuthVo reportAuthVo);
+
+	int batchInsertReportParam(List<ReportParamVo> list);
+
+	int batchInsertReportAuth(List<ReportAuthVo> list);
 
 	int deleteReportAuthByReportId(Long reportId);
 
