@@ -11,6 +11,9 @@ import codedriver.framework.common.constvalue.GroupSearch;
 import codedriver.framework.dao.mapper.RoleMapper;
 import codedriver.framework.dao.mapper.TeamMapper;
 import codedriver.framework.dao.mapper.UserMapper;
+import codedriver.framework.dto.RoleVo;
+import codedriver.framework.dto.TeamVo;
+import codedriver.framework.dto.UserVo;
 import codedriver.framework.exception.file.FileExtNotAllowedException;
 import codedriver.framework.exception.file.FileNotUploadException;
 import codedriver.framework.restful.annotation.*;
@@ -158,21 +161,21 @@ public class ReportImportApi extends PrivateBinaryStreamApiComponentBase {
             List<String> roleUuidList = reportAuthList.stream().filter(o -> GroupSearch.ROLE.getValue().equals(o.getAuthType())).map(ReportAuthVo::getAuthUuid).collect(Collectors.toList());
             reportAuthList.clear();
             if (CollectionUtils.isNotEmpty(userUuidList)) {
-                List<String> existUserUuidList = userMapper.checkUserUuidListIsExists(userUuidList, null);
-                for (String uuid : existUserUuidList) {
-                    reportAuthList.add(new ReportAuthVo(reportVo.getId(), GroupSearch.USER.getValue(), uuid));
+                List<UserVo> userList = userMapper.getUserByUserUuidList(userUuidList);
+                for (UserVo user : userList) {
+                    reportAuthList.add(new ReportAuthVo(reportVo.getId(), GroupSearch.USER.getValue(), user.getUuid()));
                 }
             }
             if (CollectionUtils.isNotEmpty(teamUuidList)) {
-                List<String> existTeamUuidList = teamMapper.checkTeamUuidListIsExists(teamUuidList);
-                for (String uuid : existTeamUuidList) {
-                    reportAuthList.add(new ReportAuthVo(reportVo.getId(), GroupSearch.TEAM.getValue(), uuid));
+                List<TeamVo> teamList = teamMapper.getTeamByUuidList(teamUuidList);
+                for (TeamVo team : teamList) {
+                    reportAuthList.add(new ReportAuthVo(reportVo.getId(), GroupSearch.TEAM.getValue(), team.getUuid()));
                 }
             }
             if (CollectionUtils.isNotEmpty(roleUuidList)) {
-                List<String> existRoleUuidList = roleMapper.checkRoleUuidListIsExists(roleUuidList);
-                for (String uuid : existRoleUuidList) {
-                    reportAuthList.add(new ReportAuthVo(reportVo.getId(), GroupSearch.ROLE.getValue(), uuid));
+                List<RoleVo> roleList = roleMapper.getRoleByUuidList(roleUuidList);
+                for (RoleVo role : roleList) {
+                    reportAuthList.add(new ReportAuthVo(reportVo.getId(), GroupSearch.ROLE.getValue(), role.getUuid()));
                 }
             }
         }
