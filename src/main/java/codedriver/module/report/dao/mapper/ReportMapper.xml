@@ -133,6 +133,48 @@
         LIMIT #{startNum}, #{pageSize}
     </select>
 
+    <select id="getReportByName" parameterType="java.lang.String" resultType="codedriver.module.report.dto.ReportVo">
+        select `id`,
+               `name`,
+               `type`,
+               `is_active`   as isActive,
+               `visit_count` AS visitCount,
+               `fcu`,
+               `fcd`,
+               `lcu`,
+               `lcd`
+        from `report`
+        where `name` = #{value}
+    </select>
+
+    <select id="checkReportIdListExists" parameterType="java.util.List" resultType="java.lang.Long">
+        select `id`
+        from `report`
+        where `id` in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="getReportByIdForUpudate" parameterType="java.lang.Long" resultType="codedriver.module.report.dto.ReportVo">
+        select `id`,
+               `name`,
+               `type`,
+               `is_active`   as isActive,
+               `visit_count` AS visitCount,
+               `fcu`,
+               `fcd`,
+               `lcu`,
+               `lcd`
+        from `report`
+        where `id` = #{value}
+        for update
+    </select>
+
+    <select id="checkReportNameIsExists" parameterType="codedriver.module.report.dto.ReportVo" resultType="java.lang.Integer">
+        select count(1) from `report` where `name` = #{name} and `id` != #{id}
+    </select>
+
     <update id="updateReportActive" parameterType="codedriver.module.report.dto.ReportVo">
         UPDATE
             `report`
@@ -215,6 +257,42 @@
     <insert id="insertReportAuth" parameterType="codedriver.module.report.dto.ReportAuthVo">
         INSERT INTO `report_auth` (`report_id`, `type`, `auth_uuid`)
         VALUES (#{reportId}, #{authType}, #{authUuid});
+    </insert>
+
+    <insert id="batchInsertReportParam" parameterType="java.util.List">
+        INSERT INTO `report_param` (`id`,
+                                    `report_id`,
+                                    `name`,
+                                    `type`,
+                                    `label`,
+                                    `config`,
+                                    `sort`,
+                                    `width`)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id},
+            #{item.reportId},
+            #{item.name},
+            #{item.type},
+            #{item.label},
+            #{item.configStr},
+            #{item.sort},
+            #{item.width}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="batchInsertReportAuth" parameterType="java.util.List">
+        INSERT INTO `report_auth` (`report_id`, `type`, `auth_uuid`)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.reportId},
+            #{item.authType},
+            #{item.authUuid}
+            )
+        </foreach>
     </insert>
 
 
