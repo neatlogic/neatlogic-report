@@ -259,7 +259,7 @@
         VALUES (#{reportId}, #{authType}, #{authUuid});
     </insert>
 
-    <insert id="batchInsertReportParam">
+    <insert id="batchInsertReportParam" parameterType="java.util.List">
         INSERT INTO `report_param` (`id`,
                                     `report_id`,
                                     `name`,
@@ -283,7 +283,7 @@
         </foreach>
     </insert>
 
-    <insert id="batchInsertReportAuth">
+    <insert id="batchInsertReportAuth" parameterType="java.util.List">
         INSERT INTO `report_auth` (`report_id`, `type`, `auth_uuid`)
         VALUES
         <foreach collection="list" item="item" separator=",">
