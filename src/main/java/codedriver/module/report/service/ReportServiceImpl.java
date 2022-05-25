@@ -530,10 +530,10 @@ public class ReportServiceImpl implements ReportService {
                 ReportParamVo paramVo = paramList.get(i);
                 String key = paramVo.getName();
                 if (StringUtils.isBlank(key)) {
-                    throw new ParamNotExistsException("paramList.[" + i + "].key");
+                    throw new ParamNotExistsException(i, "名称");
                 }
                 if (keySet.contains(key)) {
-                    throw new ParamRepeatsException("paramList.[" + i + "].key");
+                    throw new ParamRepeatsException(i, "名称");
                 } else {
                     keySet.add(key);
                 }
