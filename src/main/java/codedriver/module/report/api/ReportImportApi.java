@@ -17,7 +17,7 @@ import codedriver.framework.restful.annotation.*;
 import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
 import codedriver.framework.util.SnowflakeUtil;
-import codedriver.module.report.auth.label.REPORT_BASE;
+import codedriver.module.report.auth.label.REPORT_TEMPLATE_MODIFY;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportAuthVo;
 import codedriver.module.report.dto.ReportParamVo;
@@ -46,7 +46,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
-@AuthAction(action = REPORT_BASE.class)
+@AuthAction(action = REPORT_TEMPLATE_MODIFY.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
 @Service
 public class ReportImportApi extends PrivateBinaryStreamApiComponentBase {
