@@ -41,9 +41,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
 @AuthAction(action = REPORT_BASE.class)
@@ -153,28 +153,26 @@ public class ReportImportApi extends PrivateBinaryStreamApiComponentBase {
             }
         }
         if (CollectionUtils.isNotEmpty(reportAuthList)) {
-            Iterator<ReportAuthVo> iterator = reportAuthList.iterator();
-            while (iterator.hasNext()) {
-                ReportAuthVo next = iterator.next();
-                String authType = next.getAuthType();
-                String authUuid = next.getAuthUuid();
-                next.setReportId(reportVo.getId());
-                boolean authTargetExist = true;
-                if (GroupSearch.USER.getValue().equals(authType)) {
-                    if (userMapper.checkUserIsExists(authUuid) == 0) {
-                        authTargetExist = false;
-                    }
-                } else if (GroupSearch.TEAM.getValue().equals(authType)) {
-                    if (teamMapper.checkTeamIsExists(authUuid) == 0) {
-                        authTargetExist = false;
-                    }
-                } else if (GroupSearch.ROLE.getValue().equals(authType)) {
-                    if (roleMapper.checkRoleIsExists(authUuid) == 0) {
-                        authTargetExist = false;
-                    }
+            List<String> userUuidList = reportAuthList.stream().filter(o -> GroupSearch.USER.getValue().equals(o.getAuthType())).map(ReportAuthVo::getAuthUuid).collect(Collectors.toList());
+            List<String> teamUuidList = reportAuthList.stream().filter(o -> GroupSearch.TEAM.getValue().equals(o.getAuthType())).map(ReportAuthVo::getAuthUuid).collect(Collectors.toList());
+            List<String> roleUuidList = reportAuthList.stream().filter(o -> GroupSearch.ROLE.getValue().equals(o.getAuthType())).map(ReportAuthVo::getAuthUuid).collect(Collectors.toList());
+            reportAuthList.clear();
+            if (CollectionUtils.isNotEmpty(userUuidList)) {
+                List<String> existUserUuidList = userMapper.checkUserUuidListIsExists(userUuidList, null);
+                for (String uuid : existUserUuidList) {
+                    reportAuthList.add(new ReportAuthVo(reportVo.getId(), GroupSearch.USER.getValue(), uuid));
                 }
-                if (!authTargetExist) {
-                    iterator.remove();
+            }
+            if (CollectionUtils.isNotEmpty(teamUuidList)) {
+                List<String> existTeamUuidList = teamMapper.checkTeamUuidListIsExists(teamUuidList);
+                for (String uuid : existTeamUuidList) {
+                    reportAuthList.add(new ReportAuthVo(reportVo.getId(), GroupSearch.TEAM.getValue(), uuid));
+                }
+            }
+            if (CollectionUtils.isNotEmpty(roleUuidList)) {
+                List<String> existRoleUuidList = roleMapper.checkRoleUuidListIsExists(roleUuidList);
+                for (String uuid : existRoleUuidList) {
+                    reportAuthList.add(new ReportAuthVo(reportVo.getId(), GroupSearch.ROLE.getValue(), uuid));
                 }
             }
         }
