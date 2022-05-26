@@ -51,17 +51,22 @@ public class GetReportTypeApi extends PrivateApiComponentBase {
     public Object myDoService(JSONObject jsonObj) throws Exception {
         JSONArray returnList = new JSONArray();
         List<ReportTypeVo> reportTypeList = reportMapper.getAllReportType();
+        int reportCount = 0;
+        JSONObject all = new JSONObject();
+        all.put("label", "所有");
+        all.put("name", "all");
+        all.put("id", "all");
+        returnList.add(all);
         for (ReportTypeVo reportTypeVo : reportTypeList) {
             JSONObject obj = new JSONObject();
-            if (reportTypeVo.getReportCount() > 0) {
-                obj.put("label", reportTypeVo.getLabel() + "(" + reportTypeVo.getReportCount() + ")");
-            } else {
-                obj.put("label", reportTypeVo.getLabel());
-            }
+            obj.put("label", reportTypeVo.getLabel());
             obj.put("name", reportTypeVo.getName());
             obj.put("id", reportTypeVo.getName());
+            obj.put("count", reportTypeVo.getReportCount());
             returnList.add(obj);
+            reportCount += reportTypeVo.getReportCount();
         }
+        all.put("count", reportCount);
         return returnList;
     }
 }

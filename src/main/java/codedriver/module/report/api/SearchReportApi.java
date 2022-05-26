@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 
 @AuthAction(action = REPORT_MODIFY.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
@@ -57,6 +58,9 @@ public class SearchReportApi extends PrivateApiComponentBase {
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
         ReportVo reportVo = JSONObject.toJavaObject(jsonObj, ReportVo.class);
+        if (Objects.equals(reportVo.getType(), "all")) {
+            reportVo.setType(null);
+        }
         List<ReportVo> reportList = reportMapper.searchReport(reportVo);
         JSONObject returnObj = new JSONObject();
         returnObj.put("tbodyList", reportList);
