@@ -52,6 +52,11 @@ public class GetReportTypeApi extends PrivateApiComponentBase {
         JSONArray returnList = new JSONArray();
         List<ReportTypeVo> reportTypeList = reportMapper.getAllReportType();
         int reportCount = 0;
+        JSONObject all = new JSONObject();
+        all.put("label", "所有");
+        all.put("name", "all");
+        all.put("id", "all");
+        returnList.add(all);
         for (ReportTypeVo reportTypeVo : reportTypeList) {
             JSONObject obj = new JSONObject();
             obj.put("label", reportTypeVo.getLabel());
@@ -61,12 +66,7 @@ public class GetReportTypeApi extends PrivateApiComponentBase {
             returnList.add(obj);
             reportCount += reportTypeVo.getReportCount();
         }
-        JSONObject obj = new JSONObject();
-        obj.put("label", "所有");
-        obj.put("name", "all");
-        obj.put("id", "all");
-        obj.put("count", reportCount);
-        returnList.add(obj);
+        all.put("count", reportCount);
         return returnList;
     }
 }
