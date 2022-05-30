@@ -185,7 +185,6 @@ public class DrawTable implements TemplateMethodModelEx {
             sb.append("});");
             sb.append("</script>");
         }
-//        sb.append("<div><div class=\"tstable-page text-right\"><ul class=\"ivu-page mini\"><span class=\"ivu-page-total\">共 31 条</span><li title=\"上一页\" class=\"ivu-page-prev ivu-page-disabled\"><a><i class=\"ivu-icon ivu-icon-ios-arrow-back\"></i></a></li><li title=\"1\" class=\"ivu-page-item ivu-page-item-active\"><a>1</a></li><li title=\"2\" class=\"ivu-page-item\"><a>2</a></li><li title=\"下一页\" class=\"ivu-page-next\"><a><i class=\"ivu-icon ivu-icon-ios-arrow-forward\"></i></a></li><div class=\"ivu-page-options\"><div class=\"ivu-page-options-sizer\"><div class=\"ivu-select ivu-select-single ivu-select-small\"><div tabindex=\"0\" class=\"ivu-select-selection\"><input type=\"hidden\" value=\"20\"><div class=\"\"><span class=\"ivu-select-selected-value\">20 条/页</span><i class=\"ivu-icon ivu-icon-ios-arrow-down ivu-select-arrow\"></i></div></div></div></div></div></ul></div></div>");
         sb.append("</div>");
         return sb.toString();
     }

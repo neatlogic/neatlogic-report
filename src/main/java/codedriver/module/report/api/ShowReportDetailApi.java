@@ -85,7 +85,7 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             if (reportVo == null) {
                 throw new ReportNotFoundException(reportId);
             }
-            List<SqlInfo> needPageTableList = getNeedPageTableList(reportVo.getContent());
+            List<SqlInfo> tableList = getTableList(reportVo.getContent());
             //out.write("<!DOCTYPE HTML>");
             //out.write("<html lang=\"en\">");
             //out.write("<head>");
@@ -97,7 +97,7 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             Map<String, Long> timeMap = new HashMap<>();
             boolean isFirst = request.getHeader("referer") == null || !request.getHeader("referer").contains("report-show/" + reportId);
 //            Map<String, Object> returnMap = reportService.getQueryResult(reportId, paramObj, timeMap, isFirst, showColumnsMap);
-            Map<String, Object> returnMap = reportService.getQuerySqlResult(reportVo, paramObj, isFirst, showColumnsMap, needPageTableList);
+            Map<String, Object> returnMap = reportService.getQuerySqlResult(reportVo, paramObj, isFirst, showColumnsMap, tableList);
             Map<String, Object> tmpMap = new HashMap<>();
             Map<String, Object> commonMap = new HashMap<>();
             tmpMap.put("report", returnMap);
@@ -115,7 +115,7 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
         return null;
     }
 
-    private List<SqlInfo> getNeedPageTableList(String content) {
+    private List<SqlInfo> getTableList(String content) {
         List<SqlInfo> sqlInfoList = new ArrayList<>();
         Matcher matcher = pattern.matcher(content);
         while(matcher.find()) {

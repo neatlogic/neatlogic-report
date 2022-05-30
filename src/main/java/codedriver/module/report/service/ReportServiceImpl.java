@@ -439,12 +439,12 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public Map<String, Object> getQuerySqlResult(ReportVo reportVo, JSONObject paramMap, boolean isFirst, Map<String, List<String>> showColumnsMap, List<SqlInfo> needPageTableList) {
+    public Map<String, Object> getQuerySqlResult(ReportVo reportVo, JSONObject paramMap, boolean isFirst, Map<String, List<String>> showColumnsMap, List<SqlInfo> tableList) {
         Map<String, Object> resultMap = new HashMap<>();
         SqlRunner sqlRunner = new SqlRunner(reportVo.getSql(), "reportId_" + reportVo.getId());
         List<SqlInfo> sqlInfoList = sqlRunner.getAllSqlInfoList(paramMap);
         for (SqlInfo sqlInfo : sqlInfoList) {
-            for (SqlInfo needPageTable : needPageTableList) {
+            for (SqlInfo needPageTable : tableList) {
                 if (Objects.equals(sqlInfo.getId(), needPageTable.getId())) {
                     sqlInfo.setNeedPage(needPageTable.getNeedPage());
                     sqlInfo.setPageSize(needPageTable.getPageSize());
