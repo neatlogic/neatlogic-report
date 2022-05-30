@@ -10,6 +10,7 @@ import freemarker.template.SimpleHash;
 import freemarker.template.SimpleSequence;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -20,10 +21,13 @@ public class DrawTable implements TemplateMethodModelEx {
     //过滤条件
     private JSONObject filter;
 
+    private Map<String, Map<String, Object>> pageMap;
+
     public DrawTable() {}
 
-    public DrawTable(JSONObject filter) {
+    public DrawTable(JSONObject filter, Map<String, Map<String, Object>> pageMap) {
         this.filter = filter;
+        this.pageMap = pageMap;
     }
 
     public JSONObject getFilter() {
@@ -37,10 +41,18 @@ public class DrawTable implements TemplateMethodModelEx {
         this.filter = filter;
     }
 
+    public Map<String, Map<String, Object>> getPageMap() {
+        return pageMap;
+    }
+
+    public void setPageMap(Map<String, Map<String, Object>> pageMap) {
+        this.pageMap = pageMap;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
-        String title = null, header = null, column = null;
+        String title = null, header = null, column = null, id = null;
         Boolean needPage = null;
         SimpleSequence ss = null;
         List<String> keyList = new ArrayList<>();
@@ -64,6 +76,7 @@ public class DrawTable implements TemplateMethodModelEx {
             String config = arguments.get(1).toString();
             try {
                 JSONObject configObj = JSONObject.parseObject(config);
+                id = configObj.getString("id");
                 title = configObj.getString("title");
                 header = configObj.getString("header");
                 column = configObj.getString("column");
@@ -73,22 +86,18 @@ public class DrawTable implements TemplateMethodModelEx {
             }
         }
         needPage = needPage == null ? false : needPage;
-        Integer currentPage = null;
-        Integer pageSize = null;
-        Integer pageCount = null;
-        Integer rowNum = null;
-        String tableId = null;
+        Integer currentPage = 1;
+        Integer pageSize = 20;
+        Integer pageCount = 0;
+        Integer rowNum = 0;
         if (needPage) {
-            if (arguments.size() >= 3) {
-                Object obj = arguments.get(2);
-                if (obj != null) {
-                    SimpleHash sh = (SimpleHash) obj;
-                    Map<String, Object> basePageMap = sh.toMap();
+            if (MapUtils.isNotEmpty(pageMap)) {
+                Map<String, Object> basePageMap = pageMap.get(id);
+                if (MapUtils.isNotEmpty(basePageMap)) {
                     currentPage = (Integer) basePageMap.get("currentPage");
                     pageSize = (Integer) basePageMap.get("pageSize");
                     pageCount = (Integer) basePageMap.get("pageCount");
                     rowNum = (Integer) basePageMap.get("rowNum");
-                    tableId = (String) basePageMap.get("tableId");
                     currentPage = currentPage == null ? 1 : currentPage;
                     pageSize = pageSize == null ? 20 : pageSize;
                     pageCount = pageCount == null ? 0 : pageCount;
@@ -97,7 +106,7 @@ public class DrawTable implements TemplateMethodModelEx {
             }
         }
         StringBuilder sb = new StringBuilder();
-        sb.append("<div id=\"" + tableId + "\" class=\"ivu-card ivu-card-dis-hover ivu-card-shadow\">");
+        sb.append("<div id=\"" + id + "\" class=\"ivu-card ivu-card-dis-hover ivu-card-shadow\">");
         if (StringUtils.isNotBlank(title)) {
             sb.append("<div class=\"ivu-card-head\">").append(title).append("</div>");
         }
@@ -143,7 +152,7 @@ public class DrawTable implements TemplateMethodModelEx {
         sb.append("</table></div></div>");
 
         if (needPage) {
-            sb.append("<div><div class='tstable-page text-right'><ul tableid='" + tableId + "' class='ivu-page mini'><span class='ivu-page-total'>共 ");
+            sb.append("<div><div class='tstable-page text-right'><ul tableid='" + id + "' class='ivu-page mini'><span class='ivu-page-total'>共 ");
             sb.append(rowNum);
             sb.append(" 条</span>");
             int prevPage = currentPage - 1;

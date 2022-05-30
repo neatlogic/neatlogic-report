@@ -137,7 +137,15 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             beginIndex = e.indexOf("needPage", endIndex);
             if (beginIndex != -1) {
                 beginIndex += "needPage".length();
-                endIndex = e.indexOf(",", beginIndex);
+                int index1 = e.indexOf(",", beginIndex);
+                int index2 = e.indexOf("}", beginIndex);
+                if (index1 == -1) {
+                    endIndex = index2;
+                } else if (index2 == -1) {
+                    endIndex = index1;
+                } else {
+                    endIndex = Math.min(index1, index2);
+                }
                 String needPage = e.substring(beginIndex, endIndex);
                 needPage = needPage.trim();
                 if (needPage.startsWith(":")) {
@@ -155,7 +163,15 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             beginIndex = e.indexOf("pageSize", endIndex);
             if (beginIndex != -1) {
                 beginIndex += "pageSize".length();
-                endIndex = e.indexOf(",", beginIndex);
+                int index1 = e.indexOf(",", beginIndex);
+                int index2 = e.indexOf("}", beginIndex);
+                if (index1 == -1) {
+                    endIndex = index2;
+                } else if (index2 == -1) {
+                    endIndex = index1;
+                } else {
+                    endIndex = Math.min(index1, index2);
+                }
                 String pageSize = e.substring(beginIndex, endIndex);
                 pageSize = pageSize.trim();
                 if (pageSize.startsWith(":")) {

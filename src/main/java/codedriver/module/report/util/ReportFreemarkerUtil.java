@@ -7,6 +7,7 @@ import freemarker.cache.StringTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,6 +18,7 @@ import javax.script.ScriptException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -43,6 +45,14 @@ public class ReportFreemarkerUtil {
 
 	public static void getFreemarkerContent(Map<String, Object> paramMap, JSONObject filter, String content, Writer out) throws Exception {
 		if (StringUtils.isNotBlank(content)) {
+			Map<String, Map<String, Object>> pageMap = new HashMap<>();
+			Map<String, Object> reportMap = (Map<String, Object>) paramMap.get("report");
+			if (MapUtils.isNotEmpty(reportMap)) {
+				Map<String, Map<String, Object>> page = (Map<String, Map<String, Object>>) reportMap.get("page");
+				if (MapUtils.isNotEmpty(page)) {
+					pageMap = page;
+				}
+			}
 			Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 			cfg.setNumberFormat("0.##");
 			cfg.setClassicCompatible(true);
@@ -50,7 +60,7 @@ public class ReportFreemarkerUtil {
 			stringLoader.putTemplate("template", content);
 			cfg.setTemplateLoader(stringLoader);
 			Template temp;
-			paramMap.put("drawTable", new DrawTable(filter));
+			paramMap.put("drawTable", new DrawTable(filter, pageMap));
 			paramMap.put("drawBar", new DrawBar(ActionType.VIEW.getValue()));
 			paramMap.put("drawBarH", new DrawBarH(ActionType.VIEW.getValue()));
 			paramMap.put("drawLine", new DrawLine(ActionType.VIEW.getValue()));
