@@ -120,7 +120,6 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
         Matcher matcher = pattern.matcher(content);
         while(matcher.find()) {
             String e = matcher.group();
-            System.out.println("e=" + e);
             int beginIndex = e.indexOf("report.");
             if (beginIndex == -1) {
                 continue;
@@ -128,7 +127,6 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             beginIndex += "report.".length();
             int endIndex = e.indexOf(",", beginIndex);
             String tableId = e.substring(beginIndex, endIndex);
-            System.out.println("tableId=" + tableId);
             if (StringUtils.isBlank(tableId)) {
                 continue;
             }
@@ -149,7 +147,6 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
                     needPage = needPage.substring(0, needPage.length() - 1);
                 }
                 needPage = needPage.trim();
-                System.out.println("needPage=" + needPage);
                 if ("true".equals(needPage)) {
                     sqlInfo.setNeedPage(true);
                 }
@@ -168,7 +165,6 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
                     pageSize = pageSize.substring(0, pageSize.length() - 1);
                 }
                 pageSize = pageSize.trim();
-                System.out.println("pageSize=" + pageSize);
                 if (StringUtils.isNotBlank(pageSize)) {
                     sqlInfo.setPageSize(Integer.parseInt(pageSize));
                 }
