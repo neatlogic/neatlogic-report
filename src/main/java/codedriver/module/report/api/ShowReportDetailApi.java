@@ -13,26 +13,32 @@ import codedriver.framework.restful.annotation.OperationType;
 import codedriver.framework.restful.annotation.Param;
 import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
+import codedriver.framework.sqlrunner.SqlInfo;
 import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportVo;
 import codedriver.module.report.service.ReportService;
 import codedriver.module.report.util.ReportFreemarkerUtil;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @AuthAction(action = REPORT_BASE.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
 @Service
 public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
+    /**
+     * 匹配表格
+     */
+    private final Pattern pattern = Pattern.compile("\\$\\{drawTable\\(.*\\)\\}");
 
     @Resource
     private ReportMapper reportMapper;
@@ -62,6 +68,8 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
     @Description(desc = "展示报表接口")
     @Override
     public Object myDoService(JSONObject paramObj, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        JSONObject filter = new JSONObject();
+        filter.putAll(paramObj);
         Long reportId = paramObj.getLong("id");
         Long reportInstanceId = paramObj.getLong("reportInstanceId");
         // 统计使用次数
@@ -77,6 +85,7 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             if (reportVo == null) {
                 throw new ReportNotFoundException(reportId);
             }
+            List<SqlInfo> needPageTableList = getNeedPageTableList(reportVo.getContent());
             //out.write("<!DOCTYPE HTML>");
             //out.write("<html lang=\"en\">");
             //out.write("<head>");
@@ -88,15 +97,16 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             Map<String, Long> timeMap = new HashMap<>();
             boolean isFirst = request.getHeader("referer") == null || !request.getHeader("referer").contains("report-show/" + reportId);
 //            Map<String, Object> returnMap = reportService.getQueryResult(reportId, paramObj, timeMap, isFirst, showColumnsMap);
-            Map<String, Object> returnMap = reportService.getQuerySqlResult(reportVo, paramObj, isFirst, showColumnsMap);
+            Map<String, Object> returnMap = reportService.getQuerySqlResult(reportVo, paramObj, isFirst, showColumnsMap, needPageTableList);
             Map<String, Object> tmpMap = new HashMap<>();
             Map<String, Object> commonMap = new HashMap<>();
             tmpMap.put("report", returnMap);
             tmpMap.put("param", paramObj);
             tmpMap.put("common", commonMap);
 
-            ReportFreemarkerUtil.getFreemarkerContent(tmpMap, reportVo.getContent(), out);
+            ReportFreemarkerUtil.getFreemarkerContent(tmpMap, filter, reportVo.getContent(), out);
         } catch (Exception ex) {
+            ex.printStackTrace();
             out.write("<div class=\"ivu-alert ivu-alert-error ivu-alert-with-icon ivu-alert-with-desc\">" + "<span class=\"ivu-alert-icon\"><i class=\"ivu-icon ivu-icon-ios-close-circle-outline\"></i></span>" + "<span class=\"ivu-alert-message\">异常：</span> <span class=\"ivu-alert-desc\"><span>" + ex.getMessage() + "</span></span></div>");
         }
         //out.write("</body></html>");
@@ -105,4 +115,65 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
         return null;
     }
 
+    private List<SqlInfo> getNeedPageTableList(String content) {
+        List<SqlInfo> sqlInfoList = new ArrayList<>();
+        Matcher matcher = pattern.matcher(content);
+        while(matcher.find()) {
+            String e = matcher.group();
+            System.out.println("e=" + e);
+            int beginIndex = e.indexOf("report.");
+            if (beginIndex == -1) {
+                continue;
+            }
+            beginIndex += "report.".length();
+            int endIndex = e.indexOf(",", beginIndex);
+            String tableId = e.substring(beginIndex, endIndex);
+            System.out.println("tableId=" + tableId);
+            if (StringUtils.isBlank(tableId)) {
+                continue;
+            }
+            SqlInfo sqlInfo = new SqlInfo();
+            sqlInfo.setId(tableId);
+            sqlInfoList.add(sqlInfo);
+            int index = endIndex;
+            beginIndex = e.indexOf("needPage", endIndex);
+            if (beginIndex != -1) {
+                beginIndex += "needPage".length();
+                endIndex = e.indexOf(",", beginIndex);
+                String needPage = e.substring(beginIndex, endIndex);
+                needPage = needPage.trim();
+                if (needPage.startsWith(":")) {
+                    needPage = needPage.substring(1);
+                }
+                if (needPage.endsWith("}")) {
+                    needPage = needPage.substring(0, needPage.length() - 1);
+                }
+                needPage = needPage.trim();
+                System.out.println("needPage=" + needPage);
+                if ("true".equals(needPage)) {
+                    sqlInfo.setNeedPage(true);
+                }
+            }
+            endIndex = index;
+            beginIndex = e.indexOf("pageSize", endIndex);
+            if (beginIndex != -1) {
+                beginIndex += "pageSize".length();
+                endIndex = e.indexOf(",", beginIndex);
+                String pageSize = e.substring(beginIndex, endIndex);
+                pageSize = pageSize.trim();
+                if (pageSize.startsWith(":")) {
+                    pageSize = pageSize.substring(1);
+                }
+                if (pageSize.endsWith("}")) {
+                    pageSize = pageSize.substring(0, pageSize.length() - 1);
+                }
+                pageSize = pageSize.trim();
+                System.out.println("pageSize=" + pageSize);
+                if (StringUtils.isNotBlank(pageSize)) {
+                    sqlInfo.setPageSize(Integer.parseInt(pageSize));
+                }
+            }
+        }
+        return sqlInfoList;
+    }
 }

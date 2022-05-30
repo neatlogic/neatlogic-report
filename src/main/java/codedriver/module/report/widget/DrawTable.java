@@ -17,10 +17,31 @@ import java.util.*;
 public class DrawTable implements TemplateMethodModelEx {
     // private static final Log logger = LogFactory.getLog(DrawTable.class);
 
+    //过滤条件
+    private JSONObject filter;
+
+    public DrawTable() {}
+
+    public DrawTable(JSONObject filter) {
+        this.filter = filter;
+    }
+
+    public JSONObject getFilter() {
+        if (filter == null) {
+            filter = new JSONObject();
+        }
+        return filter;
+    }
+
+    public void setFilter(JSONObject filter) {
+        this.filter = filter;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
         String title = null, header = null, column = null;
+        Boolean needPage = null;
         SimpleSequence ss = null;
         List<String> keyList = new ArrayList<>();
         List<String> headerList = new ArrayList<>();
@@ -46,14 +67,37 @@ public class DrawTable implements TemplateMethodModelEx {
                 title = configObj.getString("title");
                 header = configObj.getString("header");
                 column = configObj.getString("column");
+                needPage = configObj.getBoolean("needPage");
             } catch (Exception ex) {
                 // 非json格式
             }
         }
-
+        needPage = needPage == null ? false : needPage;
+        Integer currentPage = null;
+        Integer pageSize = null;
+        Integer pageCount = null;
+        Integer rowNum = null;
+        String tableId = null;
+        if (needPage) {
+            if (arguments.size() >= 3) {
+                Object obj = arguments.get(2);
+                if (obj != null) {
+                    SimpleHash sh = (SimpleHash) obj;
+                    Map<String, Object> basePageMap = sh.toMap();
+                    currentPage = (Integer) basePageMap.get("currentPage");
+                    pageSize = (Integer) basePageMap.get("pageSize");
+                    pageCount = (Integer) basePageMap.get("pageCount");
+                    rowNum = (Integer) basePageMap.get("rowNum");
+                    tableId = (String) basePageMap.get("tableId");
+                    currentPage = currentPage == null ? 1 : currentPage;
+                    pageSize = pageSize == null ? 20 : pageSize;
+                    pageCount = pageCount == null ? 0 : pageCount;
+                    rowNum = rowNum == null ? 0 : rowNum;
+                }
+            }
+        }
         StringBuilder sb = new StringBuilder();
-
-        sb.append("<div class=\"ivu-card ivu-card-dis-hover ivu-card-shadow\">");
+        sb.append("<div id=\"" + tableId + "\" class=\"ivu-card ivu-card-dis-hover ivu-card-shadow\">");
         if (StringUtils.isNotBlank(title)) {
             sb.append("<div class=\"ivu-card-head\">").append(title).append("</div>");
         }
@@ -96,7 +140,53 @@ public class DrawTable implements TemplateMethodModelEx {
         } else {
             sb.append("<tbody class=\"tbody-main\"><tr><td>无数据</td></tr></tbody>");
         }
-        sb.append("</table></div></div></div>");
+        sb.append("</table></div></div>");
+
+        if (needPage) {
+            sb.append("<div><div class='tstable-page text-right'><ul tableid='" + tableId + "' class='ivu-page mini'><span class='ivu-page-total'>共 ");
+            sb.append(rowNum);
+            sb.append(" 条</span>");
+            int prevPage = currentPage - 1;
+            sb.append("<li title='上一页' page='" + prevPage + "' class='page ivu-page-prev" + (prevPage < 1 ? " ivu-page-disabled'" : "'") + "><a><i class='ivu-icon ivu-icon-ios-arrow-back'></i></a></li>");
+            for (int i = 1; i <= pageCount; i++) {
+                sb.append("<li title='" + i + "' page='" + i + "' class='page ivu-page-item");
+                if (Objects.equals(currentPage, i)) {
+                    sb.append(" ivu-page-item-active");
+                }
+                sb.append("'><a>" + i + "</a></li>");
+            }
+            int nextPage = currentPage + 1;
+            sb.append("<li title='下一页' page='" + nextPage + "' class='page ivu-page-next" + (nextPage > pageCount ? " ivu-page-disabled'" : "'") + "><a><i class='ivu-icon ivu-icon-ios-arrow-forward'></i></a></li>");
+            sb.append("<div class='ivu-page-options'><div class='ivu-page-options-sizer'><div class='ivu-select ivu-select-single ivu-select-small'><div tabindex='0' class='ivu-select-selection'><input type='hidden' value='20'><div><span class='ivu-select-selected-value'>");
+            sb.append(pageSize);
+            sb.append(" 条/页</span><i class='ivu-icon ivu-icon-ios-arrow-down ivu-select-arrow'></i></div></div></div></div></div>");
+            sb.append("</ul></div></div>");
+            sb.append("<script>");
+            sb.append("$(function(){");
+            sb.append("$('.page').click(function(){");
+            sb.append("var pageCount = " + pageCount + ";");
+            sb.append("var currentPage = $(this).attr('page');");
+            sb.append("if (currentPage < 1 || currentPage > pageCount) { return;}");
+            sb.append("var tableId = $(this).parent().attr('tableid');");
+            sb.append("var paramObj = " + getFilter().toJSONString() + ";");
+            sb.append("paramObj.tableId = tableId;");
+            sb.append("paramObj.currentPage = currentPage;");
+            sb.append("paramObj.pageSize = " + pageSize + ";");
+            JSONObject ajaxObj = new JSONObject();
+            ajaxObj.put("url", "api/binary/report/table/get");
+            ajaxObj.put("type", "POST");
+            ajaxObj.put("contentType", "application/json");
+            ajaxObj.put("async", false);
+            sb.append("var ajax = " + ajaxObj.toJSONString() + ";");
+            sb.append("ajax.data = JSON.stringify(paramObj);");
+            sb.append("htmlobj=$.ajax(ajax);");
+            sb.append("$('#' + tableId).parent().html(htmlobj.responseText);");
+            sb.append("});");
+            sb.append("});");
+            sb.append("</script>");
+        }
+//        sb.append("<div><div class=\"tstable-page text-right\"><ul class=\"ivu-page mini\"><span class=\"ivu-page-total\">共 31 条</span><li title=\"上一页\" class=\"ivu-page-prev ivu-page-disabled\"><a><i class=\"ivu-icon ivu-icon-ios-arrow-back\"></i></a></li><li title=\"1\" class=\"ivu-page-item ivu-page-item-active\"><a>1</a></li><li title=\"2\" class=\"ivu-page-item\"><a>2</a></li><li title=\"下一页\" class=\"ivu-page-next\"><a><i class=\"ivu-icon ivu-icon-ios-arrow-forward\"></i></a></li><div class=\"ivu-page-options\"><div class=\"ivu-page-options-sizer\"><div class=\"ivu-select ivu-select-single ivu-select-small\"><div tabindex=\"0\" class=\"ivu-select-selection\"><input type=\"hidden\" value=\"20\"><div class=\"\"><span class=\"ivu-select-selected-value\">20 条/页</span><i class=\"ivu-icon ivu-icon-ios-arrow-down ivu-select-arrow\"></i></div></div></div></div></div></ul></div></div>");
+        sb.append("</div>");
         return sb.toString();
     }
 

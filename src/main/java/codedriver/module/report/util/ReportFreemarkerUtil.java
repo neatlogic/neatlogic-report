@@ -2,6 +2,7 @@ package codedriver.module.report.util;
 
 import codedriver.module.report.constvalue.ActionType;
 import codedriver.module.report.widget.*;
+import com.alibaba.fastjson.JSONObject;
 import freemarker.cache.StringTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -40,7 +41,7 @@ public class ReportFreemarkerUtil {
 	}
 
 
-	public static void getFreemarkerContent(Map<String, Object> paramMap, String content, Writer out) throws Exception {
+	public static void getFreemarkerContent(Map<String, Object> paramMap, JSONObject filter, String content, Writer out) throws Exception {
 		if (StringUtils.isNotBlank(content)) {
 			Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 			cfg.setNumberFormat("0.##");
@@ -49,7 +50,7 @@ public class ReportFreemarkerUtil {
 			stringLoader.putTemplate("template", content);
 			cfg.setTemplateLoader(stringLoader);
 			Template temp;
-			paramMap.put("drawTable", new DrawTable());
+			paramMap.put("drawTable", new DrawTable(filter));
 			paramMap.put("drawBar", new DrawBar(ActionType.VIEW.getValue()));
 			paramMap.put("drawBarH", new DrawBarH(ActionType.VIEW.getValue()));
 			paramMap.put("drawLine", new DrawLine(ActionType.VIEW.getValue()));
