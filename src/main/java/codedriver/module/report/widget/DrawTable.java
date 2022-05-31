@@ -20,7 +20,7 @@ public class DrawTable implements TemplateMethodModelEx {
 
     //过滤条件
     private JSONObject filter;
-
+    //报表中所有表格的分页信息
     private Map<String, Map<String, Object>> pageMap;
 
     public DrawTable() {}
