@@ -90,11 +90,8 @@ public class GetReportTableApi extends PrivateBinaryStreamApiComponentBase {
         Matcher matcher = pattern.matcher(content);
         while(matcher.find()) {
             String e = matcher.group();
-            int beginIndex = e.indexOf("report.");
-            beginIndex = e.indexOf(".", beginIndex);
-            int endIndex = e.indexOf(",", beginIndex);
-            String tableId2 = e.substring(beginIndex + 1, endIndex);
-            if (Objects.equals(tableId, tableId2)) {
+            String data = getFieldValue(e, "data");
+            if (Objects.equals(tableId, data)) {
                 tableContent = e;
                 break;
             }
@@ -110,14 +107,14 @@ public class GetReportTableApi extends PrivateBinaryStreamApiComponentBase {
         try {
             boolean isFirst = request.getHeader("referer") == null || !request.getHeader("referer").contains("report-show/" + reportId);
             Map<String, Object> returnMap = reportService.getQuerySqlResultById(tableId, reportVo, paramObj, showColumnsMap);
-            Map<String, Map<String, Object>> pageMap = (Map<String, Map<String, Object>>) returnMap.get("page");
+            Map<String, Map<String, Object>> pageMap = (Map<String, Map<String, Object>>) returnMap.remove("page");
             Map<String, Object> tmpMap = new HashMap<>();
             Map<String, Object> commonMap = new HashMap<>();
             tmpMap.put("report", returnMap);
             tmpMap.put("param", paramObj);
             tmpMap.put("common", commonMap);
 
-            ReportFreemarkerUtil.getFreemarkerContent(tmpMap, pageMap, filter, tableContent, out);
+            ReportFreemarkerUtil.getFreemarkerContent(tmpMap, returnMap, pageMap, filter, tableContent, out);
         } catch (Exception ex) {
             out.write("<div class=\"ivu-alert ivu-alert-error ivu-alert-with-icon ivu-alert-with-desc\">" + "<span class=\"ivu-alert-icon\"><i class=\"ivu-icon ivu-icon-ios-close-circle-outline\"></i></span>" + "<span class=\"ivu-alert-message\">异常：</span> <span class=\"ivu-alert-desc\"><span>" + ex.getMessage() + "</span></span></div>");
         }
@@ -132,4 +129,39 @@ public class GetReportTableApi extends PrivateBinaryStreamApiComponentBase {
         return null;
     }
 
+    private String getFieldValue(String str, String field) {
+        int beginIndex = str.indexOf(field);
+        if (beginIndex != -1) {
+            beginIndex += field.length();
+            int index1 = str.indexOf(",", beginIndex);
+            int index2 = str.indexOf("}", beginIndex);
+            int endIndex = -1;
+            if (index1 == -1) {
+                endIndex = index2;
+            } else if (index2 == -1) {
+                endIndex = index1;
+            } else {
+                endIndex = Math.min(index1, index2);
+            }
+            if (endIndex == -1) {
+                return null;
+            }
+            String value = str.substring(beginIndex, endIndex);
+            value = value.trim();
+            if (!value.startsWith(":")) {
+                return null;
+            }
+            value = value.substring(1);
+            value = value.trim();
+            if (value.startsWith("\"")) {
+                value = value.substring(1);
+            }
+            if (value.endsWith("\"")) {
+                value = value.substring(0, value.length() - 1);
+            }
+            value = value.trim();
+            return value;
+        }
+        return null;
+    }
 }

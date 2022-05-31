@@ -10,6 +10,7 @@ import freemarker.template.SimpleHash;
 import freemarker.template.SimpleSequence;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -23,11 +24,13 @@ public class DrawTable implements TemplateMethodModelEx {
     //报表中所有表格的分页信息
     private Map<String, Map<String, Object>> pageMap;
 
+    private Map<String, Object> reportMap;
     public DrawTable() {}
 
-    public DrawTable(JSONObject filter, Map<String, Map<String, Object>> pageMap) {
-        this.filter = filter;
+    public DrawTable(Map<String, Object> reportMap, Map<String, Map<String, Object>> pageMap, JSONObject filter) {
+        this.reportMap = reportMap;
         this.pageMap = pageMap;
+        this.filter = filter;
     }
 
     public JSONObject getFilter() {
@@ -37,52 +40,50 @@ public class DrawTable implements TemplateMethodModelEx {
         return filter;
     }
 
-    public void setFilter(JSONObject filter) {
-        this.filter = filter;
-    }
-
-    public Map<String, Map<String, Object>> getPageMap() {
-        return pageMap;
-    }
-
-    public void setPageMap(Map<String, Map<String, Object>> pageMap) {
-        this.pageMap = pageMap;
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
         String title = null, header = null, column = null, id = null;
         Boolean needPage = null;
-        SimpleSequence ss = null;
+//        SimpleSequence ss = null;
         List<String> keyList = new ArrayList<>();
         List<String> headerList = new ArrayList<>();
         List<String> columnList = new ArrayList<>();
-        if (arguments.size() >= 1) {
-            ss = arguments.get(0) instanceof SimpleSequence ? (SimpleSequence) arguments.get(0) : null;
-            if (ss != null && ss.size() > 0) {
-                // 取得第一行数据，得到表格列名
-                SimpleHash sm = (SimpleHash) ss.get(0);
-                Map<String, Object> colMap = sm.toMap();
-                for (Map.Entry<String, Object> entry : colMap.entrySet()) {
-                    if (!entry.getKey().equals("UUID")) {// UUID是系统生成字段
-                        keyList.add(entry.getKey());
-                    }
-                }
-            }
-        }
+//        if (arguments.size() >= 1) {
+//            ss = arguments.get(0) instanceof SimpleSequence ? (SimpleSequence) arguments.get(0) : null;
+//            if (ss != null && ss.size() > 0) {
+//                // 取得第一行数据，得到表格列名
+//                SimpleHash sm = (SimpleHash) ss.get(0);
+//                Map<String, Object> colMap = sm.toMap();
+//                for (Map.Entry<String, Object> entry : colMap.entrySet()) {
+//                    if (!entry.getKey().equals("UUID")) {// UUID是系统生成字段
+//                        keyList.add(entry.getKey());
+//                    }
+//                }
+//            }
+//        }
 
-        if (arguments.size() >= 2) {
-            String config = arguments.get(1).toString();
+        if (arguments.size() >= 1) {
+            String config = arguments.get(0).toString();
             try {
                 JSONObject configObj = JSONObject.parseObject(config);
-                id = configObj.getString("id");
+                id = configObj.getString("data");
                 title = configObj.getString("title");
                 header = configObj.getString("header");
                 column = configObj.getString("column");
                 needPage = configObj.getBoolean("needPage");
             } catch (Exception ex) {
                 // 非json格式
+            }
+        }
+
+        List<Map<String, Object>> tbodyList = (List<Map<String, Object>>) reportMap.get(id);
+        if (CollectionUtils.isNotEmpty(tbodyList)) {
+            Map<String, Object> tbody = tbodyList.get(0);
+            for (Map.Entry<String, Object> entry : tbody.entrySet()) {
+                if (!entry.getKey().equals("UUID")) {// UUID是系统生成字段
+                    keyList.add(entry.getKey());
+                }
             }
         }
         needPage = needPage == null ? false : needPage;
@@ -132,17 +133,14 @@ public class DrawTable implements TemplateMethodModelEx {
             sb.append("</tr></thead>");
         }
 
-        if (columnList.size() > 0 && ss != null) {
+        if (columnList.size() > 0 && tbodyList != null) {
             sb.append("<tbody class=\"tbody-main\">");
-            for (int i = 0; i < ss.size(); i++) {
-                if (ss.get(i) instanceof SimpleHash) {
-                    SimpleHash sm = (SimpleHash) ss.get(i);
-                    sb.append("<tr>");
-                    for (String col : columnList) {
-                        sb.append("<td>").append(sm.get(col)).append("</td>");
-                    }
-                    sb.append("</tr>");
+            for (Map<String, Object> tbody : tbodyList) {
+                sb.append("<tr>");
+                for (String col : columnList) {
+                    sb.append("<td>").append(tbody.get(col)).append("</td>");
                 }
+                sb.append("</tr>");
             }
             sb.append("</tbody>");
 
@@ -168,7 +166,9 @@ public class DrawTable implements TemplateMethodModelEx {
             sb.append("<li title='下一页' page='" + nextPage + "' class='page ivu-page-next" + (nextPage > pageCount ? " ivu-page-disabled'" : "'") + "><a><i class='ivu-icon ivu-icon-ios-arrow-forward'></i></a></li>");
             sb.append("<div class='ivu-page-options'><div class='ivu-page-options-sizer'><div class='ivu-select ivu-select-single ivu-select-small'><div tabindex='0' class='ivu-select-selection'><input type='hidden' value='20'><div><span class='ivu-select-selected-value'>");
             sb.append(pageSize);
-            sb.append(" 条/页</span><i class='ivu-icon ivu-icon-ios-arrow-down ivu-select-arrow'></i></div></div></div></div></div>");
+            sb.append(" 条/页</span>");
+//            sb.append("<i class='ivu-icon ivu-icon-ios-arrow-down ivu-select-arrow'></i>");
+            sb.append("</div></div></div></div></div>");
             sb.append("</ul></div></div>");
             sb.append("<script>");
             sb.append("$(function(){");

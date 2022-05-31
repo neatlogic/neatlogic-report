@@ -43,7 +43,7 @@ public class ReportFreemarkerUtil {
 	}
 
 
-	public static void getFreemarkerContent(Map<String, Object> paramMap, Map<String, Map<String, Object>> pageMap, JSONObject filter, String content, Writer out) throws Exception {
+	public static void getFreemarkerContent(Map<String, Object> paramMap, Map<String, Object> reportMap, Map<String, Map<String, Object>> pageMap, JSONObject filter, String content, Writer out) throws Exception {
 		if (StringUtils.isNotBlank(content)) {
 			Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 			cfg.setNumberFormat("0.##");
@@ -52,7 +52,7 @@ public class ReportFreemarkerUtil {
 			stringLoader.putTemplate("template", content);
 			cfg.setTemplateLoader(stringLoader);
 			Template temp;
-			paramMap.put("drawTable", new DrawTable(filter, pageMap));
+			paramMap.put("drawTable", new DrawTable(reportMap, pageMap, filter));
 			paramMap.put("drawBar", new DrawBar(ActionType.VIEW.getValue()));
 			paramMap.put("drawBarH", new DrawBarH(ActionType.VIEW.getValue()));
 			paramMap.put("drawLine", new DrawLine(ActionType.VIEW.getValue()));

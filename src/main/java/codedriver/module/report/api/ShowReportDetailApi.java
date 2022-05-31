@@ -99,14 +99,14 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             boolean isFirst = request.getHeader("referer") == null || !request.getHeader("referer").contains("report-show/" + reportId);
 //            Map<String, Object> returnMap = reportService.getQueryResult(reportId, paramObj, timeMap, isFirst, showColumnsMap);
             Map<String, Object> returnMap = reportService.getQuerySqlResult(reportVo, paramObj, isFirst, showColumnsMap, tableList);
-            Map<String, Map<String, Object>> pageMap = (Map<String, Map<String, Object>>) returnMap.get("page");
+            Map<String, Map<String, Object>> pageMap = (Map<String, Map<String, Object>>) returnMap.remove("page");
             Map<String, Object> tmpMap = new HashMap<>();
             Map<String, Object> commonMap = new HashMap<>();
-            tmpMap.put("report", returnMap);
+//            tmpMap.put("report", returnMap);
             tmpMap.put("param", paramObj);
             tmpMap.put("common", commonMap);
 
-            ReportFreemarkerUtil.getFreemarkerContent(tmpMap, pageMap, filter, reportVo.getContent(), out);
+            ReportFreemarkerUtil.getFreemarkerContent(tmpMap, returnMap, pageMap, filter, reportVo.getContent(), out);
         } catch (Exception ex) {
             ex.printStackTrace();
             out.write("<div class=\"ivu-alert ivu-alert-error ivu-alert-with-icon ivu-alert-with-desc\">" + "<span class=\"ivu-alert-icon\"><i class=\"ivu-icon ivu-icon-ios-close-circle-outline\"></i></span>" + "<span class=\"ivu-alert-message\">异常：</span> <span class=\"ivu-alert-desc\"><span>" + ex.getMessage() + "</span></span></div>");
@@ -122,72 +122,58 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
         Matcher matcher = pattern.matcher(content);
         while(matcher.find()) {
             String e = matcher.group();
-            int beginIndex = e.indexOf("report.");
-            if (beginIndex == -1) {
-                continue;
-            }
-            beginIndex += "report.".length();
-            int endIndex = e.indexOf(",", beginIndex);
-            String tableId = e.substring(beginIndex, endIndex);
+            String tableId = getFieldValue(e, "data");
             if (StringUtils.isBlank(tableId)) {
                 continue;
             }
             SqlInfo sqlInfo = new SqlInfo();
             sqlInfo.setId(tableId);
             sqlInfoList.add(sqlInfo);
-            int index = endIndex;
-            beginIndex = e.indexOf("needPage", endIndex);
-            if (beginIndex != -1) {
-                beginIndex += "needPage".length();
-                int index1 = e.indexOf(",", beginIndex);
-                int index2 = e.indexOf("}", beginIndex);
-                if (index1 == -1) {
-                    endIndex = index2;
-                } else if (index2 == -1) {
-                    endIndex = index1;
-                } else {
-                    endIndex = Math.min(index1, index2);
-                }
-                String needPage = e.substring(beginIndex, endIndex);
-                needPage = needPage.trim();
-                if (needPage.startsWith(":")) {
-                    needPage = needPage.substring(1);
-                }
-                if (needPage.endsWith("}")) {
-                    needPage = needPage.substring(0, needPage.length() - 1);
-                }
-                needPage = needPage.trim();
-                if ("true".equals(needPage)) {
-                    sqlInfo.setNeedPage(true);
-                }
+            String needPage = getFieldValue(e, "needPage");
+            if ("true".equals(needPage)) {
+                sqlInfo.setNeedPage(true);
             }
-            endIndex = index;
-            beginIndex = e.indexOf("pageSize", endIndex);
-            if (beginIndex != -1) {
-                beginIndex += "pageSize".length();
-                int index1 = e.indexOf(",", beginIndex);
-                int index2 = e.indexOf("}", beginIndex);
-                if (index1 == -1) {
-                    endIndex = index2;
-                } else if (index2 == -1) {
-                    endIndex = index1;
-                } else {
-                    endIndex = Math.min(index1, index2);
-                }
-                String pageSize = e.substring(beginIndex, endIndex);
-                pageSize = pageSize.trim();
-                if (pageSize.startsWith(":")) {
-                    pageSize = pageSize.substring(1);
-                }
-                if (pageSize.endsWith("}")) {
-                    pageSize = pageSize.substring(0, pageSize.length() - 1);
-                }
-                pageSize = pageSize.trim();
-                if (StringUtils.isNotBlank(pageSize)) {
-                    sqlInfo.setPageSize(Integer.parseInt(pageSize));
-                }
+            String pageSize = getFieldValue(e, "pageSize");
+            if (StringUtils.isNotBlank(pageSize)) {
+                sqlInfo.setPageSize(Integer.parseInt(pageSize));
             }
         }
         return sqlInfoList;
+    }
+
+    private String getFieldValue(String str, String field) {
+        int beginIndex = str.indexOf(field);
+        if (beginIndex != -1) {
+            beginIndex += field.length();
+            int index1 = str.indexOf(",", beginIndex);
+            int index2 = str.indexOf("}", beginIndex);
+            int endIndex = -1;
+            if (index1 == -1) {
+                endIndex = index2;
+            } else if (index2 == -1) {
+                endIndex = index1;
+            } else {
+                endIndex = Math.min(index1, index2);
+            }
+            if (endIndex == -1) {
+                return null;
+            }
+            String value = str.substring(beginIndex, endIndex);
+            value = value.trim();
+            if (!value.startsWith(":")) {
+                return null;
+            }
+            value = value.substring(1);
+            value = value.trim();
+            if (value.startsWith("\"")) {
+                value = value.substring(1);
+            }
+            if (value.endsWith("\"")) {
+                value = value.substring(0, value.length() - 1);
+            }
+            value = value.trim();
+            return value;
+        }
+        return null;
     }
 }
