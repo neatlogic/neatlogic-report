@@ -20,6 +20,7 @@ import codedriver.module.report.dto.ReportVo;
 import codedriver.module.report.service.ReportService;
 import codedriver.module.report.util.ReportFreemarkerUtil;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -98,13 +99,14 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             boolean isFirst = request.getHeader("referer") == null || !request.getHeader("referer").contains("report-show/" + reportId);
 //            Map<String, Object> returnMap = reportService.getQueryResult(reportId, paramObj, timeMap, isFirst, showColumnsMap);
             Map<String, Object> returnMap = reportService.getQuerySqlResult(reportVo, paramObj, isFirst, showColumnsMap, tableList);
+            Map<String, Map<String, Object>> pageMap = (Map<String, Map<String, Object>>) returnMap.get("page");
             Map<String, Object> tmpMap = new HashMap<>();
             Map<String, Object> commonMap = new HashMap<>();
             tmpMap.put("report", returnMap);
             tmpMap.put("param", paramObj);
             tmpMap.put("common", commonMap);
 
-            ReportFreemarkerUtil.getFreemarkerContent(tmpMap, filter, reportVo.getContent(), out);
+            ReportFreemarkerUtil.getFreemarkerContent(tmpMap, pageMap, filter, reportVo.getContent(), out);
         } catch (Exception ex) {
             ex.printStackTrace();
             out.write("<div class=\"ivu-alert ivu-alert-error ivu-alert-with-icon ivu-alert-with-desc\">" + "<span class=\"ivu-alert-icon\"><i class=\"ivu-icon ivu-icon-ios-close-circle-outline\"></i></span>" + "<span class=\"ivu-alert-message\">异常：</span> <span class=\"ivu-alert-desc\"><span>" + ex.getMessage() + "</span></span></div>");

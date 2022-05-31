@@ -43,16 +43,8 @@ public class ReportFreemarkerUtil {
 	}
 
 
-	public static void getFreemarkerContent(Map<String, Object> paramMap, JSONObject filter, String content, Writer out) throws Exception {
+	public static void getFreemarkerContent(Map<String, Object> paramMap, Map<String, Map<String, Object>> pageMap, JSONObject filter, String content, Writer out) throws Exception {
 		if (StringUtils.isNotBlank(content)) {
-			Map<String, Map<String, Object>> pageMap = new HashMap<>();
-			Map<String, Object> reportMap = (Map<String, Object>) paramMap.get("report");
-			if (MapUtils.isNotEmpty(reportMap)) {
-				Map<String, Map<String, Object>> page = (Map<String, Map<String, Object>>) reportMap.get("page");
-				if (MapUtils.isNotEmpty(page)) {
-					pageMap = page;
-				}
-			}
 			Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 			cfg.setNumberFormat("0.##");
 			cfg.setClassicCompatible(true);

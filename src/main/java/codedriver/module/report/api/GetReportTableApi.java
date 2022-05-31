@@ -90,12 +90,10 @@ public class GetReportTableApi extends PrivateBinaryStreamApiComponentBase {
         Matcher matcher = pattern.matcher(content);
         while(matcher.find()) {
             String e = matcher.group();
-            System.out.println("e=" + e);
             int beginIndex = e.indexOf("report.");
             beginIndex = e.indexOf(".", beginIndex);
             int endIndex = e.indexOf(",", beginIndex);
             String tableId2 = e.substring(beginIndex + 1, endIndex);
-            System.out.println("tableId=" + tableId);
             if (Objects.equals(tableId, tableId2)) {
                 tableContent = e;
                 break;
@@ -112,13 +110,14 @@ public class GetReportTableApi extends PrivateBinaryStreamApiComponentBase {
         try {
             boolean isFirst = request.getHeader("referer") == null || !request.getHeader("referer").contains("report-show/" + reportId);
             Map<String, Object> returnMap = reportService.getQuerySqlResultById(tableId, reportVo, paramObj, showColumnsMap);
+            Map<String, Map<String, Object>> pageMap = (Map<String, Map<String, Object>>) returnMap.get("page");
             Map<String, Object> tmpMap = new HashMap<>();
             Map<String, Object> commonMap = new HashMap<>();
             tmpMap.put("report", returnMap);
             tmpMap.put("param", paramObj);
             tmpMap.put("common", commonMap);
 
-            ReportFreemarkerUtil.getFreemarkerContent(tmpMap, filter, tableContent, out);
+            ReportFreemarkerUtil.getFreemarkerContent(tmpMap, pageMap, filter, tableContent, out);
         } catch (Exception ex) {
             out.write("<div class=\"ivu-alert ivu-alert-error ivu-alert-with-icon ivu-alert-with-desc\">" + "<span class=\"ivu-alert-icon\"><i class=\"ivu-icon ivu-icon-ios-close-circle-outline\"></i></span>" + "<span class=\"ivu-alert-message\">异常：</span> <span class=\"ivu-alert-desc\"><span>" + ex.getMessage() + "</span></span></div>");
         }
