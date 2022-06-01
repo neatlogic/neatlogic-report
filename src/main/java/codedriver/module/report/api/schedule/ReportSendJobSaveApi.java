@@ -10,20 +10,21 @@ import codedriver.framework.asynchronization.threadlocal.UserContext;
 import codedriver.framework.auth.core.AuthAction;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.dto.FieldValidResultVo;
-import codedriver.framework.restful.constvalue.OperationTypeEnum;
+import codedriver.framework.report.exception.ReportSendJobNameRepeatException;
 import codedriver.framework.restful.annotation.*;
+import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.core.IValid;
 import codedriver.framework.restful.core.privateapi.PrivateApiComponentBase;
 import codedriver.framework.scheduler.core.IJob;
 import codedriver.framework.scheduler.core.SchedulerManager;
 import codedriver.framework.scheduler.dto.JobObject;
 import codedriver.framework.scheduler.exception.ScheduleIllegalParameterException;
+import codedriver.framework.util.RegexUtils;
 import codedriver.module.report.auth.label.REPORT_MODIFY;
 import codedriver.module.report.dao.mapper.ReportSendJobMapper;
 import codedriver.module.report.dto.ReportReceiverVo;
 import codedriver.module.report.dto.ReportSendJobRelationVo;
 import codedriver.module.report.dto.ReportSendJobVo;
-import codedriver.framework.report.exception.ReportSendJobNameRepeatException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -69,7 +70,7 @@ public class ReportSendJobSaveApi extends PrivateApiComponentBase {
 
 	@Input({
 			@Param(name = "id", type = ApiParamType.LONG, desc = "报表发送计划ID"),
-			@Param(name = "name", type = ApiParamType.REGEX, rule = "^[A-Za-z_\\d\\u4e00-\\u9fa5]+$", isRequired = true, xss = true, desc = "报表发送计划名称"),
+			@Param(name = "name", type = ApiParamType.REGEX, rule = RegexUtils.NAME, isRequired = true, xss = true, desc = "报表发送计划名称"),
 			@Param(name = "emailTitle", type = ApiParamType.STRING, isRequired = true, xss = true,desc = "邮件标题"),
 			@Param(name = "emailContent", type = ApiParamType.STRING, desc = "邮件正文"),
 			@Param(name = "cron", type = ApiParamType.STRING, isRequired = true, desc = "corn表达式"),
