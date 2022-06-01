@@ -9,6 +9,7 @@ import codedriver.module.report.util.JfreeChartUtil;
 import codedriver.module.report.util.JfreeChartUtil.ChartColor;
 import com.alibaba.fastjson.JSONObject;
 import freemarker.template.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfree.chart.ChartFactory;
@@ -25,12 +26,16 @@ import java.awt.*;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
+import java.util.Map;
 
 public class DrawPie implements TemplateMethodModelEx {
 	private static final Log logger = LogFactory.getLog(DrawPie.class);
 	private final String actionType;
+	//报表中所有数据源
+	private Map<String, Object> reportMap;
 
-	public DrawPie(String actionType) {
+	public DrawPie(Map<String, Object> reportMap, String actionType) {
+		this.reportMap = reportMap;
 		this.actionType = actionType;
 	}
 
@@ -40,28 +45,13 @@ public class DrawPie implements TemplateMethodModelEx {
 		int width = 500;
 		int height = 500;
 		DefaultPieDataset dataset = new DefaultPieDataset();
-		String title = "";
-		if (arguments.size() >= 1) {
-			if (arguments.get(0) instanceof SimpleSequence) {
-				SimpleSequence ss = (SimpleSequence) arguments.get(0);
-				for (int i = 0; i < ss.size(); i++) {
-					SimpleHash sm = (SimpleHash) ss.get(i);
-					if (sm.get("typeField") != null && sm.get("valueField") != null) {
-						SimpleNumber v = (SimpleNumber) sm.get("valueField");
-						dataset.setValue(sm.get("typeField").toString(), v.getAsNumber());
-					}
-				}
-			} else {
-				canReturn = false;
-			}
-		} else {
-			canReturn = false;
-		}
+		String title = "", data = "";
 
-		if (arguments.size() >= 2) {
-			String config = arguments.get(1).toString();
+		if (arguments.size() >= 1) {
+			String config = arguments.get(0).toString();
 			try {
 				JSONObject configObj = JSONObject.parseObject(config);
+				data = configObj.getString("data");
 				title = configObj.getString("title");
 				if (configObj.getIntValue("width") > 0) {
 					width = configObj.getIntValue("width");
@@ -75,6 +65,18 @@ public class DrawPie implements TemplateMethodModelEx {
 			}
 		}
 
+		List<Map<String, Object>> tbodyList = (List<Map<String, Object>>) reportMap.get(data);
+		if (CollectionUtils.isNotEmpty(tbodyList)) {
+			for (Map<String, Object> tbody : tbodyList) {
+				Object typeField = tbody.get("typeField");
+				Number valueField = (Number) tbody.get("valueField");
+				if (typeField != null && valueField != null) {
+					dataset.setValue(typeField.toString(), valueField);
+				}
+			}
+		} else {
+			canReturn = false;
+		}
 		if (canReturn) {
 		   
 		    

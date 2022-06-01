@@ -2,10 +2,12 @@ package codedriver.module.report.util;
 
 import codedriver.module.report.constvalue.ActionType;
 import codedriver.module.report.widget.*;
+import com.alibaba.fastjson.JSONObject;
 import freemarker.cache.StringTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,6 +18,7 @@ import javax.script.ScriptException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -40,7 +43,7 @@ public class ReportFreemarkerUtil {
 	}
 
 
-	public static void getFreemarkerContent(Map<String, Object> paramMap, String content, Writer out) throws Exception {
+	public static void getFreemarkerContent(Map<String, Object> paramMap, Map<String, Object> reportMap, Map<String, Map<String, Object>> pageMap, JSONObject filter, String content, Writer out) throws Exception {
 		if (StringUtils.isNotBlank(content)) {
 			Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 			cfg.setNumberFormat("0.##");
@@ -49,15 +52,15 @@ public class ReportFreemarkerUtil {
 			stringLoader.putTemplate("template", content);
 			cfg.setTemplateLoader(stringLoader);
 			Template temp;
-			paramMap.put("drawTable", new DrawTable());
-			paramMap.put("drawBar", new DrawBar(ActionType.VIEW.getValue()));
-			paramMap.put("drawBarH", new DrawBarH(ActionType.VIEW.getValue()));
-			paramMap.put("drawLine", new DrawLine(ActionType.VIEW.getValue()));
-			paramMap.put("drawPie", new DrawPie(ActionType.VIEW.getValue()));
-			paramMap.put("drawStackedBar", new DrawStackedBar(ActionType.VIEW.getValue()));
-			paramMap.put("drawStackedBarH", new DrawStackedBarH(ActionType.VIEW.getValue()));
-			paramMap.put("drawStackedBarLineH", new DrawStackedBarLineH(ActionType.VIEW.getValue()));
-			paramMap.put("drawPagination", new DrawPagination(true));
+			paramMap.put("drawTable", new DrawTable(reportMap, pageMap, filter));
+			paramMap.put("drawBar", new DrawBar(reportMap, ActionType.VIEW.getValue()));
+			paramMap.put("drawBarH", new DrawBarH(reportMap, ActionType.VIEW.getValue()));
+			paramMap.put("drawLine", new DrawLine(reportMap, ActionType.VIEW.getValue()));
+			paramMap.put("drawPie", new DrawPie(reportMap, ActionType.VIEW.getValue()));
+			paramMap.put("drawStackedBar", new DrawStackedBar(reportMap, ActionType.VIEW.getValue()));
+			paramMap.put("drawStackedBarH", new DrawStackedBarH(reportMap, ActionType.VIEW.getValue()));
+//			paramMap.put("drawStackedBarLineH", new DrawStackedBarLineH(reportMap, ActionType.VIEW.getValue()));
+//			paramMap.put("drawPagination", new DrawPagination(reportMap, true));
 
 			try {
 				temp = cfg.getTemplate("template", "utf-8");
@@ -72,7 +75,7 @@ public class ReportFreemarkerUtil {
 	/*
 	 * "string":获取htm "print":下载
 	 */
-	public static String getFreemarkerExportContent(Map<String, Object> paramMap, String content,String actionType) throws IOException {
+	public static String getFreemarkerExportContent(Map<String, Object> paramMap, Map<String, Object> reportMap, Map<String, Map<String, Object>> pageMap, JSONObject filter, String content,String actionType) throws IOException {
 		StringWriter out = new StringWriter();
 		out.write("<html xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\" xmlns:x=\"urn:schemas-microsoft-com:office:excel\" xmlns=\"http://www.w3.org/TR/REC-html40\">\n");
 		out.write("<head>\n");
@@ -97,15 +100,15 @@ public class ReportFreemarkerUtil {
 				stringLoader.putTemplate("template", content);
 				cfg.setTemplateLoader(stringLoader);
 				Template temp;
-				paramMap.put("drawTable", new DrawTable());
-				paramMap.put("drawBar", new DrawBar(actionType));
-				paramMap.put("drawBarH", new DrawBarH(actionType));
-				paramMap.put("drawLine", new DrawLine(actionType));
-				paramMap.put("drawPie", new DrawPie(actionType));
-				paramMap.put("drawStackedBar", new DrawStackedBar(actionType));
-				paramMap.put("drawStackedBarH", new DrawStackedBarH(actionType));
-				paramMap.put("drawStackedBarLineH", new DrawStackedBarLineH(actionType));
-				paramMap.put("drawPagination", new DrawPagination(false));
+				paramMap.put("drawTable", new DrawTable(reportMap, pageMap, filter));
+				paramMap.put("drawBar", new DrawBar(reportMap, actionType));
+				paramMap.put("drawBarH", new DrawBarH(reportMap, actionType));
+				paramMap.put("drawLine", new DrawLine(reportMap, actionType));
+				paramMap.put("drawPie", new DrawPie(reportMap, actionType));
+				paramMap.put("drawStackedBar", new DrawStackedBar(reportMap, actionType));
+				paramMap.put("drawStackedBarH", new DrawStackedBarH(reportMap, actionType));
+//				paramMap.put("drawStackedBarLineH", new DrawStackedBarLineH(reportMap, actionType));
+//				paramMap.put("drawPagination", new DrawPagination(reportMap, false));
 				try {
 					temp = cfg.getTemplate("template", "utf-8");
 					temp.process(paramMap, out);

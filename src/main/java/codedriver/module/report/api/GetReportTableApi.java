@@ -13,14 +13,12 @@ import codedriver.framework.restful.annotation.OperationType;
 import codedriver.framework.restful.annotation.Param;
 import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
-import codedriver.framework.sqlrunner.SqlInfo;
 import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportVo;
 import codedriver.module.report.service.ReportService;
 import codedriver.module.report.util.ReportFreemarkerUtil;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -28,14 +26,17 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @AuthAction(action = REPORT_BASE.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
 @Service
-public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
+public class GetReportTableApi extends PrivateBinaryStreamApiComponentBase {
     /**
      * 匹配表格
      */
@@ -49,66 +50,72 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
 
     @Override
     public String getToken() {
-        return "report/show/{id}";
+        return "report/table/get";
     }
 
     @Override
     public String getName() {
-        return "展示报表";
-    }
-
-    @Override
-    public String getConfig() {
-        return null;
+        return "获取报表表格分页数据";
     }
 
     @Input({
             @Param(name = "id", desc = "报表id", isRequired = true),
             @Param(name = "reportInstanceId", desc = "报表实例id"),
+            @Param(name = "tableId", desc = "表格ID"),
+            @Param(name = "currentPage", desc = "当前页数"),
+            @Param(name = "pageSize", desc = "每页条数"),
     })
     @Description(desc = "展示报表接口")
     @Override
     public Object myDoService(JSONObject paramObj, HttpServletRequest request, HttpServletResponse response) throws Exception {
         JSONObject filter = new JSONObject();
         filter.putAll(paramObj);
+        filter.remove("tableId");
+        filter.remove("currentPage");
+        filter.remove("pageSize");
         Long reportId = paramObj.getLong("id");
+        ReportVo reportVo = reportMapper.getReportById(reportId);
+        if (reportVo == null) {
+            throw new ReportNotFoundException(reportId);
+        }
+        if (StringUtils.isBlank(reportVo.getSql())) {
+            return null;
+        }
+        String content = reportVo.getContent();
+        if (StringUtils.isBlank(content)) {
+            return null;
+        }
+        String tableContent = null;
+        String tableId = paramObj.getString("tableId");
+        Matcher matcher = pattern.matcher(content);
+        while(matcher.find()) {
+            String e = matcher.group();
+            String data = getFieldValue(e, "data");
+            if (Objects.equals(tableId, data)) {
+                tableContent = e;
+                break;
+            }
+        }
+        if (StringUtils.isBlank(tableContent)) {
+            return null;
+        }
         Long reportInstanceId = paramObj.getLong("reportInstanceId");
-        // 统计使用次数
-        reportMapper.updateReportVisitCount(reportId);
-        reportMapper.updateReportInstanceVisitCount(reportInstanceId);
 
         Map<String, List<String>> showColumnsMap = reportService.getShowColumnsMap(reportInstanceId);
 
-        // Map<String, Object> paramMap = ReportToolkit.getParamMap(request);
         PrintWriter out = response.getWriter();
         try {
-            ReportVo reportVo = reportService.getReportDetailById(reportId);
-            if (reportVo == null) {
-                throw new ReportNotFoundException(reportId);
-            }
-            List<SqlInfo> tableList = getTableList(reportVo.getContent());
-            //out.write("<!DOCTYPE HTML>");
-            //out.write("<html lang=\"en\">");
-            //out.write("<head>");
-            //out.write("<title>" + reportVo.getName() + "</title>");
-            //out.write("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
-            //out.write("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">");
-            //out.write("</head>");
-            //out.write("<body>");
-            Map<String, Long> timeMap = new HashMap<>();
             boolean isFirst = request.getHeader("referer") == null || !request.getHeader("referer").contains("report-show/" + reportId);
-//            Map<String, Object> returnMap = reportService.getQueryResult(reportId, paramObj, timeMap, isFirst, showColumnsMap);
-            Map<String, Object> returnMap = reportService.getQuerySqlResult(reportVo, paramObj, isFirst, showColumnsMap, tableList);
+            Map<String, Object> returnMap = reportService.getQuerySqlResultById(tableId, reportVo, paramObj, showColumnsMap);
             Map<String, Map<String, Object>> pageMap = (Map<String, Map<String, Object>>) returnMap.remove("page");
             Map<String, Object> tmpMap = new HashMap<>();
             Map<String, Object> commonMap = new HashMap<>();
-//            tmpMap.put("report", returnMap);
+            tmpMap.put("report", returnMap);
             tmpMap.put("param", paramObj);
             tmpMap.put("common", commonMap);
 
-            ReportFreemarkerUtil.getFreemarkerContent(tmpMap, returnMap, pageMap, filter, reportVo.getContent(), out);
+            ReportFreemarkerUtil.getFreemarkerContent(tmpMap, returnMap, pageMap, filter, tableContent, out);
         } catch (Exception ex) {
-            ex.printStackTrace();
             out.write("<div class=\"ivu-alert ivu-alert-error ivu-alert-with-icon ivu-alert-with-desc\">" + "<span class=\"ivu-alert-icon\"><i class=\"ivu-icon ivu-icon-ios-close-circle-outline\"></i></span>" + "<span class=\"ivu-alert-message\">异常：</span> <span class=\"ivu-alert-desc\"><span>" + ex.getMessage() + "</span></span></div>");
         }
         //out.write("</body></html>");
@@ -117,31 +124,9 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
         return null;
     }
 
-    private List<SqlInfo> getTableList(String content) {
-        List<SqlInfo> sqlInfoList = new ArrayList<>();
-        if (StringUtils.isBlank(content)) {
-            return sqlInfoList;
-        }
-        Matcher matcher = pattern.matcher(content);
-        while(matcher.find()) {
-            String e = matcher.group();
-            String tableId = getFieldValue(e, "data");
-            if (StringUtils.isBlank(tableId)) {
-                continue;
-            }
-            SqlInfo sqlInfo = new SqlInfo();
-            sqlInfo.setId(tableId);
-            sqlInfoList.add(sqlInfo);
-            String needPage = getFieldValue(e, "needPage");
-            if ("true".equals(needPage)) {
-                sqlInfo.setNeedPage(true);
-            }
-            String pageSize = getFieldValue(e, "pageSize");
-            if (StringUtils.isNotBlank(pageSize)) {
-                sqlInfo.setPageSize(Integer.parseInt(pageSize));
-            }
-        }
-        return sqlInfoList;
+    @Override
+    public String getConfig() {
+        return null;
     }
 
     private String getFieldValue(String str, String field) {

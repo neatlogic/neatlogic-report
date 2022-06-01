@@ -78,6 +78,9 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
     @Override
     public Object myDoService(JSONObject paramObj, HttpServletRequest request, HttpServletResponse response)
             throws Exception {
+        JSONObject filter = new JSONObject();
+        filter.putAll(paramObj);
+        filter.remove("type");
         Long reportId = paramObj.getLong("id");
         String type = paramObj.getString("type");
         Long reportInstanceId = paramObj.getLong("reportInstanceId");
@@ -93,13 +96,14 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
                 throw new ReportNotFoundException(reportId);
             }
             Map<String, Object> returnMap = reportService.getQuerySqlResult(reportVo, paramObj, false, showColumnsMap);
+            Map<String, Map<String, Object>> pageMap = (Map<String, Map<String, Object>>) returnMap.remove("page");
             Map<String, Object> tmpMap = new HashMap<>();
             Map<String, Object> commonMap = new HashMap<>();
             tmpMap.put("report", returnMap);
             tmpMap.put("param", paramObj);
             tmpMap.put("common", commonMap);
 
-            String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, reportVo.getContent(), ActionType.EXPORT.getValue());
+            String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, returnMap, pageMap, filter, reportVo.getContent(), ActionType.EXPORT.getValue());
             if (DocType.PDF.getValue().equals(type)) {
                 os = response.getOutputStream();
                 response.setContentType("application/pdf");
