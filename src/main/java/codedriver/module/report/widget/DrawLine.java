@@ -3,7 +3,9 @@ package codedriver.module.report.widget;
 import java.awt.Color;
 import java.awt.Paint;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfree.chart.ChartFactory;
@@ -32,9 +34,12 @@ import freemarker.template.TemplateModelException;
 public class DrawLine implements TemplateMethodModelEx {
 	private static final Log logger = LogFactory.getLog(DrawLine.class);
 	private String actionType ;
+	//报表中所有数据源
+	private Map<String, Object> reportMap;
 
-    public DrawLine(String actionType) {
-        this.actionType = actionType ;
+    public DrawLine(Map<String, Object> reportMap, String actionType) {
+        this.reportMap = reportMap;
+        this.actionType = actionType;
     }
 	@SuppressWarnings({"unchecked", "unused"})
     @Override
@@ -44,39 +49,13 @@ public class DrawLine implements TemplateMethodModelEx {
 		int tick = 0;
 		boolean isShowValue = true;
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-		String title = "", xLabel = "", yLabel = "";
-		if (arguments.size() >= 1) {
-			if (arguments.get(0) instanceof SimpleSequence) {
-				SimpleSequence ss = (SimpleSequence) arguments.get(0);
-				Boolean display = false;
-				if (ss.size() > 20) {
-					display = true;
-				}
-				for (int i = 0; i < ss.size(); i++) {
-					SimpleHash sm = (SimpleHash) ss.get(i);
-					String series = null;
-					SimpleNumber y = null;
-					String x = null;
-					if (sm.get("groupField") != null) {
-						series = sm.get("groupField").toString();
-					}
-					if (sm.get("yField") != null) {
-						y = (SimpleNumber) sm.get("yField");
-					}
-					if (sm.get("xField") != null) {
-						x = sm.get("xField").toString();
-					}
-					if (series != null && y != null && x != null) {
-						dataset.addValue(y.getAsNumber(), series, x);
-					}
-				}
-			}
-		}
+		String title = "", xLabel = "", yLabel = "", data = "";
 
-		if (arguments.size() >= 2) {
-			String config = arguments.get(1).toString();
+		if (arguments.size() >= 1) {
+			String config = arguments.get(0).toString();
 			try {
 				JSONObject configObj = JSONObject.parseObject(config);
+				data = configObj.getString("data");
 				title = configObj.getString("title");
 				xLabel = configObj.getString("xLabel");
 				yLabel = configObj.getString("yLabel");
@@ -96,6 +75,21 @@ public class DrawLine implements TemplateMethodModelEx {
 			}
 		}
 
+		List<Map<String, Object>> tbodyList = (List<Map<String, Object>>) reportMap.get(data);
+		if (CollectionUtils.isNotEmpty(tbodyList)) {
+			Boolean display = false;
+			if (tbodyList.size() > 20) {
+				display = true;
+			}
+			for (Map<String, Object> tbody : tbodyList) {
+				Number y = (Number) tbody.get("yField");
+				Object x = tbody.get("xField");
+				Object series = tbody.get("groupField");
+				if (series != null && y != null && x != null) {
+					dataset.addValue(y, series.toString(), x.toString());
+				}
+			}
+		}
 		StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme(actionType);
 
 		JFreeChart chart = ChartFactory.createLineChart(title, xLabel, yLabel, dataset);

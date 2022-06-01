@@ -12,6 +12,7 @@ import freemarker.template.SimpleHash;
 import freemarker.template.SimpleSequence;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfree.chart.ChartFactory;
@@ -36,12 +37,16 @@ import org.jfree.data.general.DatasetUtils;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class DrawStackedBarH implements TemplateMethodModelEx {
     private static final Log logger = LogFactory.getLog(DrawStackedBarH.class);
     private final String actionType;
+    //报表中所有数据源
+    private Map<String, Object> reportMap;
 
-    public DrawStackedBarH(String actionType) {
+    public DrawStackedBarH(Map<String, Object> reportMap, String actionType) {
+        this.reportMap = reportMap;
         this.actionType = actionType;
     }
 
@@ -49,56 +54,16 @@ public class DrawStackedBarH implements TemplateMethodModelEx {
     public Object exec(List arguments) throws TemplateModelException {
         int width = 1000;
         int height = 600;
-        String title = "", xLabel = "", yLabel = "";
+        String title = "", xLabel = "", yLabel = "", data = "";
         int tick = 0;
         boolean isShowValue = true;
         CategoryDataset dataset = null;
-        if (arguments.size() >= 1) {
-            if (arguments.get(0) instanceof SimpleSequence) {
-                SimpleSequence ss = (SimpleSequence) arguments.get(0);
-                if (ss.size() > 0) {
-                    List<String> rowList = new ArrayList<>();
-                    List<String> columnList = new ArrayList<>();
-                    double[][] dataList = new double[ss.size()][];
-                    for (int i = 0; i < ss.size(); i++) {
-                        SimpleHash sm = (SimpleHash) ss.get(i);
-                        if (sm.containsKey("groupField")) {
-                            rowList.add(sm.get("groupField").toString());
-                        } else {
-                            throw new RuntimeException("堆积图数据集缺少groupField字段");
-                        }
-                        if (sm.containsKey("dataList")) {
-                            SimpleSequence valueItemList = (SimpleSequence) sm.get("dataList");
-                            double[] dList = new double[valueItemList.size()];
-                            for (int j = 0; j < valueItemList.size(); j++) {
-                                SimpleHash valueItem = (SimpleHash) valueItemList.get(j);
-                                if (valueItem.containsKey("typeField")) {
-                                    if (!columnList.contains(valueItem.get("typeField").toString())) {
-                                        columnList.add(valueItem.get("typeField").toString());
-                                    }
-                                } else {
-                                    throw new RuntimeException("堆积图数据集dataList属性中缺少typeField字段");
-                                }
-                                if (valueItem.containsKey("valueField")) {
-                                    dList[j] = Double.parseDouble(valueItem.get("valueField").toString());
-                                } else {
-                                    throw new RuntimeException("堆积图数据集dataList属性中缺少valueField字段");
-                                }
-                            }
-                            dataList[i] = dList;
-                        } else {
-                            throw new RuntimeException("堆积图数据集缺少dataList属性");
-                        }
-                    }
-                    dataset = DatasetUtils.createCategoryDataset(rowList.toArray(new String[0]), columnList.toArray(new String[0]), dataList);
-                }
-            }
-        }
 
-        if (arguments.size() >= 2) {
-            String config = arguments.get(1).toString();
+        if (arguments.size() >= 1) {
+            String config = arguments.get(0).toString();
             try {
                 JSONObject configObj = JSONObject.parseObject(config);
+                data = configObj.getString("data");
                 title = configObj.getString("title");
                 xLabel = configObj.getString("xLabel");
                 yLabel = configObj.getString("yLabel");
@@ -116,6 +81,49 @@ public class DrawStackedBarH implements TemplateMethodModelEx {
                 // 非json格式
                 logger.error(ex.getMessage(), ex);
             }
+        }
+
+        List<Map<String, Object>> tbodyList = (List<Map<String, Object>>) reportMap.get(data);
+        if (CollectionUtils.isNotEmpty(tbodyList)) {
+            List<String> rowList = new ArrayList<>();
+            List<String> columnList = new ArrayList<>();
+            double[][] dataList = new double[tbodyList.size()][];
+            int i = 0;
+            for (Map<String, Object> tbody : tbodyList) {
+                Object groupField = tbody.get("groupField");
+                if (groupField != null) {
+                    rowList.add(groupField.toString());
+                } else {
+                    throw new RuntimeException("堆积图数据集缺少groupField字段");
+                }
+                List<Map<String, Object>> valueItemList = (List<Map<String, Object>>) tbody.get("dataList");
+                if (CollectionUtils.isNotEmpty(valueItemList)) {
+                    double[] dList = new double[valueItemList.size()];
+                    int j = 0;
+                    for (Map<String, Object> valueItem : valueItemList) {
+                        Object typeField = tbody.get("typeField");
+                        if (typeField != null) {
+                            if (!columnList.contains(typeField)) {
+                                columnList.add(typeField.toString());
+                            }
+                        } else {
+                            throw new RuntimeException("堆积图数据集dataList属性中缺少typeField字段");
+                        }
+                        Object valueField = valueItem.get("valueField");
+                        if (valueField != null) {
+                            dList[j] = Double.parseDouble(valueField.toString());
+                        } else {
+                            throw new RuntimeException("堆积图数据集dataList属性中缺少valueField字段");
+                        }
+                        j++;
+                    }
+                    dataList[i] = dList;
+                } else {
+                    throw new RuntimeException("堆积图数据集缺少dataList属性");
+                }
+                i++;
+            }
+            dataset = DatasetUtils.createCategoryDataset(rowList.toArray(new String[0]), columnList.toArray(new String[0]), dataList);
         }
 
         StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme(actionType);

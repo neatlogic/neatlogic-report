@@ -18,12 +18,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
+@Deprecated
 public class DrawPagination implements TemplateMethodModelEx {
     Logger logger = LoggerFactory.getLogger(DrawPagination.class);
     private final Boolean needPage;
+    //报表中所有数据源
+    private Map<String, Object> reportMap;
 
-    public DrawPagination(Boolean _needPage) {
+    public DrawPagination(Map<String, Object> reportMap, Boolean _needPage) {
+        this.reportMap = reportMap;
         this.needPage = _needPage;
     }
 

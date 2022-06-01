@@ -23,9 +23,8 @@ public class DrawTable implements TemplateMethodModelEx {
     private JSONObject filter;
     //报表中所有表格的分页信息
     private Map<String, Map<String, Object>> pageMap;
-
+    //报表中所有数据源
     private Map<String, Object> reportMap;
-    public DrawTable() {}
 
     public DrawTable(Map<String, Object> reportMap, Map<String, Map<String, Object>> pageMap, JSONObject filter) {
         this.reportMap = reportMap;
@@ -43,31 +42,18 @@ public class DrawTable implements TemplateMethodModelEx {
     @SuppressWarnings("unchecked")
     @Override
     public Object exec(@SuppressWarnings("rawtypes") List arguments) throws TemplateModelException {
-        String title = null, header = null, column = null, id = null;
+        String title = null, header = null, column = null, data = null;
         Boolean needPage = null;
 //        SimpleSequence ss = null;
         List<String> keyList = new ArrayList<>();
         List<String> headerList = new ArrayList<>();
         List<String> columnList = new ArrayList<>();
-//        if (arguments.size() >= 1) {
-//            ss = arguments.get(0) instanceof SimpleSequence ? (SimpleSequence) arguments.get(0) : null;
-//            if (ss != null && ss.size() > 0) {
-//                // 取得第一行数据，得到表格列名
-//                SimpleHash sm = (SimpleHash) ss.get(0);
-//                Map<String, Object> colMap = sm.toMap();
-//                for (Map.Entry<String, Object> entry : colMap.entrySet()) {
-//                    if (!entry.getKey().equals("UUID")) {// UUID是系统生成字段
-//                        keyList.add(entry.getKey());
-//                    }
-//                }
-//            }
-//        }
 
         if (arguments.size() >= 1) {
             String config = arguments.get(0).toString();
             try {
                 JSONObject configObj = JSONObject.parseObject(config);
-                id = configObj.getString("data");
+                data = configObj.getString("data");
                 title = configObj.getString("title");
                 header = configObj.getString("header");
                 column = configObj.getString("column");
@@ -77,7 +63,7 @@ public class DrawTable implements TemplateMethodModelEx {
             }
         }
 
-        List<Map<String, Object>> tbodyList = (List<Map<String, Object>>) reportMap.get(id);
+        List<Map<String, Object>> tbodyList = (List<Map<String, Object>>) reportMap.get(data);
         if (CollectionUtils.isNotEmpty(tbodyList)) {
             Map<String, Object> tbody = tbodyList.get(0);
             for (Map.Entry<String, Object> entry : tbody.entrySet()) {
@@ -93,7 +79,7 @@ public class DrawTable implements TemplateMethodModelEx {
         Integer rowNum = 0;
         if (needPage) {
             if (MapUtils.isNotEmpty(pageMap)) {
-                Map<String, Object> basePageMap = pageMap.get(id);
+                Map<String, Object> basePageMap = pageMap.get(data);
                 if (MapUtils.isNotEmpty(basePageMap)) {
                     currentPage = (Integer) basePageMap.get("currentPage");
                     pageSize = (Integer) basePageMap.get("pageSize");
@@ -107,7 +93,7 @@ public class DrawTable implements TemplateMethodModelEx {
             }
         }
         StringBuilder sb = new StringBuilder();
-        sb.append("<div id=\"" + id + "\" class=\"ivu-card ivu-card-dis-hover ivu-card-shadow\">");
+        sb.append("<div id=\"" + data + "\" class=\"ivu-card ivu-card-dis-hover ivu-card-shadow\">");
         if (StringUtils.isNotBlank(title)) {
             sb.append("<div class=\"ivu-card-head\">").append(title).append("</div>");
         }
@@ -150,7 +136,7 @@ public class DrawTable implements TemplateMethodModelEx {
         sb.append("</table></div></div>");
 
         if (needPage) {
-            sb.append("<div><div class='tstable-page text-right'><ul tableid='" + id + "' class='ivu-page mini'><span class='ivu-page-total'>共 ");
+            sb.append("<div><div class='tstable-page text-right'><ul tableid='" + data + "' class='ivu-page mini'><span class='ivu-page-total'>共 ");
             sb.append(rowNum);
             sb.append(" 条</span>");
             int prevPage = currentPage - 1;

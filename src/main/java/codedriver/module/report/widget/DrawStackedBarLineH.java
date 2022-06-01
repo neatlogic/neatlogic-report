@@ -34,20 +34,25 @@ import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+@Deprecated
 public class DrawStackedBarLineH implements TemplateMethodModelEx {
     //private static final Log logger = LogFactory.getLog(DrawStackedBarLineH.class);
     private final String actionType;
+    //报表中所有数据源
+    private Map<String, Object> reportMap;
 
-    public DrawStackedBarLineH(String actionType) {
+    public DrawStackedBarLineH(Map<String, Object> reportMap, String actionType) {
         this.actionType = actionType;
+        this.reportMap = reportMap;
     }
 
     @Override
     public Object exec(List arguments) throws TemplateModelException {
         int width = 1000;
         int height = 600;
-        String title = "", xLabel = "", yLabel = "";
+        String title = "", xLabel = "", yLabel = "", data = "";
         CategoryDataset dataset = null;
         DefaultCategoryDataset dataSetLine = new DefaultCategoryDataset();
         if (arguments.size() >= 1) {

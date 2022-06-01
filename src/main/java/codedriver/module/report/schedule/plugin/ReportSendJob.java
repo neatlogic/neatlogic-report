@@ -181,14 +181,17 @@ public class ReportSendJob extends JobBase {
                         if (MapUtils.isEmpty(paramObj)) {
                             paramObj = new JSONObject();
                         }
+                        JSONObject filter = new JSONObject();
+                        filter.putAll(paramObj);
                         os = new ByteArrayOutputStream();
                         Map<String, Object> returnMap = reportService.getQuerySqlResult(report, paramObj, false, null);
+                        Map<String, Map<String, Object>> pageMap = (Map<String, Map<String, Object>>) returnMap.remove("page");
                         Map<String, Object> tmpMap = new HashMap<>();
                         Map<String, Object> commonMap = new HashMap<>();
                         tmpMap.put("report", returnMap);
                         tmpMap.put("param", paramObj);
                         tmpMap.put("common", commonMap);
-                        String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, report.getContent(), ActionType.VIEW.getValue());
+                        String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, returnMap, pageMap, filter, report.getContent(), ActionType.VIEW.getValue());
                         ExportUtil.getPdfFileByHtml(content, os, true, true);
                         InputStream is = new ByteArrayInputStream(os.toByteArray());
                         reportMap.put(report.getName(), is);

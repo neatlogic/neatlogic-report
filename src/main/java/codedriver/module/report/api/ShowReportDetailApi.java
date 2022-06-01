@@ -119,6 +119,9 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
 
     private List<SqlInfo> getTableList(String content) {
         List<SqlInfo> sqlInfoList = new ArrayList<>();
+        if (StringUtils.isBlank(content)) {
+            return sqlInfoList;
+        }
         Matcher matcher = pattern.matcher(content);
         while(matcher.find()) {
             String e = matcher.group();

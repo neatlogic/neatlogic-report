@@ -3,7 +3,9 @@ package codedriver.module.report.widget;
 import java.awt.Color;
 import java.awt.Paint;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfree.chart.ChartFactory;
@@ -37,9 +39,12 @@ import freemarker.template.TemplateModelException;
 public class DrawBar implements TemplateMethodModelEx {
 	private static final Log logger = LogFactory.getLog(DrawBar.class);
 	private String actionType ;
+	//报表中所有数据源
+	private Map<String, Object> reportMap;
 
-	public DrawBar(String actionType) {
-        this.actionType = actionType ;
+	public DrawBar(Map<String, Object> reportMap, String actionType) {
+		this.reportMap = reportMap;
+        this.actionType = actionType;
     }
 
     @Override
@@ -49,34 +54,13 @@ public class DrawBar implements TemplateMethodModelEx {
 		//int tick = 0;
 		boolean isShowValue = true;
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-		String title = "", xLabel = "", yLabel = "";
-		if (arguments.size() >= 1) {
-			if (arguments.get(0) instanceof SimpleSequence) {
-				SimpleSequence ss = (SimpleSequence) arguments.get(0);
-				for (int i = 0; i < ss.size(); i++) {
-					SimpleHash sm = (SimpleHash) ss.get(i);
-					SimpleNumber valuekey = null;
-					String rowkey = null, columnkey = "";
-					if (sm.get("yField") != null) {
-						valuekey = (SimpleNumber) sm.get("yField");
-					}
-					if (sm.get("xField") != null) {
-						rowkey = sm.get("xField").toString();
-					}
-					if (sm.get("groupField") != null) {
-						columnkey = sm.get("groupField").toString();
-					}
-					if (valuekey != null && rowkey != null) {
-						dataset.addValue(valuekey.getAsNumber(), rowkey, columnkey);
-					}
-				}
-			}
-		}
+		String title = "", xLabel = "", yLabel = "", data = "";
 
-		if (arguments.size() >= 2) {
-			String config = arguments.get(1).toString();
+		if (arguments.size() >= 1) {
+			String config = arguments.get(0).toString();
 			try {
 				JSONObject configObj = JSONObject.parseObject(config);
+				data = configObj.getString("data");
 				title = configObj.getString("title");
 				xLabel = configObj.getString("xLabel");
 				yLabel = configObj.getString("yLabel");
@@ -95,7 +79,20 @@ public class DrawBar implements TemplateMethodModelEx {
 			    logger.error(ex.getMessage(), ex);
 			}
 		}
-
+		List<Map<String, Object>> tbodyList = (List<Map<String, Object>>) reportMap.get(data);
+		if (CollectionUtils.isNotEmpty(tbodyList)) {
+			for (Map<String, Object> tbody : tbodyList) {
+				Number valuekey = (Number) tbody.get("yField");
+				Object rowkey = tbody.get("xField");
+				Object columnkey = tbody.get("groupField");
+				if (valuekey != null && rowkey != null) {
+					if (columnkey == null) {
+						columnkey = "";
+					}
+					dataset.addValue(valuekey, rowkey.toString(), columnkey.toString());
+				}
+			}
+		}
 		StandardChartTheme standardChartTheme = JfreeChartUtil.getStandardChartTheme(actionType);
 
 		JFreeChart chart = ChartFactory.createBarChart(title, xLabel, yLabel, dataset);
