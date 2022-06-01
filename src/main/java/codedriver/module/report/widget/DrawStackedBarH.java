@@ -8,8 +8,6 @@ package codedriver.module.report.widget;
 import codedriver.module.report.util.JfreeChartUtil;
 import codedriver.module.report.util.JfreeChartUtil.ChartColor;
 import com.alibaba.fastjson.JSONObject;
-import freemarker.template.SimpleHash;
-import freemarker.template.SimpleSequence;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 import org.apache.commons.collections4.CollectionUtils;

@@ -29,9 +29,6 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import com.alibaba.fastjson.JSONObject;
 
 import codedriver.module.report.util.JfreeChartUtil;
-import freemarker.template.SimpleHash;
-import freemarker.template.SimpleNumber;
-import freemarker.template.SimpleSequence;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 
