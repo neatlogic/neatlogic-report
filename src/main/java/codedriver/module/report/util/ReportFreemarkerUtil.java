@@ -66,6 +66,8 @@ public class ReportFreemarkerUtil {
 				temp = cfg.getTemplate("template", "utf-8");
 				temp.process(paramMap, out);
 			} catch (IOException | TemplateException e) {
+				logger.error("freeMarker Code：" + content);
+				logger.error("JSON Code：" + JSONObject.toJSONString(paramMap));
 				logger.error(e.getMessage(), e);
 				throw e;
 			}
@@ -113,6 +115,8 @@ public class ReportFreemarkerUtil {
 					temp = cfg.getTemplate("template", "utf-8");
 					temp.process(paramMap, out);
 				} catch (IOException | TemplateException e) {
+					logger.error("freeMarker Code：" + content);
+					logger.error("JSON Code：" + JSONObject.toJSONString(paramMap));
 					logger.error(e.getMessage(), e);
 					throw e;
 				}
