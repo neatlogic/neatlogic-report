@@ -104,17 +104,16 @@ public class MatrixReportParamDependencyHandler extends CustomTableDependencyHan
             ReportParamVo reportParamVo = (ReportParamVo) dependencyObj;
             JSONObject dependencyInfoConfig = new JSONObject();
             dependencyInfoConfig.put("reportId", reportParamVo.getReportId());
-            dependencyInfoConfig.put("reportName", reportParamVo.getReportName());
-            dependencyInfoConfig.put("paramName", reportParamVo.getName());
-            String pathFormat = "报表-${DATA.reportName}-${DATA.paramName}";
-            String urlFormat = "/" + TenantContext.get().getTenantUuid() + "/report.html#/report-manage";
-            return new DependencyInfoVo(reportParamVo.getReportId(), dependencyInfoConfig, pathFormat, urlFormat, this.getGroupName());
-//            DependencyInfoVo dependencyInfoVo = new DependencyInfoVo();
-//            dependencyInfoVo.setValue(reportParamVo.getReportId());
-//            String text = String.format("<a href=\"/%s/report.html#/report-manage\" target=\"_blank\">%s</a>",
-//                    TenantContext.get().getTenantUuid(), reportParamVo.getReportName() + "-" + reportParamVo.getName());
-//            dependencyInfoVo.setText(text);
-//            return dependencyInfoVo;
+//            dependencyInfoConfig.put("reportName", reportParamVo.getReportName());
+//            dependencyInfoConfig.put("paramName", reportParamVo.getName());
+            List<String> pathList = new ArrayList<>();
+            pathList.add("报表模板管理");
+            pathList.add(reportParamVo.getReportName());
+            String lastName = reportParamVo.getName();
+//            String pathFormat = "报表-${DATA.reportName}-${DATA.paramName}";
+//            String urlFormat = "/" + TenantContext.get().getTenantUuid() + "/report.html#/report-manage";
+            String urlFormat = "/" + TenantContext.get().getTenantUuid() + "/report.html#/report-show/${DATA.reportId}";
+            return new DependencyInfoVo(reportParamVo.getReportId(), dependencyInfoConfig, lastName, pathList, urlFormat, this.getGroupName());
         }
         return null;
     }
