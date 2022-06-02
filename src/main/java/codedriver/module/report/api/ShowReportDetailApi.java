@@ -96,9 +96,9 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             //out.write("</head>");
             //out.write("<body>");
             Map<String, Long> timeMap = new HashMap<>();
-            boolean isFirst = request.getHeader("referer") == null || !request.getHeader("referer").contains("report-show/" + reportId);
+//            boolean isFirst = request.getHeader("referer") == null || !request.getHeader("referer").contains("report-show/" + reportId);
 //            Map<String, Object> returnMap = reportService.getQueryResult(reportId, paramObj, timeMap, isFirst, showColumnsMap);
-            Map<String, Object> returnMap = reportService.getQuerySqlResult(reportVo, paramObj, isFirst, showColumnsMap, tableList);
+            Map<String, Object> returnMap = reportService.getQuerySqlResult(reportVo, paramObj, showColumnsMap, tableList);
             Map<String, Map<String, Object>> pageMap = (Map<String, Map<String, Object>>) returnMap.remove("page");
             Map<String, Object> tmpMap = new HashMap<>();
             Map<String, Object> commonMap = new HashMap<>();
@@ -108,7 +108,6 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
 
             ReportFreemarkerUtil.getFreemarkerContent(tmpMap, returnMap, pageMap, filter, reportVo.getContent(), out);
         } catch (Exception ex) {
-            ex.printStackTrace();
             out.write("<div class=\"ivu-alert ivu-alert-error ivu-alert-with-icon ivu-alert-with-desc\">" + "<span class=\"ivu-alert-icon\"><i class=\"ivu-icon ivu-icon-ios-close-circle-outline\"></i></span>" + "<span class=\"ivu-alert-message\">异常：</span> <span class=\"ivu-alert-desc\"><span>" + ex.getMessage() + "</span></span></div>");
         }
         //out.write("</body></html>");
@@ -133,7 +132,7 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             sqlInfo.setId(tableId);
             sqlInfoList.add(sqlInfo);
             String needPage = getFieldValue(e, "needPage");
-            if ("true".equals(needPage)) {
+            if ("true".equalsIgnoreCase(needPage)) {
                 sqlInfo.setNeedPage(true);
             }
             String pageSize = getFieldValue(e, "pageSize");
