@@ -102,7 +102,7 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             Map<String, Map<String, Object>> pageMap = (Map<String, Map<String, Object>>) returnMap.remove("page");
             Map<String, Object> tmpMap = new HashMap<>();
             Map<String, Object> commonMap = new HashMap<>();
-//            tmpMap.put("report", returnMap);
+            tmpMap.put("report", returnMap);
             tmpMap.put("param", paramObj);
             tmpMap.put("common", commonMap);
 
