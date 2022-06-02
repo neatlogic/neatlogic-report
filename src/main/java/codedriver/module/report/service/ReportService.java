@@ -19,9 +19,9 @@ public interface ReportService {
     @Transactional
     int deleteReportById(Long reportId);
 
-    Map<String, Object> getQuerySqlResult(ReportVo reportVo, JSONObject paramMap, boolean isFirst, Map<String, List<String>> showColumnsMap);
+    Map<String, Object> getQuerySqlResult(ReportVo reportVo, JSONObject paramMap, Map<String, List<String>> showColumnsMap);
 
-    Map<String, Object> getQuerySqlResult(ReportVo reportVo, JSONObject paramMap, boolean isFirst, Map<String, List<String>> showColumnsMap, List<SqlInfo> tableList);
+    Map<String, Object> getQuerySqlResult(ReportVo reportVo, JSONObject paramMap, Map<String, List<String>> showColumnsMap, List<SqlInfo> tableList);
 
     Map<String, Object> getQuerySqlResultById(String id, ReportVo reportVo, JSONObject paramMap,  Map<String, List<String>> showColumnsMap);
 

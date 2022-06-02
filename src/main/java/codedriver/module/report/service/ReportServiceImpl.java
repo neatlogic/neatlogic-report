@@ -433,12 +433,12 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public Map<String, Object> getQuerySqlResult(ReportVo reportVo, JSONObject paramMap, boolean isFirst, Map<String, List<String>> showColumnsMap) {
-        return getQuerySqlResult(reportVo, paramMap, isFirst, showColumnsMap, new ArrayList<>());
+    public Map<String, Object> getQuerySqlResult(ReportVo reportVo, JSONObject paramMap, Map<String, List<String>> showColumnsMap) {
+        return getQuerySqlResult(reportVo, paramMap, showColumnsMap, new ArrayList<>());
     }
 
     @Override
-    public Map<String, Object> getQuerySqlResult(ReportVo reportVo, JSONObject paramMap, boolean isFirst, Map<String, List<String>> showColumnsMap, List<SqlInfo> tableList) {
+    public Map<String, Object> getQuerySqlResult(ReportVo reportVo, JSONObject paramMap, Map<String, List<String>> showColumnsMap, List<SqlInfo> tableList) {
         Map<String, Object> resultMap = new HashMap<>();
         if (StringUtils.isBlank(reportVo.getSql())) {
             return resultMap;
