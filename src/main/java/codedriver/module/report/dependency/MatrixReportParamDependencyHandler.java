@@ -109,7 +109,9 @@ public class MatrixReportParamDependencyHandler extends CustomTableDependencyHan
             List<String> pathList = new ArrayList<>();
             pathList.add("报表模板管理");
             pathList.add(reportParamVo.getReportName());
-            String lastName = reportParamVo.getName();
+            pathList.add("编辑");
+            pathList.add("条件配置");
+            String lastName = reportParamVo.getLabel();
 //            String pathFormat = "报表-${DATA.reportName}-${DATA.paramName}";
             String urlFormat = "/" + TenantContext.get().getTenantUuid() + "/report.html#/report-manage";
             return new DependencyInfoVo(reportParamVo.getReportId(), dependencyInfoConfig, lastName, pathList, urlFormat, this.getGroupName());
