@@ -176,7 +176,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
                 while (tableIterator.hasNext()) {
                     Element next = tableIterator.next();
                     Elements ths = next.getElementsByTag("th");
-                    Elements tbodys = next.getElementsByTag("tbody");
+                    Elements tbodys = next.getElementsByClass("tbody-main");
                     if (CollectionUtils.isNotEmpty(ths) && CollectionUtils.isNotEmpty(tbodys)) {
                         Iterator<Element> thIterator = ths.iterator();
                         List<String> thValueList = new ArrayList<>();
@@ -186,14 +186,14 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
                             thValueList.add(text);
                         }
                         Element tbody = tbodys.first();
-                        Elements trs = tbody.getElementsByTag("tr");
+                        Elements trs = tbody.children();
                         if (CollectionUtils.isNotEmpty(trs) && CollectionUtils.isNotEmpty(thValueList)) {
                             Iterator<Element> trIterator = trs.iterator();
                             List<Map<String, Object>> valueList = new ArrayList<>();
                             /** 抽取表格内容数据，与表头key-value化存储 */
                             while (trIterator.hasNext()) {
                                 Element tds = trIterator.next();
-                                Elements tdEls = tds.getElementsByTag("td");
+                                Elements tdEls = tds.children();
                                 List<Element> tdList = tdEls.subList(0, tdEls.size());
                                 Map<String, Object> map = new LinkedHashMap<>();
                                 for (int i = 0; i < tdList.size(); i++) {
