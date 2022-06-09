@@ -175,7 +175,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
                 Iterator<Element> tableIterator = tableElements.iterator();
                 while (tableIterator.hasNext()) {
                     Element next = tableIterator.next();
-                    Elements ths = next.getElementsByTag("th");
+                    Elements ths = next.select(".th-left>th");
                     Elements tbodys = next.getElementsByClass("tbody-main");
                     if (CollectionUtils.isNotEmpty(ths) && CollectionUtils.isNotEmpty(tbodys)) {
                         Iterator<Element> thIterator = ths.iterator();
