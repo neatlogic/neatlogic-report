@@ -7,7 +7,9 @@ package codedriver.module.report.api;
 
 import codedriver.framework.auth.core.AuthAction;
 import codedriver.framework.common.constvalue.ApiParamType;
+import codedriver.framework.exception.core.ApiRuntimeException;
 import codedriver.framework.report.exception.ReportNotFoundException;
+import codedriver.framework.report.exception.TableNotFoundInReportException;
 import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.OperationType;
@@ -122,42 +124,45 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
                 ExportUtil.getWordFileByHtml(content, os, true, true);
             } else if (DocType.EXCEL.getValue().equals(type)) {
                 Map<String, List<Map<String, Object>>> tableMap = getTableListByHtml(content);
-                if (MapUtils.isNotEmpty(tableMap)) {
-                    ExcelBuilder builder = new ExcelBuilder(SXSSFWorkbook.class);
-                    for (Map.Entry<String, List<Map<String, Object>>> entry : tableMap.entrySet()) {
-                        String tableName = entry.getKey();
-                        List<Map<String, Object>> tableBody = entry.getValue();
-                        Map<String, Object> map = tableBody.get(0);
-                        List<String> headerList = new ArrayList<>();
-                        List<String> columnList = new ArrayList<>();
-                        for (String key : map.keySet()) {
-                            headerList.add(key);
-                            columnList.add(key);
-                        }
-                        SheetBuilder sheetBuilder = builder.withBorderColor(HSSFColor.HSSFColorPredefined.GREY_40_PERCENT)
-                                .withHeadFontColor(HSSFColor.HSSFColorPredefined.WHITE)
-                                .withHeadBgColor(HSSFColor.HSSFColorPredefined.DARK_BLUE)
-                                .withColumnWidth(30)
-                                .addSheet(tableName)
-                                .withHeaderList(headerList)
-                                .withColumnList(columnList);
-                        sheetBuilder.addDataList(tableBody);
-                    }
-                    Workbook workbook = builder.build();
-                    String fileNameEncode = reportVo.getName() + ".xlsx";
-                    Boolean flag = request.getHeader("User-Agent").indexOf("Gecko") > 0;
-                    if (request.getHeader("User-Agent").toLowerCase().indexOf("msie") > 0 || flag) {
-                        fileNameEncode = URLEncoder.encode(fileNameEncode, "UTF-8");// IE浏览器
-                    } else {
-                        fileNameEncode = new String(fileNameEncode.replace(" ", "").getBytes(StandardCharsets.UTF_8), "ISO8859-1");
-                    }
-                    response.setContentType("application/vnd.ms-excel;charset=utf-8");
-                    response.setHeader("Content-Disposition", " attachment; filename=\"" + fileNameEncode + "\"");
-                    os = response.getOutputStream();
-                    workbook.write(os);
+                if (MapUtils.isEmpty(tableMap)) {
+                    throw new TableNotFoundInReportException();
                 }
+                ExcelBuilder builder = new ExcelBuilder(SXSSFWorkbook.class);
+                for (Map.Entry<String, List<Map<String, Object>>> entry : tableMap.entrySet()) {
+                    String tableName = entry.getKey();
+                    List<Map<String, Object>> tableBody = entry.getValue();
+                    Map<String, Object> map = tableBody.get(0);
+                    List<String> headerList = new ArrayList<>();
+                    List<String> columnList = new ArrayList<>();
+                    for (String key : map.keySet()) {
+                        headerList.add(key);
+                        columnList.add(key);
+                    }
+                    SheetBuilder sheetBuilder = builder.withBorderColor(HSSFColor.HSSFColorPredefined.GREY_40_PERCENT)
+                            .withHeadFontColor(HSSFColor.HSSFColorPredefined.WHITE)
+                            .withHeadBgColor(HSSFColor.HSSFColorPredefined.DARK_BLUE)
+                            .withColumnWidth(30)
+                            .addSheet(tableName)
+                            .withHeaderList(headerList)
+                            .withColumnList(columnList);
+                    sheetBuilder.addDataList(tableBody);
+                }
+                Workbook workbook = builder.build();
+                String fileNameEncode = reportVo.getName() + ".xlsx";
+                Boolean flag = request.getHeader("User-Agent").indexOf("Gecko") > 0;
+                if (request.getHeader("User-Agent").toLowerCase().indexOf("msie") > 0 || flag) {
+                    fileNameEncode = URLEncoder.encode(fileNameEncode, "UTF-8");// IE浏览器
+                } else {
+                    fileNameEncode = new String(fileNameEncode.replace(" ", "").getBytes(StandardCharsets.UTF_8), "ISO8859-1");
+                }
+                response.setContentType("application/vnd.ms-excel;charset=utf-8");
+                response.setHeader("Content-Disposition", " attachment; filename=\"" + fileNameEncode + "\"");
+                os = response.getOutputStream();
+                workbook.write(os);
             }
-
+        } catch (ApiRuntimeException ex) {
+            logger.error(ex.getMessage(), ex);
+            throw ex;
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
         } finally {
