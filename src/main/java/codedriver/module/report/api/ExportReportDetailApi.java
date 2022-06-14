@@ -122,7 +122,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
                     HSSFWorkbook workbook = new HSSFWorkbook();
                     for (int i = 0; i < tableList.size(); i++) {
                         List<Map<String, Object>> list = tableList.get(i);
-                        Map<String, Object> map = list.get(i);
+                        Map<String, Object> map = list.get(0);
                         List<String> headerList = new ArrayList<>();
                         List<String> columnList = new ArrayList<>();
                         for (String key : map.keySet()) {
