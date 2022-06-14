@@ -14,9 +14,7 @@ import codedriver.framework.sqlrunner.SqlInfo;
 import codedriver.framework.sqlrunner.SqlRunner;
 import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.dto.ReportVo;
-import codedriver.module.report.dto.SelectVo;
 import codedriver.module.report.service.ReportService;
-import codedriver.module.report.util.ReportXmlUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,10 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,13 +35,9 @@ public class GetReportApi extends PrivateApiComponentBase {
 
     private final static Logger logger = LoggerFactory.getLogger(GetReportApi.class);
     /**
-     * 匹配表格Id
+     * 匹配表格
      */
-    private static final Pattern pattern = Pattern.compile("drawTable.*\\)");
-    /**
-     * 匹配表格中文名
-     */
-    private static final Pattern namePattern = Pattern.compile("title.*\"");
+    private static final Pattern pattern = Pattern.compile("drawTable\\((\\{.*\\})\\)");
 
     @Resource
     private ReportService reportService;
@@ -76,7 +67,7 @@ public class GetReportApi extends PrivateApiComponentBase {
         /* 查找表格 */
         try {
             getTableList(reportVo);
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
         return reportVo;
@@ -88,21 +79,18 @@ public class GetReportApi extends PrivateApiComponentBase {
         if (StringUtils.isNotBlank(content) && StringUtils.isNotBlank(sql)) {
             Map<String, String> tables = new HashMap<>();
             Matcher matcher = pattern.matcher(content);
-            /* 寻找是表格的图表，生成[包含id的字符串->title]的map */
+            /* 寻找是表格的图表，生成[id->title]的map */
             while (matcher.find()) {
-                String e = matcher.group();
-                Matcher m = namePattern.matcher(e);
-                /* 寻找表格title */
-                if (m.find()) {
-                    String name = m.group();
-                    if (name.contains(",")) {
-                        name = name.substring(name.indexOf("\"") + 1, name.indexOf(",") - 1);
-                    } else {
-                        name = name.substring(name.indexOf("\"") + 1, name.lastIndexOf("\""));
+                String tableConfig = matcher.group(1);
+                try {
+                    JSONObject config = JSONObject.parseObject(tableConfig);
+                    String data = config.getString("data");
+                    String title = config.getString("title");
+                    if (data != null && title != null) {
+                        tables.put(data, title);
                     }
-                    tables.put(e, name);
-                } else {
-                    tables.put(e, null);
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage(), ex);
                 }
             }
             /* tableColumnsMap中的key为表格ID与中文名组合而成的字符串,value为表格字段
@@ -118,7 +106,7 @@ public class GetReportApi extends PrivateApiComponentBase {
                 List<SqlInfo> sqlInfoList = sqlRunner.getAllSqlInfoList(null);
                 for (Map.Entry<String, String> entry : tables.entrySet()) {
                     for (SqlInfo sqlInfo : sqlInfoList) {
-                        if (entry.getKey().contains(sqlInfo.getId())) {
+                        if (Objects.equals(entry.getKey(), sqlInfo.getId())) {
                             Map<String, Object> tableColumnsMap = new HashMap<>();
                             tableColumnsMap.put("id", sqlInfo.getId());
                             tableColumnsMap.put("title", entry.getValue());
