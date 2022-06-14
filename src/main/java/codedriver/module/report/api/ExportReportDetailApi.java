@@ -15,8 +15,9 @@ import codedriver.framework.restful.annotation.Param;
 import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
 import codedriver.framework.util.DocType;
-import codedriver.framework.util.ExcelUtil;
 import codedriver.framework.util.ExportUtil;
+import codedriver.framework.util.excel.ExcelBuilder;
+import codedriver.framework.util.excel.SheetBuilder;
 import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.constvalue.ActionType;
 import codedriver.module.report.dao.mapper.ReportMapper;
@@ -25,10 +26,13 @@ import codedriver.module.report.service.ReportService;
 import codedriver.module.report.util.ReportFreemarkerUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -117,21 +121,30 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
                         " attachment; filename=\"" + URLEncoder.encode(reportVo.getName(), "utf-8") + ".docx\"");
                 ExportUtil.getWordFileByHtml(content, os, true, true);
             } else if (DocType.EXCEL.getValue().equals(type)) {
-                List<List<Map<String, Object>>> tableList = getTableListByHtml(content);
-                if (CollectionUtils.isNotEmpty(tableList)) {
-                    HSSFWorkbook workbook = new HSSFWorkbook();
-                    for (int i = 0; i < tableList.size(); i++) {
-                        List<Map<String, Object>> list = tableList.get(i);
-                        Map<String, Object> map = list.get(0);
+                Map<String, List<Map<String, Object>>> tableMap = getTableListByHtml(content);
+                if (MapUtils.isNotEmpty(tableMap)) {
+                    ExcelBuilder builder = new ExcelBuilder(SXSSFWorkbook.class);
+                    for (Map.Entry<String, List<Map<String, Object>>> entry : tableMap.entrySet()) {
+                        String tableName = entry.getKey();
+                        List<Map<String, Object>> tableBody = entry.getValue();
+                        Map<String, Object> map = tableBody.get(0);
                         List<String> headerList = new ArrayList<>();
                         List<String> columnList = new ArrayList<>();
                         for (String key : map.keySet()) {
                             headerList.add(key);
                             columnList.add(key);
                         }
-                        ExcelUtil.exportData(workbook, headerList, columnList, list, 30, i);
+                        SheetBuilder sheetBuilder = builder.withBorderColor(HSSFColor.HSSFColorPredefined.GREY_40_PERCENT)
+                                .withHeadFontColor(HSSFColor.HSSFColorPredefined.WHITE)
+                                .withHeadBgColor(HSSFColor.HSSFColorPredefined.DARK_BLUE)
+                                .withColumnWidth(30)
+                                .addSheet(tableName)
+                                .withHeaderList(headerList)
+                                .withColumnList(columnList);
+                        sheetBuilder.addDataList(tableBody);
                     }
-                    String fileNameEncode = reportVo.getName() + ".xls";
+                    Workbook workbook = builder.build();
+                    String fileNameEncode = reportVo.getName() + ".xlsx";
                     Boolean flag = request.getHeader("User-Agent").indexOf("Gecko") > 0;
                     if (request.getHeader("User-Agent").toLowerCase().indexOf("msie") > 0 || flag) {
                         fileNameEncode = URLEncoder.encode(fileNameEncode, "UTF-8");// IE浏览器
@@ -157,57 +170,125 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
     }
 
     /**
-     * 从HTML中抽取表格元素数据
-     * 一个报表中可能存在多个表格，这些表格的table上都有class="tstable-body"的属性，
-     * 所以可以根据class拿到所有表格
+     * 遵循以下格式的HTML，才会被识别表格
+     * 其中：
+     * 1、class="ivu-card ivu-card-dis-hover ivu-card-shadow"的<div>标签必须有id
+     * 2、必须存在class="ivu-card-head"的div标签
+     * 3、<table>标签的class必须为table-main tstable-body
+     * 4、<tbody>标签的class必须为tbody-main
+     * 5、<thead>标签必须存在，且符合标准DOM结构(thead > tr > th)，<tr>标签的class必须为th-left
+     * <div id="tableDataMonth" class="ivu-card ivu-card-dis-hover ivu-card-shadow">
+     *     <div class="ivu-card-head">按月统计</div>
+     *     <div class="ivu-card-body tstable-container tstable-normal border tstable-no-fixedHeader block-large">
+     *         <div class="tstable-main bg-op">
+     *             <table class="table-main tstable-body">
+     *                 <thead>
+     *                     <tr class="th-left">
+     *                         <th>月</th>
+     *                         <th>工单数量</th>
+     *                     </tr>
+     *                 </thead>
+     *                 <tbody class="tbody-main">
+     *                     <tr>
+     *                         <td>2022-06</td>
+     *                         <td>22</td>
+     *                     </tr>
+     *                     <tr>
+     *                         <td>2022-05</td>
+     *                         <td>26</td>
+     *                     </tr>
+     *                     <tr>
+     *                         <td>2022-04</td>
+     *                         <td>3</td>
+     *                     </tr>
+     *                     <tr>
+     *                         <td>2022-03</td>
+     *                         <td>121</td>
+     *                     </tr>
+     *                     <tr>
+     *                         <td>2022-02</td>
+     *                         <td>98</td>
+     *                     </tr>
+     *                     <tr>
+     *                         <td>2022-01</td>
+     *                         <td>189</td>
+     *                     </tr>
+     *                     <tr>
+     *                         <td>2021-12</td>
+     *                         <td>141</td>
+     *                     </tr>
+     *                     <tr>
+     *                         <td>2021-11</td>
+     *                         <td>72</td>
+     *                     </tr>
+     *                     <tr>
+     *                         <td>2021-10</td>
+     *                         <td>29</td>
+     *                     </tr>
+     *                     <tr>
+     *                         <td>2021-09</td>
+     *                         <td>10</td>
+     *                     </tr>
+     *                 </tbody>
+     *             </table>
+     *         </div>
+     *     </div>
+     * </div>
      *
      * @param content
      * @return
      */
-    private List<List<Map<String, Object>>> getTableListByHtml(String content) {
-        List<List<Map<String, Object>>> tableList = null;
+    private Map<String, List<Map<String, Object>>> getTableListByHtml(String content) {
+        Map<String, List<Map<String, Object>>> tableMap = new LinkedHashMap();
         if (StringUtils.isNotBlank(content)) {
             Document doc = Jsoup.parse(content);
-            Elements tableElements = null;
-            /** 抽取所有带class="tstable-body"的表格元素 */
-            if (doc != null && CollectionUtils.isNotEmpty((tableElements = doc.getElementsByClass("tstable-body")))) {
-                tableList = new ArrayList<>();
-                Iterator<Element> tableIterator = tableElements.iterator();
-                while (tableIterator.hasNext()) {
-                    Element next = tableIterator.next();
-                    Elements ths = next.select(".th-left>th");
-                    Elements tbodys = next.getElementsByClass("tbody-main");
-                    if (CollectionUtils.isNotEmpty(ths) && CollectionUtils.isNotEmpty(tbodys)) {
-                        Iterator<Element> thIterator = ths.iterator();
-                        List<String> thValueList = new ArrayList<>();
-                        /** 抽取表头数据 */
-                        while (thIterator.hasNext()) {
-                            String text = thIterator.next().ownText();
-                            thValueList.add(text);
-                        }
-                        Element tbody = tbodys.first();
-                        Elements trs = tbody.children();
-                        if (CollectionUtils.isNotEmpty(trs) && CollectionUtils.isNotEmpty(thValueList)) {
-                            Iterator<Element> trIterator = trs.iterator();
-                            List<Map<String, Object>> valueList = new ArrayList<>();
-                            /** 抽取表格内容数据，与表头key-value化存储 */
-                            while (trIterator.hasNext()) {
-                                Element tds = trIterator.next();
-                                Elements tdEls = tds.children();
-                                List<Element> tdList = tdEls.subList(0, tdEls.size());
-                                Map<String, Object> map = new LinkedHashMap<>();
-                                for (int i = 0; i < tdList.size(); i++) {
-                                    map.put(thValueList.get(i), tdList.get(i).text()); // text()返回剥离HTML标签的内容
+            /** 抽取所有带class="ivu-card ivu-card-dis-hover ivu-card-shadow"的元素 */
+            Elements elements = doc.getElementsByClass("ivu-card ivu-card-dis-hover ivu-card-shadow");
+            if (CollectionUtils.isNotEmpty(elements)) {
+                for (Element element : elements) {
+                    if (element.hasAttr("id")) {
+                        Elements tableNameEls = element.getElementsByClass("ivu-card-head");
+                        String tableName = tableNameEls.text();
+                        if (StringUtils.isNotBlank(tableName)) {
+                            Elements tableBodyEls = element.getElementsByClass("table-main tstable-body");
+                            if (CollectionUtils.isNotEmpty(tableBodyEls)) {
+                                Element tableBody = tableBodyEls.get(0);
+                                Elements ths = tableBody.select(".th-left>th");
+                                Elements tbodys = tableBody.getElementsByClass("tbody-main");
+                                if (CollectionUtils.isNotEmpty(ths) && CollectionUtils.isNotEmpty(tbodys)) {
+                                    Iterator<Element> thIterator = ths.iterator();
+                                    List<String> thValueList = new ArrayList<>();
+                                    /** 抽取表头数据 */
+                                    while (thIterator.hasNext()) {
+                                        String text = thIterator.next().ownText();
+                                        thValueList.add(text);
+                                    }
+                                    Element tbody = tbodys.first();
+                                    Elements trs = tbody.children();
+                                    if (CollectionUtils.isNotEmpty(trs) && CollectionUtils.isNotEmpty(thValueList)) {
+                                        Iterator<Element> trIterator = trs.iterator();
+                                        List<Map<String, Object>> valueList = new ArrayList<>();
+                                        /** 抽取表格内容数据，与表头key-value化存储 */
+                                        while (trIterator.hasNext()) {
+                                            Element tds = trIterator.next();
+                                            Elements tdEls = tds.children();
+                                            List<Element> tdList = tdEls.subList(0, tdEls.size());
+                                            Map<String, Object> map = new LinkedHashMap<>();
+                                            for (int i = 0; i < tdList.size(); i++) {
+                                                map.put(thValueList.get(i), tdList.get(i).text()); // text()返回剥离HTML标签的内容
+                                            }
+                                            valueList.add(map);
+                                        }
+                                        tableMap.put(tableName, valueList);
+                                    }
                                 }
-                                valueList.add(map);
                             }
-                            tableList.add(valueList);
                         }
                     }
                 }
             }
         }
-        return tableList;
+        return tableMap;
     }
 
 }
