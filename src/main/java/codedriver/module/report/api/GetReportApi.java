@@ -24,10 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -109,7 +106,7 @@ public class GetReportApi extends PrivateApiComponentBase {
                 List<SqlInfo> sqlInfoList = sqlRunner.getAllSqlInfoList(null);
                 for (Map.Entry<String, String> entry : tables.entrySet()) {
                     for (SqlInfo sqlInfo : sqlInfoList) {
-                        if (entry.getKey().equals(sqlInfo.getId())) {
+                        if (Objects.equals(entry.getKey(), sqlInfo.getId())) {
                             Map<String, Object> tableColumnsMap = new HashMap<>();
                             tableColumnsMap.put("id", sqlInfo.getId());
                             tableColumnsMap.put("title", entry.getValue());
