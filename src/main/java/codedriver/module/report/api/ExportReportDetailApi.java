@@ -242,7 +242,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
         Map<String, List<Map<String, Object>>> tableMap = new LinkedHashMap();
         if (StringUtils.isNotBlank(content)) {
             Document doc = Jsoup.parse(content);
-            /** 抽取所有带class="ivu-card ivu-card-dis-hover ivu-card-shadow"的元素 */
+            /** 抽取所有class="ivu-card ivu-card-dis-hover ivu-card-shadow"的元素 */
             Elements elements = doc.getElementsByClass("ivu-card ivu-card-dis-hover ivu-card-shadow");
             if (CollectionUtils.isNotEmpty(elements)) {
                 for (Element element : elements) {
