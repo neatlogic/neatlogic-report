@@ -175,10 +175,10 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
     }
 
     /**
-     * 遵循以下格式的HTML，才会被识别表格
+     * 遵循以下格式的HTML，才会被识别为表格
      * 其中：
      * 1、class="ivu-card ivu-card-dis-hover ivu-card-shadow"的<div>标签必须有id
-     * 2、必须存在class="ivu-card-head"的div标签
+     * 2、必须存在class="ivu-card-head"的div标签且内容不为空
      * 3、<table>标签的class必须为table-main tstable-body
      * 4、<tbody>标签的class必须为tbody-main
      * 5、<thead>标签必须存在，且符合标准DOM结构(thead > tr > th)，<tr>标签的class必须为th-left
