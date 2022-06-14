@@ -90,12 +90,16 @@ public class DrawTable implements TemplateMethodModelEx {
                 }
             }
         }
+        String tableName = data;
         StringBuilder sb = new StringBuilder();
         sb.append("<div id=\"" + data + "\" class=\"ivu-card ivu-card-dis-hover ivu-card-shadow\">");
         if (StringUtils.isNotBlank(title)) {
             sb.append("<div class=\"ivu-card-head\">").append(title).append("</div>");
+            tableName = title;
         }
-        sb.append("<div class=\"ivu-card-body tstable-container tstable-normal border tstable-no-fixedHeader block-large\"><div class=\"tstable-main bg-op\"><table class=\"table-main tstable-body\">");
+        sb.append("<div class=\"ivu-card-body tstable-container tstable-normal border tstable-no-fixedHeader block-large\">")
+                .append("<div class=\"tstable-main bg-op\">")
+                .append("<table tableName=\"").append(tableName).append("\" class=\"table-main tstable-body\">");
 
         if (header == null || header.trim().equals("")) {
             headerList = keyList;
