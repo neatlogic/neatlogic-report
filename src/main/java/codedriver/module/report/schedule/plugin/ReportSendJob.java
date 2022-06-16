@@ -28,12 +28,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
@@ -42,7 +43,7 @@ import java.util.*;
  */
 @Component
 public class ReportSendJob extends JobBase {
-    //static Logger logger = LoggerFactory.getLogger(ReportSendJob.class);
+    static Logger logger = LoggerFactory.getLogger(ReportSendJob.class);
 
     @Resource
     private ReportSendJobMapper reportSendJobMapper;
@@ -173,17 +174,15 @@ public class ReportSendJob extends JobBase {
         if (CollectionUtils.isNotEmpty(relatedReportList)) {
             reportMap = new HashMap<>();
             for (ReportSendJobRelationVo vo : relatedReportList) {
-                ByteArrayOutputStream os = null;
                 ReportVo report = reportMapper.getReportById(vo.getReportId());
                 if (report != null) {
-                    try {
+                    try (ByteArrayOutputStream wordOs = new ByteArrayOutputStream(); ByteArrayOutputStream excelOs = new ByteArrayOutputStream()) {
                         JSONObject paramObj = JSONObject.parseObject(vo.getCondition());
                         if (MapUtils.isEmpty(paramObj)) {
                             paramObj = new JSONObject();
                         }
                         JSONObject filter = new JSONObject();
                         filter.putAll(paramObj);
-                        os = new ByteArrayOutputStream();
                         Map<String, Object> returnMap = reportService.getQuerySqlResult(report, paramObj, null);
                         Map<String, Map<String, Object>> pageMap = (Map<String, Map<String, Object>>) returnMap.remove("page");
                         Map<String, Object> tmpMap = new HashMap<>();
@@ -192,28 +191,17 @@ public class ReportSendJob extends JobBase {
                         tmpMap.put("param", paramObj);
                         tmpMap.put("common", commonMap);
                         String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, returnMap, pageMap, filter, report.getContent(), ActionType.VIEW.getValue());
-                        ExportUtil.getWordFileByHtml(content, os, false, false);
                         Workbook reportWorkbook = reportService.getReportWorkbook(content);
                         if (reportWorkbook != null) {
-                            ByteArrayOutputStream excelOs = new ByteArrayOutputStream();
                             reportWorkbook.write(excelOs);
-                            InputStream is = new ByteArrayInputStream(excelOs.toByteArray());
-                            reportMap.put(report.getName() + ".xlsx", is);
+                            InputStream excelIs = new ByteArrayInputStream(excelOs.toByteArray());
+                            reportMap.put(report.getName() + ".xlsx", excelIs);
                         }
-                        InputStream is = new ByteArrayInputStream(os.toByteArray());
-                        reportMap.put(report.getName() + ".docx", is);
-                        os.close();
+                        ExportUtil.getWordFileByHtml(content, wordOs, false, false);
+                        InputStream wordIs = new ByteArrayInputStream(wordOs.toByteArray());
+                        reportMap.put(report.getName() + ".docx", wordIs);
                     } catch (Exception e) {
-                        e.printStackTrace();
-                    } finally {
-                        if (os != null) {
-                            try {
-                                os.flush();
-                                os.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
+                        logger.error(e.getMessage(), e);
                     }
                 }
             }
