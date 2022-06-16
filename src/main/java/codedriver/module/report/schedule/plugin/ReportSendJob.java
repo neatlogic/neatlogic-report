@@ -6,7 +6,6 @@
 package codedriver.module.report.schedule.plugin;
 
 import codedriver.framework.asynchronization.threadlocal.TenantContext;
-import codedriver.framework.common.constvalue.MimeType;
 import codedriver.framework.dao.mapper.UserMapper;
 import codedriver.framework.dto.UserVo;
 import codedriver.framework.scheduler.core.JobBase;
@@ -26,6 +25,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.stereotype.Component;
@@ -124,7 +124,7 @@ public class ReportSendJob extends JobBase {
         if (canExec) {
             /* 发送邮件 */
             try {
-                EmailUtil.sendEmailWithFile(sendJob.getEmailTitle(), sendJob.getEmailContent(), to, cc, reportMap, MimeType.PDF);
+                EmailUtil.sendEmailWithFile(sendJob.getEmailTitle(), sendJob.getEmailContent(), to, cc, reportMap);
             } catch (Exception e) {
                 throw new JobExecutionException(e.getMessage());
             }
@@ -192,9 +192,16 @@ public class ReportSendJob extends JobBase {
                         tmpMap.put("param", paramObj);
                         tmpMap.put("common", commonMap);
                         String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, returnMap, pageMap, filter, report.getContent(), ActionType.VIEW.getValue());
-                        ExportUtil.getPdfFileByHtml(content, os, true, true);
+                        ExportUtil.getWordFileByHtml(content, os, false, false);
+                        Workbook reportWorkbook = reportService.getReportWorkbook(content);
+                        if (reportWorkbook != null) {
+                            ByteArrayOutputStream excelOs = new ByteArrayOutputStream();
+                            reportWorkbook.write(excelOs);
+                            InputStream is = new ByteArrayInputStream(excelOs.toByteArray());
+                            reportMap.put(report.getName() + ".xlsx", is);
+                        }
                         InputStream is = new ByteArrayInputStream(os.toByteArray());
-                        reportMap.put(report.getName(), is);
+                        reportMap.put(report.getName() + ".docx", is);
                         os.close();
                     } catch (Exception e) {
                         e.printStackTrace();

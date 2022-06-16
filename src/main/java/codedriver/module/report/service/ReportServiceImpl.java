@@ -6,9 +6,12 @@ import codedriver.framework.dao.plugin.PageRowBounds;
 import codedriver.framework.dto.RestVo;
 import codedriver.framework.exception.type.ParamNotExistsException;
 import codedriver.framework.exception.type.ParamRepeatsException;
+import codedriver.framework.report.exception.TableNotFoundInReportException;
 import codedriver.framework.sqlrunner.SqlInfo;
 import codedriver.framework.sqlrunner.SqlRunner;
 import codedriver.framework.util.RestUtil;
+import codedriver.framework.util.excel.ExcelBuilder;
+import codedriver.framework.util.excel.SheetBuilder;
 import codedriver.module.report.dao.mapper.ReportInstanceMapper;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.*;
@@ -18,6 +21,13 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -597,5 +607,111 @@ public class ReportServiceImpl implements ReportService {
                 }
             }
         }
+    }
+
+    @Override
+    public Workbook getReportWorkbook(String content) {
+        Map<String, List<Map<String, Object>>> tableMap = getTableListByHtml(content);
+        if (MapUtils.isEmpty(tableMap)) {
+            throw new TableNotFoundInReportException();
+        }
+        ExcelBuilder builder = new ExcelBuilder(SXSSFWorkbook.class);
+        for (Map.Entry<String, List<Map<String, Object>>> entry : tableMap.entrySet()) {
+            String tableName = entry.getKey();
+            List<Map<String, Object>> tableBody = entry.getValue();
+            Map<String, Object> map = tableBody.get(0);
+            List<String> headerList = new ArrayList<>();
+            List<String> columnList = new ArrayList<>();
+            for (String key : map.keySet()) {
+                headerList.add(key);
+                columnList.add(key);
+            }
+            SheetBuilder sheetBuilder = builder.withBorderColor(HSSFColor.HSSFColorPredefined.GREY_40_PERCENT)
+                    .withHeadFontColor(HSSFColor.HSSFColorPredefined.WHITE)
+                    .withHeadBgColor(HSSFColor.HSSFColorPredefined.DARK_BLUE)
+                    .withColumnWidth(30)
+                    .addSheet(tableName)
+                    .withHeaderList(headerList)
+                    .withColumnList(columnList);
+            sheetBuilder.addDataList(tableBody);
+        }
+        Workbook workbook = builder.build();
+        return workbook;
+    }
+
+    /**
+     * 带有tableName属性的table标签才会被识别为表格
+     * table标签遵守严格的DOM规范
+     * e.g:
+     * <table tableName="按月统计">
+     *     <thead>
+     *         <tr>
+     *             <th>月</th>
+     *             <th>工单数量</th>
+     *         </tr>
+     *     </thead>
+     *     <tbody>
+     *         <tr>
+     *             <td>2022-06</td>
+     *             <td>22</td>
+     *         </tr>
+     *         <tr>
+     *             <td>2022-05</td>
+     *             <td>26</td>
+     *         </tr>
+     *         <tr>
+     *             <td>2022-04</td>
+     *             <td>3</td>
+     *         </tr>
+     *     </tbody>
+     * </table>
+     *
+     * @param content
+     * @return
+     */
+    private Map<String, List<Map<String, Object>>> getTableListByHtml(String content) {
+        Map<String, List<Map<String, Object>>> tableMap = new LinkedHashMap();
+        if (StringUtils.isNotBlank(content)) {
+            Document doc = Jsoup.parse(content);
+            /** 抽取所有带有tableName属性的元素 */
+            Elements elements = doc.getElementsByAttribute("tableName");
+            if (CollectionUtils.isNotEmpty(elements)) {
+                for (Element element : elements) {
+                    String tableName = element.attr("tableName");
+                    if (StringUtils.isNotBlank(tableName)) {
+                        Elements ths = element.select("[tableName]>thead>tr>th");
+                        Elements tbodys = element.select("[tableName]>tbody");
+                        if (CollectionUtils.isNotEmpty(ths) && CollectionUtils.isNotEmpty(tbodys)) {
+                            Iterator<Element> thIterator = ths.iterator();
+                            List<String> thValueList = new ArrayList<>();
+                            /** 抽取表头数据 */
+                            while (thIterator.hasNext()) {
+                                String text = thIterator.next().ownText();
+                                thValueList.add(text);
+                            }
+                            Element tbody = tbodys.first();
+                            Elements trs = tbody.children();
+                            if (CollectionUtils.isNotEmpty(trs) && CollectionUtils.isNotEmpty(thValueList)) {
+                                Iterator<Element> trIterator = trs.iterator();
+                                List<Map<String, Object>> valueList = new ArrayList<>();
+                                /** 抽取表格内容数据，与表头key-value化存储 */
+                                while (trIterator.hasNext()) {
+                                    Element tds = trIterator.next();
+                                    Elements tdEls = tds.children();
+                                    List<Element> tdList = tdEls.subList(0, tdEls.size());
+                                    Map<String, Object> map = new LinkedHashMap<>();
+                                    for (int i = 0; i < tdList.size(); i++) {
+                                        map.put(thValueList.get(i), tdList.get(i).text()); // text()返回剥离HTML标签的内容
+                                    }
+                                    valueList.add(map);
+                                }
+                                tableMap.put(tableName, valueList);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return tableMap;
     }
 }

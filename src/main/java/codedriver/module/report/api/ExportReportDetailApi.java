@@ -9,7 +9,6 @@ import codedriver.framework.auth.core.AuthAction;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.exception.core.ApiRuntimeException;
 import codedriver.framework.report.exception.ReportNotFoundException;
-import codedriver.framework.report.exception.TableNotFoundInReportException;
 import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
 import codedriver.framework.restful.annotation.OperationType;
@@ -18,8 +17,6 @@ import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
 import codedriver.framework.util.DocType;
 import codedriver.framework.util.ExportUtil;
-import codedriver.framework.util.excel.ExcelBuilder;
-import codedriver.framework.util.excel.SheetBuilder;
 import codedriver.module.report.auth.label.REPORT_BASE;
 import codedriver.module.report.constvalue.ActionType;
 import codedriver.module.report.dao.mapper.ReportMapper;
@@ -27,18 +24,9 @@ import codedriver.module.report.dto.ReportVo;
 import codedriver.module.report.service.ReportService;
 import codedriver.module.report.util.ReportFreemarkerUtil;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -47,7 +35,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @AuthAction(action = REPORT_BASE.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
@@ -123,31 +113,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
                         " attachment; filename=\"" + URLEncoder.encode(reportVo.getName(), "utf-8") + ".docx\"");
                 ExportUtil.getWordFileByHtml(content, os, true, true);
             } else if (DocType.EXCEL.getValue().equals(type)) {
-                Map<String, List<Map<String, Object>>> tableMap = getTableListByHtml(content);
-                if (MapUtils.isEmpty(tableMap)) {
-                    throw new TableNotFoundInReportException();
-                }
-                ExcelBuilder builder = new ExcelBuilder(SXSSFWorkbook.class);
-                for (Map.Entry<String, List<Map<String, Object>>> entry : tableMap.entrySet()) {
-                    String tableName = entry.getKey();
-                    List<Map<String, Object>> tableBody = entry.getValue();
-                    Map<String, Object> map = tableBody.get(0);
-                    List<String> headerList = new ArrayList<>();
-                    List<String> columnList = new ArrayList<>();
-                    for (String key : map.keySet()) {
-                        headerList.add(key);
-                        columnList.add(key);
-                    }
-                    SheetBuilder sheetBuilder = builder.withBorderColor(HSSFColor.HSSFColorPredefined.GREY_40_PERCENT)
-                            .withHeadFontColor(HSSFColor.HSSFColorPredefined.WHITE)
-                            .withHeadBgColor(HSSFColor.HSSFColorPredefined.DARK_BLUE)
-                            .withColumnWidth(30)
-                            .addSheet(tableName)
-                            .withHeaderList(headerList)
-                            .withColumnList(columnList);
-                    sheetBuilder.addDataList(tableBody);
-                }
-                Workbook workbook = builder.build();
+                Workbook workbook = reportService.getReportWorkbook(content);
                 String fileNameEncode = reportVo.getName() + ".xlsx";
                 Boolean flag = request.getHeader("User-Agent").indexOf("Gecko") > 0;
                 if (request.getHeader("User-Agent").toLowerCase().indexOf("msie") > 0 || flag) {
@@ -172,82 +138,6 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             }
         }
         return null;
-    }
-
-    /**
-     * 带有tableName属性的table标签才会被识别为表格
-     * table标签遵守严格的DOM规范
-     * e.g:
-     * <table tableName="按月统计">
-     *     <thead>
-     *         <tr>
-     *             <th>月</th>
-     *             <th>工单数量</th>
-     *         </tr>
-     *     </thead>
-     *     <tbody>
-     *         <tr>
-     *             <td>2022-06</td>
-     *             <td>22</td>
-     *         </tr>
-     *         <tr>
-     *             <td>2022-05</td>
-     *             <td>26</td>
-     *         </tr>
-     *         <tr>
-     *             <td>2022-04</td>
-     *             <td>3</td>
-     *         </tr>
-     *     </tbody>
-     * </table>
-     *
-     * @param content
-     * @return
-     */
-    private Map<String, List<Map<String, Object>>> getTableListByHtml(String content) {
-        Map<String, List<Map<String, Object>>> tableMap = new LinkedHashMap();
-        if (StringUtils.isNotBlank(content)) {
-            Document doc = Jsoup.parse(content);
-            /** 抽取所有带有tableName属性的元素 */
-            Elements elements = doc.getElementsByAttribute("tableName");
-            if (CollectionUtils.isNotEmpty(elements)) {
-                for (Element element : elements) {
-                    String tableName = element.attr("tableName");
-                    if (StringUtils.isNotBlank(tableName)) {
-                        Elements ths = element.select("[tableName]>thead>tr>th");
-                        Elements tbodys = element.select("[tableName]>tbody");
-                        if (CollectionUtils.isNotEmpty(ths) && CollectionUtils.isNotEmpty(tbodys)) {
-                            Iterator<Element> thIterator = ths.iterator();
-                            List<String> thValueList = new ArrayList<>();
-                            /** 抽取表头数据 */
-                            while (thIterator.hasNext()) {
-                                String text = thIterator.next().ownText();
-                                thValueList.add(text);
-                            }
-                            Element tbody = tbodys.first();
-                            Elements trs = tbody.children();
-                            if (CollectionUtils.isNotEmpty(trs) && CollectionUtils.isNotEmpty(thValueList)) {
-                                Iterator<Element> trIterator = trs.iterator();
-                                List<Map<String, Object>> valueList = new ArrayList<>();
-                                /** 抽取表格内容数据，与表头key-value化存储 */
-                                while (trIterator.hasNext()) {
-                                    Element tds = trIterator.next();
-                                    Elements tdEls = tds.children();
-                                    List<Element> tdList = tdEls.subList(0, tdEls.size());
-                                    Map<String, Object> map = new LinkedHashMap<>();
-                                    for (int i = 0; i < tdList.size(); i++) {
-                                        map.put(thValueList.get(i), tdList.get(i).text()); // text()返回剥离HTML标签的内容
-                                    }
-                                    valueList.add(map);
-                                }
-                                tableMap.put(tableName, valueList);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return tableMap;
     }
 
 }
