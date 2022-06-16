@@ -6,7 +6,6 @@
 package codedriver.module.report.schedule.plugin;
 
 import codedriver.framework.asynchronization.threadlocal.TenantContext;
-import codedriver.framework.common.constvalue.MimeType;
 import codedriver.framework.dao.mapper.UserMapper;
 import codedriver.framework.dto.UserVo;
 import codedriver.framework.scheduler.core.JobBase;
@@ -26,14 +25,16 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
@@ -42,7 +43,7 @@ import java.util.*;
  */
 @Component
 public class ReportSendJob extends JobBase {
-    //static Logger logger = LoggerFactory.getLogger(ReportSendJob.class);
+    static Logger logger = LoggerFactory.getLogger(ReportSendJob.class);
 
     @Resource
     private ReportSendJobMapper reportSendJobMapper;
@@ -124,7 +125,7 @@ public class ReportSendJob extends JobBase {
         if (canExec) {
             /* 发送邮件 */
             try {
-                EmailUtil.sendEmailWithFile(sendJob.getEmailTitle(), sendJob.getEmailContent(), to, cc, reportMap, MimeType.PDF);
+                EmailUtil.sendEmailWithFile(sendJob.getEmailTitle(), sendJob.getEmailContent(), to, cc, reportMap);
             } catch (Exception e) {
                 throw new JobExecutionException(e.getMessage());
             }
@@ -173,17 +174,15 @@ public class ReportSendJob extends JobBase {
         if (CollectionUtils.isNotEmpty(relatedReportList)) {
             reportMap = new HashMap<>();
             for (ReportSendJobRelationVo vo : relatedReportList) {
-                ByteArrayOutputStream os = null;
                 ReportVo report = reportMapper.getReportById(vo.getReportId());
                 if (report != null) {
-                    try {
+                    try (ByteArrayOutputStream wordOs = new ByteArrayOutputStream(); ByteArrayOutputStream excelOs = new ByteArrayOutputStream()) {
                         JSONObject paramObj = JSONObject.parseObject(vo.getCondition());
                         if (MapUtils.isEmpty(paramObj)) {
                             paramObj = new JSONObject();
                         }
                         JSONObject filter = new JSONObject();
                         filter.putAll(paramObj);
-                        os = new ByteArrayOutputStream();
                         Map<String, Object> returnMap = reportService.getQuerySqlResult(report, paramObj, null);
                         Map<String, Map<String, Object>> pageMap = (Map<String, Map<String, Object>>) returnMap.remove("page");
                         Map<String, Object> tmpMap = new HashMap<>();
@@ -192,21 +191,17 @@ public class ReportSendJob extends JobBase {
                         tmpMap.put("param", paramObj);
                         tmpMap.put("common", commonMap);
                         String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, returnMap, pageMap, filter, report.getContent(), ActionType.VIEW.getValue());
-                        ExportUtil.getPdfFileByHtml(content, os, true, true);
-                        InputStream is = new ByteArrayInputStream(os.toByteArray());
-                        reportMap.put(report.getName(), is);
-                        os.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } finally {
-                        if (os != null) {
-                            try {
-                                os.flush();
-                                os.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+                        Workbook reportWorkbook = reportService.getReportWorkbook(content);
+                        if (reportWorkbook != null) {
+                            reportWorkbook.write(excelOs);
+                            InputStream excelIs = new ByteArrayInputStream(excelOs.toByteArray());
+                            reportMap.put(report.getName() + ".xlsx", excelIs);
                         }
+                        ExportUtil.getWordFileByHtml(content, wordOs, false, false);
+                        InputStream wordIs = new ByteArrayInputStream(wordOs.toByteArray());
+                        reportMap.put(report.getName() + ".docx", wordIs);
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
                     }
                 }
             }
