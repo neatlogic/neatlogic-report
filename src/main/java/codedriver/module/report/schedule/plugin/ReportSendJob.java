@@ -191,7 +191,12 @@ public class ReportSendJob extends JobBase {
                         tmpMap.put("param", paramObj);
                         tmpMap.put("common", commonMap);
                         String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, returnMap, pageMap, filter, report.getContent(), ActionType.VIEW.getValue());
-                        Workbook reportWorkbook = reportService.getReportWorkbook(content);
+                        Workbook reportWorkbook = null;
+                        try {
+                            reportWorkbook = reportService.getReportWorkbook(content);
+                        } catch (Exception ex) {
+                            logger.error(ex.getMessage(), ex);
+                        }
                         if (reportWorkbook != null) {
                             reportWorkbook.write(excelOs);
                             InputStream excelIs = new ByteArrayInputStream(excelOs.toByteArray());
