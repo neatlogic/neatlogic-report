@@ -5,14 +5,18 @@
 
 package codedriver.module.report.api;
 
+import codedriver.framework.auth.core.AuthAction;
 import codedriver.framework.common.constvalue.ApiParamType;
 import codedriver.framework.common.dto.BasePageVo;
 import codedriver.framework.restful.annotation.Description;
 import codedriver.framework.restful.annotation.Input;
+import codedriver.framework.restful.annotation.OperationType;
 import codedriver.framework.restful.annotation.Param;
+import codedriver.framework.restful.constvalue.OperationTypeEnum;
 import codedriver.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
 import codedriver.framework.sqlrunner.SqlInfo;
 import codedriver.framework.sqlrunner.SqlRunner;
+import codedriver.module.report.auth.label.REPORT_ADMIN;
 import codedriver.module.report.dao.mapper.ReportMapper;
 import codedriver.module.report.dto.ReportVo;
 import com.alibaba.fastjson.JSONObject;
@@ -26,6 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 @Service
+@AuthAction(action = REPORT_ADMIN.class)
+@OperationType(type = OperationTypeEnum.SEARCH)
 public class SqlUtilTestApi extends PrivateBinaryStreamApiComponentBase {
 
     @Override
