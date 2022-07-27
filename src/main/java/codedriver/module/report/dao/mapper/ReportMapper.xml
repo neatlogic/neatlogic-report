@@ -38,6 +38,12 @@
             <if test="isActive != null">
                 AND `is_active` = #{isActive}
             </if>
+            <if test="defaultValue != null and defaultValue.size() > 0">
+                AND `id` IN
+                <foreach collection="defaultValue" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
         </where>
     </sql>
 

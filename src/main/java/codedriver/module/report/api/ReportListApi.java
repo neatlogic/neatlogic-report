@@ -56,6 +56,7 @@ public class ReportListApi extends PrivateApiComponentBase {
 
     @Input({
             @Param(name = "keyword", type = ApiParamType.STRING, desc = "关键字", xss = true),
+            @Param(name = "defaultValue", type = ApiParamType.JSONARRAY, desc = "用于回显的报表ID列表"),
             @Param(name = "needPage", type = ApiParamType.BOOLEAN, desc = "是否需要分页"),
             @Param(name = "pageSize", type = ApiParamType.INTEGER, desc = "每页数量"),
             @Param(name = "currentPage", type = ApiParamType.INTEGER, desc = "当前页"),
