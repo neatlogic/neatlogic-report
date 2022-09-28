@@ -73,8 +73,7 @@ public class ReportExportApi extends PrivateBinaryStreamApiComponentBase {
         if (CollectionUtils.isNotEmpty(idList)) {
             logger.error("报表：{}不存在", idList.stream().map(Object::toString).collect(Collectors.joining(",")));
         }
-        String fileName = FileUtil.getEncodedFileName(request.getHeader("User-Agent"),
-                "报表模版." + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + ".pak");
+        String fileName = FileUtil.getEncodedFileName("报表模版." + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + ".pak");
         response.setContentType("application/zip");
         response.setHeader("Content-Disposition", " attachment; filename=\"" + fileName + "\"");
         try (ZipOutputStream zos = new ZipOutputStream(response.getOutputStream())) {
