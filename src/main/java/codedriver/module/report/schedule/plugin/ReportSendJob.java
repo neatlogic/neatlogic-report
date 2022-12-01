@@ -26,6 +26,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -42,6 +43,7 @@ import java.util.*;
  * 报表发送计划定时器
  */
 @Component
+@DisallowConcurrentExecution
 public class ReportSendJob extends JobBase {
     static Logger logger = LoggerFactory.getLogger(ReportSendJob.class);
 
@@ -59,7 +61,7 @@ public class ReportSendJob extends JobBase {
     private ReportService reportService;
 
     @Override
-    public Boolean isHealthy(JobObject jobObject) {
+    public Boolean isMyHealthy(JobObject jobObject) {
         ReportSendJobVo jobVo = reportSendJobMapper.getJobBaseInfoById(Long.valueOf(jobObject.getJobName()));
         if (jobVo != null) {
             return jobVo.getIsActive().equals(1) && jobVo.getCron().equals(jobObject.getCron());
