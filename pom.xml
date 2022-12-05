@@ -37,13 +37,10 @@
         <dependency>
             <groupId>com.techsure</groupId>
             <artifactId>codedriver-report-base</artifactId>
-            <version>[1.0.0,)</version>
         </dependency>
         <dependency>
             <groupId>com.techsure</groupId>
             <artifactId>codedriver-framework</artifactId>
-            <version>[1.0.0,)</version>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.jfree</groupId>
