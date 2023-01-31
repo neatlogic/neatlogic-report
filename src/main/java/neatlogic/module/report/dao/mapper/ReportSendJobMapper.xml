@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright(c) 2021 TechSure Co., Ltd. All Rights Reserved.
+  ~ 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="neatlogic.module.report.dao.mapper.ReportSendJobMapper">
+    <select id="checkNameIsRepeat" parameterType="neatlogic.module.report.dto.ReportSendJobVo" resultType="int">
+        SELECT COUNT(1)
+        FROM `report_send_job`
+        WHERE `name` = #{name}
+          AND `id` != #{id}
+    </select>
+
+    <select id="checkJobExists" parameterType="java.lang.Long" resultType="int" useCache="false">
+        SELECT COUNT(1)
+        FROM `report_send_job`
+        WHERE `id` = #{id}
+    </select>
+
+    <select id="getJobBaseInfoById" parameterType="java.lang.Long"
+            resultType="neatlogic.module.report.dto.ReportSendJobVo">
+        SELECT `id`,
+               `name`,
+               `email_title`   as `emailTitle`,
+               `email_content` as `emailContent`,
+               `cron`,
+               `is_active`     as `isActive`,
+               `fcd`,
+               `fcu`,
+               `lcu`,
+               `lcd`
+        FROM `report_send_job`
+        where `id` = #{id}
+    </select>
+
+    <resultMap id="ReportSendJobMap" type="neatlogic.module.report.dto.ReportSendJobVo">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="isActive" column="isActive"/>
+        <result property="emailTitle" column="emailTitle"/>
+        <result property="emailContent" column="emailContent"/>
+        <result property="cron" column="cron"/>
+        <collection property="receiverList" ofType="neatlogic.module.report.dto.ReportReceiverVo">
+            <result property="receiver" column="receiver"/>
+            <result property="type" column="type"/>
+        </collection>
+        <collection property="reportRelationList" ofType="neatlogic.module.report.dto.ReportSendJobRelationVo">
+            <!--<result property="reportSendJobId" column="reportSendJobId" />-->
+            <result property="reportId" column="reportId"/>
+            <result property="condition" column="condition"/>
+            <result property="config" column="config"/>
+        </collection>
+        <collection property="reportList" ofType="neatlogic.module.report.dto.ReportVo">
+            <result property="id" column="reportId"/>
+            <result property="name" column="reportName"/>
+            <result property="sort" column="sort"/>
+        </collection>
+    </resultMap>
+
+    <select id="getJobById" parameterType="java.lang.Long" resultMap="ReportSendJobMap">
+        SELECT a.`id`,
+               a.`name`,
+               a.`email_title`   as `emailTitle`,
+               a.`email_content` as `emailContent`,
+               a.`cron`,
+               a.`is_active`     as `isActive`,
+               b.`receiver`,
+               b.`type`,
+-- 		c.`report_send_job_id` as reportSendJobId,
+-- 		c.`report_id` as reportId,
+               c.`condition`,
+               c.`config`,
+               c.`sort`,
+               d.`id`            as reportId,
+               d.`name`          as reportName
+        FROM `report_send_job` a
+                 left join `report_receiver` b on a.`id` = b.`report_send_job_id`
+                 left join `report_send_job_relation` c on a.`id` = c.`report_send_job_id`
+                 left join `report` d on d.`id` = c.`report_id`
+        where a.`id` = #{value}
+    </select>
+
+    <select id="searchJobCount" parameterType="neatlogic.module.report.dto.ReportSendJobVo" resultType="int">
+        SELECT
+        COUNT(1)
+        FROM
+        `report_send_job`
+        WHERE
+        1=1
+        <if test="keyword != null and keyword != ''">
+            and `name` LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+    </select>
+
+    <select id="searchJob" parameterType="neatlogic.module.report.dto.ReportSendJobVo"
+            resultType="neatlogic.module.report.dto.ReportSendJobVo">
+        select
+        a.`id`,
+        a.`name`,
+        a.`email_title` as emailTitle,
+        a.`cron` as cron,
+        a.`is_active` as isActive,
+        (select `next_fire_time` from `schedule_job_status` where `job_name` = CONCAT(a.`id`,'') and `job_group` =
+        CONCAT(#{tenantUuid},'-REPORT-SEND')) as nextFireTime
+        from `report_send_job` a
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and a.`name` LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+        order by a.`lcd` desc
+        <if test="needPage == true">
+            LIMIT #{startNum}, #{pageSize}
+        </if>
+    </select>
+
+    <resultMap id="ReportToListMap" type="neatlogic.module.report.dto.ReportSendJobVo">
+        <id property="id" column="reportSendJobId"/>
+        <collection property="toNameList" ofType="java.lang.String">
+            <result property="receiver" column="receiver"/>
+        </collection>
+    </resultMap>
+
+    <select id="getReportToList" parameterType="java.lang.Long" resultMap="ReportToListMap">
+        select
+        `report_send_job_id` as reportSendJobId,
+        (IFNULL((SELECT `user_name` FROM `user` WHERE `uuid` = `receiver`),`receiver`)) as receiver
+        from `report_receiver`
+        where `report_send_job_id` in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            (#{item})
+        </foreach>
+        and type = 'to'
+    </select>
+
+    <resultMap id="ReportSendJobAuditMap" type="neatlogic.module.report.dto.ReportSendJobAuditVo">
+        <id property="id" column="id"/>
+        <result property="jobUuid" column="jobUuid"/>
+        <result property="startTime" column="startTime"/>
+        <result property="status" column="status"/>
+        <result property="serverId" column="serverId"/>
+        <result property="contentHash" column="contentHash"/>
+        <collection property="receiverList" ofType="java.lang.String">
+            <result property="receiver" column="receiver"/>
+        </collection>
+    </resultMap>
+
+    <select id="searchReportSendJobAudit" parameterType="neatlogic.framework.scheduler.dto.JobAuditVo"
+            resultMap="ReportSendJobAuditMap">
+        SELECT
+        a.`id`,
+        a.`job_uuid` AS jobUuid,
+        a.`start_time` AS startTime,
+        a.`status`,
+        a.`server_id` AS serverId,
+        a.`content_hash` AS contentHash,
+        (IFNULL((SELECT `user_name` FROM `user` WHERE `uuid` = b.`receiver`),b.`receiver`)) as receiver
+        FROM
+        (
+        select
+        `id`,
+        `job_uuid`,
+        `start_time`,
+        `status`,
+        `server_id`,
+        `content_hash`
+        from `schedule_job_audit`
+        WHERE `job_uuid` = #{jobUuid}
+        ORDER BY `start_time` DESC
+        <if test="needPage == true">
+            LIMIT #{startNum}, #{pageSize}
+        </if>
+        ) a
+        left join `report_receiver` b on a.`job_uuid` = CONCAT(b.`report_send_job_id`,'')
+        WHERE b.`type` = 'to'
+    </select>
+
+    <select id="getAllActiveJob" resultType="neatlogic.module.report.dto.ReportSendJobVo">
+        select `id`,
+               `cron`
+        from `report_send_job`
+        where `is_active` = 1
+    </select>
+
+    <select id="getRelatedReportById" parameterType="java.lang.Long"
+            resultType="neatlogic.module.report.dto.ReportSendJobRelationVo">
+        select `report_send_job_id`,
+               `report_id`,
+               `condition`
+        from `report_send_job_relation`
+        where `report_send_job_id` = #{value}
+    </select>
+
+    <select id="checkJobExistsByReportId" parameterType="java.lang.Long" resultType="int">
+        select count(1)
+        from `report_send_job_relation`
+        where `report_id` = #{value}
+    </select>
+
+    <update id="updateJob" parameterType="neatlogic.module.report.dto.ReportSendJobVo">
+        UPDATE `report_send_job`
+        SET `name`          = #{name},
+            `email_title`   = #{emailTitle},
+            `email_content` = #{emailContent},
+            `cron`          = #{cron},
+            `is_active`     = #{isActive},
+            `lcu`           = #{lcu},
+            `lcd`           = now(3)
+        WHERE `id` = #{id}
+    </update>
+
+    <update id="updateJobStatus">
+        update `report_send_job`
+        set `is_active` = #{isActive},
+            `lcu`       = #{lcu},
+            `lcd`       = now(3)
+        WHERE `id` = #{id}
+    </update>
+
+    <insert id="insertJob" parameterType="neatlogic.module.report.dto.ReportSendJobVo">
+        INSERT INTO `report_send_job`
+        (`id`,
+         `name`,
+         `email_title`,
+         `email_content`,
+         `cron`,
+         `is_active`,
+         `fcd`,
+         `fcu`,
+         `lcu`,
+         `lcd`)
+        VALUES (#{id},
+                #{name},
+                #{emailTitle},
+                #{emailContent},
+                #{cron},
+                #{isActive},
+                now(3),
+                #{fcu},
+                #{fcu},
+                now(3))
+    </insert>
+
+    <insert id="batchInsertReportReceiver" parameterType="java.util.List">
+        INSERT INTO `report_receiver`(
+        `report_send_job_id`,
+        `receiver`,
+        `type`
+        )
+        VALUES
+        <foreach collection="list" index="index" item="item" separator=",">
+            (
+            #{item.reportSendJobId},
+            #{item.receiver},
+            #{item.type}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="batchInsertReportRelation" parameterType="java.util.List">
+        INSERT INTO `report_send_job_relation`(
+        `report_send_job_id`,
+        `report_id`,
+        `condition`,
+        `config`,
+        `sort`
+        )
+        VALUES
+        <foreach collection="list" index="index" item="item" separator=",">
+            (
+            #{item.reportSendJobId},
+            #{item.reportId},
+            #{item.condition},
+            #{item.config},
+            #{item.sort}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteReportReceiver" parameterType="java.lang.Long">
+        delete
+        from `report_receiver`
+        where `report_send_job_id` = #{value}
+    </delete>
+
+    <delete id="deleteReportRelation" parameterType="java.lang.Long">
+        delete
+        from `report_send_job_relation`
+        where `report_send_job_id` = #{value}
+    </delete>
+
+    <delete id="deleteJobById" parameterType="java.lang.Long">
+        delete
+        from `report_send_job`
+        where `id` = #{id}
+    </delete>
+</mapper>

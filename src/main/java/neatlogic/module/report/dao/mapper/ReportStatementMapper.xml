@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright(c) 2022 TechSure Co., Ltd. All Rights Reserved.
+  ~ 本内容仅限于深圳市赞悦科技有限公司内部传阅，禁止外泄以及用于其他的商业项目。
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="neatlogic.module.report.dao.mapper.ReportStatementMapper">
+    <select id="getReportStatementById" parameterType="java.lang.Long"
+            resultType="neatlogic.framework.report.dto.ReportStatementVo">
+        select id,
+               name,
+               is_active   as isActive,
+               description,
+               width,
+               height,
+               widget_list as widgetListStr,
+               config      as configStr
+        from report_statement
+        where id = #{id}
+    </select>
+
+    <select id="searchReportStatementCount" parameterType="neatlogic.framework.report.dto.ReportStatementVo"
+            resultType="int">
+        select count(1)
+        from report_statement
+        <include refid="searchReportStatementSql"></include>
+    </select>
+
+    <select id="searchReportStatement" parameterType="neatlogic.framework.report.dto.ReportStatementVo"
+            resultType="neatlogic.framework.report.dto.ReportStatementVo">
+        select
+        id,
+        name,
+        is_active as isActive,
+        width,
+        height,
+        description,
+        width,
+        height,
+        fcd,
+        fcu,
+        lcd,
+        lcu
+        from report_statement
+        <include refid="searchReportStatementSql"></include>
+    </select>
+
+    <sql id="searchReportStatementSql">
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and (name like concat('%', #{keyword}, '%') or description like concat('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </sql>
+
+    <update id="updateReportStatementActive" parameterType="neatlogic.framework.report.dto.ReportStatementVo">
+        update report_statement
+        set is_active = #{isActive}
+        where id = #{id}
+    </update>
+
+    <update id="updateReportStatement" parameterType="neatlogic.framework.report.dto.ReportStatementVo">
+        update report_statement
+        set name        = #{name},
+            is_active   = #{isActive},
+            width       = #{width},
+            height      = #{height},
+            widget_list = #{widgetListStr,typeHandler=CompressHandler},
+            config      = #{configStr,typeHandler=CompressHandler},
+            description = #{description},
+            lcd         = now(3),
+            lcu         = #{lcu}
+        where id = #{id}
+    </update>
+
+    <insert id="insertReportStatement" parameterType="neatlogic.framework.report.dto.ReportStatementVo">
+        insert into report_statement
+        (id,
+         name,
+         is_active,
+         widget_list,
+         config,
+         width,
+         height,
+         description,
+         fcd,
+         fcu)
+        values (#{id},
+                #{name},
+                #{isActive},
+                #{widgetListStr,typeHandler=CompressHandler},
+                #{configStr,typeHandler=CompressHandler},
+                #{width},
+                #{height},
+                #{description},
+                now(3),
+                #{fcu})
+    </insert>
+
+    <delete id="deleteStatementById" parameterType="java.lang.Long">
+        delete
+        from report_statement
+        where id = #{id}
+    </delete>
+
+</mapper>
