@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Copyright(c) $today.year NeatLogic Co., Ltd. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="neatlogic.module.report.dao.mapper.ReportConfigMapper">
+    <select id="checkItemIsExists" parameterType="neatlogic.framework.report.dto.ReportBlackWhiteListVo"
+            resultType="int">
+        select count(1)
+        from `report_blackwhitelist`
+        where item_name = #{itemName}
+          and item_type = #{itemType}
+          and id != #{id}
+    </select>
+
+    <select id="getBlackWhiteById" parameterType="java.lang.Long"
+            resultType="neatlogic.framework.report.dto.ReportBlackWhiteListVo">
+        SELECT id,
+               description,
+               item_name AS itemName,
+               item_type AS itemType,
+               type
+        FROM `report_blackwhitelist`
+        where id = #{value}
+    </select>
+
+    <select id="searchBlackWhiteList" parameterType="neatlogic.framework.report.dto.ReportBlackWhiteListVo"
+            resultType="neatlogic.framework.report.dto.ReportBlackWhiteListVo">
+        SELECT id,
+        description,
+        item_name AS itemName,
+        item_type AS itemType,
+        type
+        FROM `report_blackwhitelist`
+        <include refid="searchBlackWhiteListCondition"></include>
+        limit #{startNum}, #{pageSize}
+    </select>
+
+    <select id="searchBlackWhiteListCount" parameterType="neatlogic.framework.report.dto.ReportBlackWhiteListVo"
+            resultType="int">
+        SELECT count(1)
+        FROM `report_blackwhitelist`
+        <include refid="searchBlackWhiteListCondition"></include>
+    </select>
+
+    <sql id="searchBlackWhiteListCondition">
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and description like concat('%',#{keyword},'%')
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+            <if test="itemType != null and itemType != ''">
+                and item_type = #{itemType}
+            </if>
+        </where>
+    </sql>
+
+    <insert id="insertBlackWhiteList" parameterType="neatlogic.framework.report.dto.ReportBlackWhiteListVo">
+        insert into report_blackwhitelist (id, item_name, item_type, type, description)
+        values (#{id}, #{itemName}, #{itemType}, #{type}, #{description})
+    </insert>
+
+    <update id="updateBlackWhiteList" parameterType="neatlogic.framework.report.dto.ReportBlackWhiteListVo">
+        update report_blackwhitelist
+        set item_name   = #{itemName},
+            item_type   = #{itemType},
+            type        = #{type},
+            description = #{description}
+        where id = #{id}
+    </update>
+</mapper>
