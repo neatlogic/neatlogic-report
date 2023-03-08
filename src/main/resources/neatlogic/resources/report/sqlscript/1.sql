@@ -1,7 +1,7 @@
 -- ----------------------------
 -- Table structure for report
 -- ----------------------------
-CREATE TABLE `report` (
+CREATE TABLE IF NOT EXISTS `report` (
   `id` bigint NOT NULL COMMENT '主键',
   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '名称',
   `type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '类型',
@@ -21,7 +21,7 @@ CREATE TABLE `report` (
 -- ----------------------------
 -- Table structure for report_auth
 -- ----------------------------
-CREATE TABLE `report_auth` (
+CREATE TABLE IF NOT EXISTS `report_auth` (
   `report_id` bigint NOT NULL COMMENT '报表模版ID',
   `type` enum('user','role','team') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'user：用户,role：角色,team：分组',
   `auth_uuid` char(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'uuid',
@@ -32,7 +32,7 @@ CREATE TABLE `report_auth` (
 -- ----------------------------
 -- Table structure for report_blackwhitelist
 -- ----------------------------
-CREATE TABLE `report_blackwhitelist` (
+CREATE TABLE IF NOT EXISTS `report_blackwhitelist` (
   `id` bigint NOT NULL COMMENT 'id',
   `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '说明',
   `item_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '表名或字段名，支持*作为模糊匹配，如果是字段名且带.，代表精确管理某张表的字段',
@@ -45,7 +45,7 @@ CREATE TABLE `report_blackwhitelist` (
 -- ----------------------------
 -- Table structure for report_china_country
 -- ----------------------------
-CREATE TABLE `report_china_country` (
+CREATE TABLE IF NOT EXISTS `report_china_country` (
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '国家名称',
   `adcode` varchar(6) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '区号',
   `level` enum('district') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '水平',
@@ -57,7 +57,7 @@ CREATE TABLE `report_china_country` (
 -- ----------------------------
 -- Table structure for report_param
 -- ----------------------------
-CREATE TABLE `report_param` (
+CREATE TABLE IF NOT EXISTS `report_param` (
   `report_id` bigint NOT NULL COMMENT '报表id',
   `id` bigint DEFAULT NULL COMMENT '主键',
   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '名称',
@@ -73,7 +73,7 @@ CREATE TABLE `report_param` (
 -- ----------------------------
 -- Table structure for report_receiver
 -- ----------------------------
-CREATE TABLE `report_receiver` (
+CREATE TABLE IF NOT EXISTS `report_receiver` (
   `report_send_job_id` bigint NOT NULL COMMENT '报表发送计划ID',
   `receiver` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '接收人UUID或邮箱地址',
   `type` enum('to','cc') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'to：收件人；cc：抄送人',
@@ -83,7 +83,7 @@ CREATE TABLE `report_receiver` (
 -- ----------------------------
 -- Table structure for report_send_job
 -- ----------------------------
-CREATE TABLE `report_send_job` (
+CREATE TABLE IF NOT EXISTS `report_send_job` (
   `id` bigint NOT NULL COMMENT '主键',
   `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '名称',
   `email_title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '邮件标题',
@@ -100,7 +100,7 @@ CREATE TABLE `report_send_job` (
 -- ----------------------------
 -- Table structure for report_send_job_relation
 -- ----------------------------
-CREATE TABLE `report_send_job_relation` (
+CREATE TABLE IF NOT EXISTS `report_send_job_relation` (
   `report_send_job_id` bigint NOT NULL COMMENT '报表发送计划ID',
   `report_id` bigint NOT NULL COMMENT '报表ID',
   `condition` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT '条件',
@@ -112,7 +112,7 @@ CREATE TABLE `report_send_job_relation` (
 -- ----------------------------
 -- Table structure for report_statement
 -- ----------------------------
-CREATE TABLE `report_statement` (
+CREATE TABLE IF NOT EXISTS `report_statement` (
   `id` bigint DEFAULT NULL COMMENT 'id',
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '名称',
   `is_active` tinyint(1) DEFAULT NULL COMMENT '是否激活',
@@ -130,7 +130,7 @@ CREATE TABLE `report_statement` (
 -- ----------------------------
 -- Table structure for reportinstance
 -- ----------------------------
-CREATE TABLE `reportinstance` (
+CREATE TABLE IF NOT EXISTS `reportinstance` (
   `id` bigint NOT NULL COMMENT 'id',
   `report_id` bigint DEFAULT NULL COMMENT '报表id',
   `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '报表名称',
@@ -147,7 +147,7 @@ CREATE TABLE `reportinstance` (
 -- ----------------------------
 -- Table structure for reportinstance_auth
 -- ----------------------------
-CREATE TABLE `reportinstance_auth` (
+CREATE TABLE IF NOT EXISTS `reportinstance_auth` (
   `reportinstance_id` bigint NOT NULL COMMENT '报表实例ID',
   `type` enum('user','role','team') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'user：用户,role：角色,team：分组',
   `auth_uuid` char(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'uuid',
@@ -158,7 +158,7 @@ CREATE TABLE `reportinstance_auth` (
 -- ----------------------------
 -- Table structure for reportinstance_table_column
 -- ----------------------------
-CREATE TABLE `reportinstance_table_column` (
+CREATE TABLE IF NOT EXISTS `reportinstance_table_column` (
   `reportinstance_id` bigint NOT NULL COMMENT '报表实例ID',
   `table_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '表格ID',
   `column` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '字段名',
