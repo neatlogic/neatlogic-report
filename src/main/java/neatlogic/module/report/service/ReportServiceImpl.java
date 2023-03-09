@@ -6,7 +6,7 @@ import neatlogic.framework.common.dto.BasePageVo;
 import neatlogic.framework.common.util.PageUtil;
 import neatlogic.framework.dao.plugin.PageRowBounds;
 import neatlogic.framework.dto.RestVo;
-import neatlogic.framework.report.exception.ReportParamRepeatsException;
+import neatlogic.framework.report.exception.ReportParamNameRepeatsException;
 import neatlogic.framework.report.exception.TableNotFoundInReportException;
 import neatlogic.framework.sqlrunner.SqlInfo;
 import neatlogic.framework.sqlrunner.SqlRunner;
@@ -597,10 +597,10 @@ public class ReportServiceImpl implements ReportService {
                 ReportParamVo paramVo = paramList.get(i);
                 String key = paramVo.getName();
                 if (StringUtils.isBlank(key)) {
-                    throw new ReportParamRepeatsException(i, "名称");
+                    throw new ReportParamNameRepeatsException(i);
                 }
                 if (keySet.contains(key)) {
-                    throw new ReportParamRepeatsException(i, "名称");
+                    throw new ReportParamNameRepeatsException(i);
                 } else {
                     keySet.add(key);
                 }

@@ -16,11 +16,14 @@
 
 package neatlogic.module.report.widget;
 
-import neatlogic.module.report.util.JfreeChartUtil;
-import neatlogic.module.report.util.JfreeChartUtil.ChartColor;
 import com.alibaba.fastjson.JSONObject;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
+import neatlogic.framework.report.exception.ReportDrawBarFieldLessAttrException;
+import neatlogic.framework.report.exception.ReportDrawBarLessAttrException;
+import neatlogic.framework.report.exception.ReportDrawBarLessFieldException;
+import neatlogic.module.report.util.JfreeChartUtil;
+import neatlogic.module.report.util.JfreeChartUtil.ChartColor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -103,7 +106,7 @@ public class DrawStackedBarH implements TemplateMethodModelEx {
                 if (groupField != null) {
                     rowList.add(groupField.toString());
                 } else {
-                    throw new RuntimeException("堆积图数据集缺少groupField字段");
+                    throw new ReportDrawBarLessFieldException("groupField");
                 }
                 List<Map<String, Object>> valueItemList = (List<Map<String, Object>>) tbody.get("dataList");
                 if (CollectionUtils.isNotEmpty(valueItemList)) {
@@ -116,19 +119,19 @@ public class DrawStackedBarH implements TemplateMethodModelEx {
                                 columnList.add(typeField.toString());
                             }
                         } else {
-                            throw new RuntimeException("堆积图数据集dataList属性中缺少typeField字段");
+                            throw new ReportDrawBarFieldLessAttrException("dataList", "typeField");
                         }
                         Object valueField = valueItem.get("valueField");
                         if (valueField != null) {
                             dList[j] = Double.parseDouble(valueField.toString());
                         } else {
-                            throw new RuntimeException("堆积图数据集dataList属性中缺少valueField字段");
+                            throw new ReportDrawBarFieldLessAttrException("dataList", "valueField");
                         }
                         j++;
                     }
                     dataList[i] = dList;
                 } else {
-                    throw new RuntimeException("堆积图数据集缺少dataList属性");
+                    throw new ReportDrawBarLessAttrException("dataList");
                 }
                 i++;
             }
