@@ -16,10 +16,13 @@
 
 package neatlogic.module.report.widget;
 
+import freemarker.template.*;
+import neatlogic.framework.report.exception.ReportDrawBarFieldLessAttrException;
+import neatlogic.framework.report.exception.ReportDrawBarLessAttrException;
+import neatlogic.framework.report.exception.ReportDrawBarLessFieldException;
 import neatlogic.module.report.config.ReportConfig;
 import neatlogic.module.report.util.JfreeChartUtil;
 import neatlogic.module.report.util.JfreeChartUtil.ChartColor;
-import freemarker.template.*;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.LegendItem;
@@ -35,7 +38,10 @@ import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.*;
+import org.jfree.chart.renderer.category.CategoryItemRenderer;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.chart.renderer.category.StackedBarRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
@@ -78,7 +84,7 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
                         if (sm.containsKey("bar_row")) {
                             rowList.add(sm.get("bar_row").toString());
                         } else {
-                            throw new RuntimeException("堆积图数据集缺少bar_row字段");
+                            throw new ReportDrawBarLessFieldException("bar_row");
                         }
                         if (sm.containsKey("bar_data")) {
                             SimpleSequence valueItemList = (SimpleSequence) sm.get("bar_data");
@@ -90,18 +96,18 @@ public class DrawStackedBarLineH implements TemplateMethodModelEx {
                                         columnList.add(valueItem.get("bar_column").toString());
                                     }
                                 } else {
-                                    throw new RuntimeException("堆积图数据集bar_data属性中缺少bar_column字段");
+                                    throw new ReportDrawBarFieldLessAttrException("bar_data", "bar_column");
                                 }
                                 if (valueItem.containsKey("bar_value")) {
                                     dList[j] =
                                             Double.parseDouble(valueItem.get("bar_value").toString());
                                 } else {
-                                    throw new RuntimeException("堆积图数据集bar_data属性中缺少bar_value字段");
+                                    throw new ReportDrawBarFieldLessAttrException("bar_data", "bar_value");
                                 }
                             }
                             dataList[i] = dList;
                         } else {
-                            throw new RuntimeException("堆积图数据集缺少bar_data属性");
+                            throw new ReportDrawBarLessAttrException("bar_data");
                         }
                     }
                     dataset = DatasetUtils.createCategoryDataset(rowList.toArray(new String[0]),
