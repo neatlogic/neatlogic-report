@@ -16,9 +16,12 @@
 
 package neatlogic.module.report.constvalue;
 
+import neatlogic.framework.util.I18nUtils;
+
 public enum BlackWhiteType {
 
-    BLACK("black", "黑名单"), WHITE("white", "白名单");
+    BLACK("black", "enum.report.blackwhitetype.black"),
+    WHITE("white", "enum.report.blackwhitetype.white");
 
 
     private final String value;
@@ -35,7 +38,7 @@ public enum BlackWhiteType {
 
 
     public String getText() {
-        return text;
+        return I18nUtils.getMessage(text);
     }
 
     public static String getText(String _value) {

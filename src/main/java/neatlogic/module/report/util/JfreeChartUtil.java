@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import neatlogic.framework.util.I18nUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -221,24 +222,29 @@ public class JfreeChartUtil {
 
     public enum ChartColor {
 
-        TITLE_COLOR("titleColor", "标题字体颜色", 1, new Color(51, 51, 51)),
-        LEGEND_BACKGROUND_COLOR("legendBackgroundColor", "设置标注颜色", 2, Color.WHITE),
-        LEGEND_ITEM_COLOR("legendItemColor", "标注字体颜色", 3, Color.BLACK),
-        CHART_BACKGROUND_COLOR("chartBackgroundColor", "背景颜色", 4, Color.WHITE),
-        PLOT_BACKGROUND_COLOR("plotBackgroundColor", "绘制区域颜色", 5, Color.WHITE),
-        PLOT_OUTLINE_COLOR("plotOutlineColor", "绘制区域外边框颜色", 6, Color.WHITE,"stroke"),
-        LABEL_LINK_COLOR("labelLinkColor", "链接标签颜色", 7, new Color(8, 55, 114)),
-        DOMAIN_GRID_LINE_COLOR("domainGridlineColor", "X坐标轴垂直网格颜色", 8, new Color(192, 208, 224)),
-        RANG_GRID_LINE_COLOR("rangeGridlineColor", "Y坐标轴水平网格颜色", 9, new Color(192, 192, 192)),
-        AXIS_LABEL_COLOR("axisLabelColor", "坐标轴标题文字颜色", 10, new Color(51, 51, 51)),
-        TICK_LABEL_COLOR("tickLabelColor", "刻度数字", 11, new Color(67, 67, 72)),
+        TITLE_COLOR("titleColor", "enum.report.chartcolor.title_color", 1, new Color(51, 51, 51)),
+        LEGEND_BACKGROUND_COLOR("legendBackgroundColor", "enum.report.chartcolor.legend_background_color", 2, Color.WHITE),
+        LEGEND_ITEM_COLOR("legendItemColor", "enum.report.chartcolor.legend_item_color", 3, Color.BLACK),
+        CHART_BACKGROUND_COLOR("chartBackgroundColor", "enum.report.chartcolor.chart_background_color", 4, Color.WHITE),
+        PLOT_BACKGROUND_COLOR("plotBackgroundColor", "enum.report.chartcolor.plot_background_color", 5, Color.WHITE),
+        PLOT_OUTLINE_COLOR("plotOutlineColor", "enum.report.chartcolor.plot_outline_color", 6, Color.WHITE,"stroke"),
+        LABEL_LINK_COLOR("labelLinkColor", "enum.report.chartcolor.label_link_color", 7, new Color(8, 55, 114)),
+        DOMAIN_GRID_LINE_COLOR("domainGridlineColor", "enum.report.chartcolor.domain_grid_line_color", 8, new Color(192, 208, 224)),
+        RANG_GRID_LINE_COLOR("rangeGridlineColor", "enum.report.chartcolor.rang_grid_line_color", 9, new Color(192, 192, 192)),
+        AXIS_LABEL_COLOR("axisLabelColor", "enum.report.chartcolor.axis_label_color", 10, new Color(51, 51, 51)),
+        TICK_LABEL_COLOR("tickLabelColor", "enum.report.chartcolor.tick_label_color", 11, new Color(67, 67, 72)),
 
         // 色板
-        COLOR1("color1", "颜色1", 12, new Color(31, 129, 188)), COLOR2("color2", "颜色2", 13, new Color(92, 92, 97)),
-        COLOR3("color3", "颜色3", 14, new Color(144, 237, 125)), COLOR4("color4", "颜色4", 15, new Color(255, 188, 117)),
-        COLOR5("color5", "颜色5", 16, new Color(153, 158, 255)), COLOR6("color6", "颜色6", 17, new Color(255, 117, 153)),
-        COLOR7("color7", "颜色7", 18, new Color(253, 236, 109)), COLOR8("color8", "颜色8", 19, new Color(128, 133, 232)),
-        COLOR9("color9", "颜色9", 20, new Color(158, 90, 102)), COLOR10("color10", "颜色10", 21, new Color(255, 204, 102));
+        COLOR1("color1", "enum.report.chartcolor.color1", 12, new Color(31, 129, 188)),
+        COLOR2("color2", "enum.report.chartcolor.color2", 13, new Color(92, 92, 97)),
+        COLOR3("color3", "enum.report.chartcolor.color3", 14, new Color(144, 237, 125)),
+        COLOR4("color4", "enum.report.chartcolor.color4", 15, new Color(255, 188, 117)),
+        COLOR5("color5", "enum.report.chartcolor.color5", 16, new Color(153, 158, 255)),
+        COLOR6("color6", "enum.report.chartcolor.color6", 17, new Color(255, 117, 153)),
+        COLOR7("color7", "enum.report.chartcolor.color7", 18, new Color(253, 236, 109)),
+        COLOR8("color8", "enum.report.chartcolor.color8", 19, new Color(128, 133, 232)),
+        COLOR9("color9", "enum.report.chartcolor.color9", 20, new Color(158, 90, 102)),
+        COLOR10("color10", "enum.report.chartcolor.color10", 21, new Color(255, 204, 102));
 
         private String value;
         private String text;
@@ -267,7 +273,7 @@ public class JfreeChartUtil {
         }
 
         public String getText() {
-            return text;
+            return I18nUtils.getMessage(text);
         }
         
         public String getType() {
