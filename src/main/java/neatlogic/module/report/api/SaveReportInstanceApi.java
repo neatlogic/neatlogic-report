@@ -27,7 +27,6 @@ import neatlogic.framework.restful.core.privateapi.PrivateApiComponentBase;
 import neatlogic.module.report.auth.label.REPORT_MODIFY;
 import neatlogic.module.report.dao.mapper.ReportInstanceMapper;
 import neatlogic.module.report.dao.mapper.ReportMapper;
-import neatlogic.module.report.dto.ReportInstanceAuthVo;
 import neatlogic.module.report.dto.ReportInstanceTableColumnVo;
 import neatlogic.module.report.dto.ReportInstanceVo;
 import neatlogic.module.report.dto.ReportVo;
@@ -119,11 +118,8 @@ public class SaveReportInstanceApi extends PrivateApiComponentBase {
         if (CollectionUtils.isNotEmpty(tableColumnList)) {
             reportInstanceMapper.batchInsertReportInstanceTableColumn(tableColumnList);
         }
-        if (CollectionUtils.isNotEmpty(reportInstanceVo.getAuthList())) {
-            for (String auth : reportInstanceVo.getAuthList()) {
-                ReportInstanceAuthVo reportInstanceAuthVo = new ReportInstanceAuthVo(reportInstanceVo.getId(), auth.split("#")[0], auth.split("#")[1]);
-                reportInstanceMapper.insertReportInstanceAuth(reportInstanceAuthVo);
-            }
+        if (CollectionUtils.isNotEmpty(reportInstanceVo.getReportInstanceAuthList())) {
+            reportInstanceMapper.insertReportInstanceAuthList(reportInstanceVo.getReportInstanceAuthList());
         }
         return reportInstanceVo.getId();
     }

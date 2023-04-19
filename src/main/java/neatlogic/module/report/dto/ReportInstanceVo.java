@@ -16,12 +16,13 @@
 
 package neatlogic.module.report.dto;
 
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
 import neatlogic.framework.common.constvalue.ApiParamType;
+import neatlogic.framework.common.constvalue.GroupSearch;
 import neatlogic.framework.common.dto.BaseEditorVo;
 import neatlogic.framework.restful.annotation.EntityField;
 import neatlogic.framework.util.SnowflakeUtil;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.annotation.JSONField;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
@@ -94,6 +95,12 @@ public class ReportInstanceVo extends BaseEditorVo {
     }
 
     public List<ReportInstanceAuthVo> getReportInstanceAuthList() {
+        if (CollectionUtils.isEmpty(reportInstanceAuthList) && CollectionUtils.isNotEmpty(authList)) {
+            reportInstanceAuthList = new ArrayList<>();
+            for (String authorityStr : authList) {
+                reportInstanceAuthList.add(new ReportInstanceAuthVo(id, GroupSearch.getPrefix(authorityStr), GroupSearch.removePrefix(authorityStr)));
+            }
+        }
         return reportInstanceAuthList;
     }
 
@@ -103,9 +110,12 @@ public class ReportInstanceVo extends BaseEditorVo {
 
     public List<String> getAuthList() {
         if (CollectionUtils.isEmpty(authList) && CollectionUtils.isNotEmpty(reportInstanceAuthList)) {
-            this.authList = new ArrayList<>();
-            for (ReportInstanceAuthVo reportAuthVo : reportInstanceAuthList) {
-                this.authList.add(reportAuthVo.getAuthType() + "#" + reportAuthVo.getAuthUuid());
+            authList = new ArrayList<>();
+            for (ReportInstanceAuthVo reportInstanceAuthVo : reportInstanceAuthList) {
+                GroupSearch groupSearch = GroupSearch.getGroupSearch(reportInstanceAuthVo.getAuthType());
+                if (groupSearch != null) {
+                    authList.add(groupSearch.getValuePlugin() + reportInstanceAuthVo.getAuthUuid());
+                }
             }
         }
         return authList;
