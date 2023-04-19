@@ -1,10 +1,10 @@
 package neatlogic.module.report.dao.mapper;
 
-import java.util.List;
-
 import neatlogic.module.report.dto.ReportInstanceAuthVo;
 import neatlogic.module.report.dto.ReportInstanceTableColumnVo;
 import neatlogic.module.report.dto.ReportInstanceVo;
+
+import java.util.List;
 
 public interface ReportInstanceMapper {
 
@@ -33,7 +33,7 @@ public interface ReportInstanceMapper {
 
 	int insertReportInstance(ReportInstanceVo reportInstanceVo);
 
-	int insertReportInstanceAuth(ReportInstanceAuthVo reportInstanceAuthVo);
+	int insertReportInstanceAuthList(List<ReportInstanceAuthVo> reportInstanceAuthVoList);
 
 	int batchInsertReportInstanceTableColumn(List<ReportInstanceTableColumnVo> list);
 

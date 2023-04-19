@@ -149,18 +149,20 @@
 		WHERE `id` = #{id}
 	</update>
 
-	<insert id="insertReportInstanceAuth" parameterType="neatlogic.module.report.dto.ReportInstanceAuthVo">
+	<insert id="insertReportInstanceAuthList" parameterType="neatlogic.module.report.dto.ReportInstanceAuthVo">
 		INSERT INTO `reportinstance_auth` (
 		`reportinstance_id`,
 		`type`,
 		`auth_uuid`
 		)
 		VALUES
-		(
-		#{reportInstanceId},
-		#{authType},
-		#{authUuid}
-		)
+		<foreach collection="list" item="authorityVo" separator=",">
+			(
+			#{authorityVo.reportInstanceId},
+			#{authorityVo.authType},
+			#{authorityVo.authUuid}
+			)
+		</foreach>
 	</insert>
 
 	<insert id="insertReportInstance" parameterType="neatlogic.module.report.dto.ReportInstanceVo">

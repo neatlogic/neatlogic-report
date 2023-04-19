@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS `reportinstance` (
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `reportinstance_auth` (
   `reportinstance_id` bigint NOT NULL COMMENT '报表实例ID',
-  `type` enum('user','role','team') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'user：用户,role：角色,team：分组',
+  `type` enum('common','user','role','team') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'user：用户,role：角色,team：分组',
   `auth_uuid` char(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'uuid',
   PRIMARY KEY (`reportinstance_id`,`type`,`auth_uuid`) USING BTREE,
   KEY `idx_uuid` (`auth_uuid`) USING BTREE
