@@ -2,7 +2,7 @@ English / [Chinese](README.md)
 
 ## about
 
-neatlogic-report is a report module that comes with functions such as report template, report management, and sending plan.
+Neatlogic-report is a report module that supports users to configure report data sources and filtering conditions based on their needs and scenarios. For example, using reports to summarize all work orders from the past month, the module comes with functions such as report templates, report management, and sending plans.
 
 ## Feature
 
