@@ -18,6 +18,7 @@ package neatlogic.module.report.api.statement;
 
 import neatlogic.framework.auth.core.AuthAction;
 import neatlogic.framework.common.constvalue.ApiParamType;
+import neatlogic.framework.report.dto.ReportStatementVo;
 import neatlogic.framework.restful.annotation.Description;
 import neatlogic.framework.restful.annotation.Input;
 import neatlogic.framework.restful.annotation.OperationType;
@@ -61,7 +62,8 @@ public class ToggleReportStatementActiveApi extends PrivateApiComponentBase {
     @Description(desc = "激活/禁用报表接口")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
-
+        ReportStatementVo reportStatementVo = jsonObj.toJavaObject(ReportStatementVo.class);
+        reportStatementMapper.updateReportStatementActive(reportStatementVo);
         return null;
     }
 
