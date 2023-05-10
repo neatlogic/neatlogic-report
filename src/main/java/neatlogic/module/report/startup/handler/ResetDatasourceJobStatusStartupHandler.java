@@ -16,8 +16,8 @@
 
 package neatlogic.module.report.startup.handler;
 
-import neatlogic.framework.startup.StartupBase;
 import neatlogic.framework.datawarehouse.dao.mapper.DataWarehouseDataSourceMapper;
+import neatlogic.framework.startup.StartupBase;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
