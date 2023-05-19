@@ -20,7 +20,9 @@ import neatlogic.framework.asynchronization.threadlocal.UserContext;
 import neatlogic.framework.auth.core.AuthAction;
 import neatlogic.framework.auth.core.AuthActionChecker;
 import neatlogic.framework.common.constvalue.ApiParamType;
-import neatlogic.framework.dao.mapper.TeamMapper;
+import neatlogic.framework.common.constvalue.GroupSearch;
+import neatlogic.framework.common.constvalue.UserType;
+import neatlogic.framework.dto.AuthenticationInfoVo;
 import neatlogic.framework.exception.type.PermissionDeniedException;
 import neatlogic.framework.restful.annotation.*;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
@@ -58,9 +60,6 @@ public class GetReportInstanceApi extends PrivateApiComponentBase {
     @Resource
     private ReportInstanceMapper reportInstanceMapper;
 
-    @Resource
-    private TeamMapper teamMapper;
-
     @Override
     public String getToken() {
         return "reportinstance/get";
@@ -90,10 +89,17 @@ public class GetReportInstanceApi extends PrivateApiComponentBase {
         // 如果不是创建人也没有REPORT_MODIFY权限，看是否在授权列表中，不在则无权查看
         String userUuid = UserContext.get().getUserUuid(true);
         if (!hasAuth && !Objects.equals(userUuid, reportInstanceVo.getFcu())) {
-            List<String> userRoleList = UserContext.get().getRoleUuidList();
-            List<String> teamUuidList = teamMapper.getTeamUuidListByUserUuid(userUuid);
+            AuthenticationInfoVo authenticationInfoVo = UserContext.get().getAuthenticationInfoVo();
+            List<String> userRoleList = authenticationInfoVo.getRoleUuidList();
+            List<String> teamUuidList = authenticationInfoVo.getTeamUuidList();
             if (reportInstanceVo.getReportInstanceAuthList() != null) {
                 for (ReportInstanceAuthVo auth : reportInstanceVo.getReportInstanceAuthList()) {
+                    if (auth.getAuthType().equals(GroupSearch.COMMON.getValue())) {
+                        if (auth.getAuthUuid().equals(UserType.ALL.getValue())) {
+                            hasAuth = true;
+                            break;
+                        }
+                    }
                     if (auth.getAuthType().equals(ReportInstanceAuthVo.AUTHTYPE_USER)) {
                         if (auth.getAuthUuid().equals(userUuid)) {
                             hasAuth = true;
