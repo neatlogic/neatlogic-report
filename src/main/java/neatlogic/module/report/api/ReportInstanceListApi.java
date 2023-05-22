@@ -19,6 +19,8 @@ package neatlogic.module.report.api;
 import neatlogic.framework.asynchronization.threadlocal.UserContext;
 import neatlogic.framework.auth.core.AuthAction;
 import neatlogic.framework.auth.core.AuthActionChecker;
+import neatlogic.framework.common.constvalue.GroupSearch;
+import neatlogic.framework.common.constvalue.UserType;
 import neatlogic.framework.dto.AuthenticationInfoVo;
 import neatlogic.framework.restful.annotation.*;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
@@ -76,11 +78,12 @@ public class ReportInstanceListApi extends PrivateApiComponentBase {
         ReportInstanceVo reportInstanceVo = new ReportInstanceVo();
         reportInstanceVo.setIsActive(1);
         List<ReportInstanceVo> instanceList = new ArrayList<>();
-        if (!AuthActionChecker.check(REPORT_BASE.class.getSimpleName())) {
+        if (!AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName())) {
             // 查询当前用户有权看到的实例
             String userUuid = UserContext.get().getUserUuid(true);
             List<ReportInstanceAuthVo> reportAuthList = new ArrayList<>();
-            AuthenticationInfoVo authenticationInfoVo = authenticationInfoService.getAuthenticationInfo(userUuid);
+            reportAuthList.add(new ReportInstanceAuthVo(GroupSearch.COMMON.getValue(), UserType.ALL.getValue()));
+            AuthenticationInfoVo authenticationInfoVo = UserContext.get().getAuthenticationInfoVo();
             reportAuthList.add(new ReportInstanceAuthVo(ReportAuthVo.AUTHTYPE_USER, userUuid));
             for (String roleUuid : authenticationInfoVo.getRoleUuidList()) {
                 reportAuthList.add(new ReportInstanceAuthVo(ReportAuthVo.AUTHTYPE_ROLE, roleUuid));
