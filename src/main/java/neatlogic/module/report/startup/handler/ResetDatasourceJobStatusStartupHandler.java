@@ -42,14 +42,11 @@ public class ResetDatasourceJobStatusStartupHandler extends StartupBase {
      * 每个租户分别执行
      */
     @Override
-    public void executeForCurrentTenant() {
+    public int executeForCurrentTenant() {
         reportDataSourceMapper.resetReportDataSourceStatus();
+        return 0;
     }
 
-    @Override
-    public void executeForAllTenant() {
-
-    }
 
     /**
      * 排序
