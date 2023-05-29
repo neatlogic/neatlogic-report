@@ -1,4 +1,12 @@
 中文 / [English](README.en.md)
+<p align="left">
+    <a href="https://opensource.org/licenses/Apache-2.0" alt="License">
+        <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" /></a>
+<a target="_blank" href="https://join.slack.com/t/neatlogichome/shared_invite/zt-1w037axf8-r_i2y4pPQ1Z8FxOkAbb64w">
+<img src="https://img.shields.io/badge/Slack-Neatlogic-orange" /></a>
+</p>
+
+---
 
 ## 关于
 
@@ -25,8 +33,10 @@ neatlogic-report是报表模块，支持用户根据需求场景配置报表数�
 ![img.png](README_IMAGES/img3.png)
 
 ### 大屏管理
+
 大屏可以解决用户对数据实时监控和决策、宣传和展示的场景需求，大屏的特点有样式丰富多样、数据源自由度高、数据实时更新、可视化组件类型多等。大屏编辑页面分成三个区域：画布区、组件选择区、配置区。
 ![img.png](README_IMAGES/img5.png)
+
 - 画布区：即中间的核心编辑页面，支持移动组件位置，支持修改组件图层。
   ![img.png](README_IMAGES/img6.png)
 - 组件选择区：即饼图、折线图、柱形图等一系列的可视化图表选择。
