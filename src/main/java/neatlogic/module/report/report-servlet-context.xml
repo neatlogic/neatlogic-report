@@ -34,7 +34,7 @@ limitations under the License.
 		http://neatlogic.com/schema/neatlogic
 		https://neatlogic.com/schema/neatlogic.xsd">
 
-    <neatlogic:module id="report" name="报表模块" groupName="modulegroup.report" group="report" groupSort="4"
+    <neatlogic:module id="report" name="报表模块" groupName="modulegroup.report.a" group="report" groupSort="4"
                        groupDescription="modulegroup.report.desc"/>
 
     <context:component-scan base-package="neatlogic.module.report"/>

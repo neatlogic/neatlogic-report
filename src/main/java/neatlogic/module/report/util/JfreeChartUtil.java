@@ -1,14 +1,7 @@
 package neatlogic.module.report.util;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Paint;
-import java.awt.Rectangle;
-import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import neatlogic.framework.util.I18nUtils;
+import neatlogic.module.report.constvalue.ActionType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,7 +16,10 @@ import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 
-import neatlogic.module.report.constvalue.ActionType;
+import java.awt.*;
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class JfreeChartUtil {
     private static final Log logger = LogFactory.getLog(JfreeChartUtil.class);
@@ -235,7 +231,7 @@ public class JfreeChartUtil {
         TICK_LABEL_COLOR("tickLabelColor", "enum.report.chartcolor.tick_label_color", 11, new Color(67, 67, 72)),
 
         // 色板
-        COLOR1("color1", "enum.report.chartcolor.color1", 12, new Color(31, 129, 188)),
+        COLOR1("color1", "enum.report.chartcolor.color1.a", 12, new Color(31, 129, 188)),
         COLOR2("color2", "enum.report.chartcolor.color2", 13, new Color(92, 92, 97)),
         COLOR3("color3", "enum.report.chartcolor.color3", 14, new Color(144, 237, 125)),
         COLOR4("color4", "enum.report.chartcolor.color4", 15, new Color(255, 188, 117)),
