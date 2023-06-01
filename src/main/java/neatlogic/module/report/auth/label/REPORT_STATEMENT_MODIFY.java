@@ -25,12 +25,12 @@ public class REPORT_STATEMENT_MODIFY extends AuthBase {
 
     @Override
     public String getAuthDisplayName() {
-        return "auth.report.reportstatementmodify.name";
+        return "大屏管理权限";
     }
 
     @Override
     public String getAuthIntroduction() {
-        return "auth.report.reportstatementmodify.introduction";
+        return "拥有包括创建和修改大屏的权限";
     }
 
     @Override

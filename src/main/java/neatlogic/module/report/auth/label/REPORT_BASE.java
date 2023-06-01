@@ -6,12 +6,12 @@ public class REPORT_BASE extends AuthBase {
 
 	@Override
 	public String getAuthDisplayName() {
-		return "auth.report.reportbase.name";
+		return "报表基础权限";
 	}
 
 	@Override
 	public String getAuthIntroduction() {
-		return "auth.report.reportbase.introduction";
+		return "查看报表";
 	}
 
 	@Override

@@ -20,8 +20,8 @@ import neatlogic.framework.util.I18nUtils;
 
 public enum ActionType {
 
-    VIEW("view", "common.view"),
-    EXPORT("export", "common.export");
+    VIEW("view", "查看"),
+    EXPORT("export", "导出");
 
 
     private final String value;

@@ -25,12 +25,12 @@ public class REPORT_ADMIN extends AuthBase {
 
     @Override
     public String getAuthDisplayName() {
-        return "auth.report.reportadmin.name";
+        return "报表模块超级管理员权限";
     }
 
     @Override
     public String getAuthIntroduction() {
-        return "auth.report.reportadmin.introduction";
+        return "拥有报表模块所有管理功能";
     }
 
     @Override

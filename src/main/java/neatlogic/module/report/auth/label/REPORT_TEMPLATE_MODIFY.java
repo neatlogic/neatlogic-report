@@ -25,12 +25,12 @@ public class REPORT_TEMPLATE_MODIFY extends AuthBase {
 
     @Override
     public String getAuthDisplayName() {
-        return "auth.report.reporttemplatemodify.name";
+        return "报表模板管理员权限";
     }
 
     @Override
     public String getAuthIntroduction() {
-        return "auth.report.reporttemplatemodify.introduction";
+        return "可以查看和修改报表模板";
     }
 
     @Override

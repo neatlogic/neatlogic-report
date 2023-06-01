@@ -20,8 +20,8 @@ import neatlogic.framework.util.I18nUtils;
 
 public enum BlackWhiteType {
 
-    BLACK("black", "enum.report.blackwhitetype.black"),
-    WHITE("white", "enum.report.blackwhitetype.white");
+    BLACK("black", "黑名单"),
+    WHITE("white", "白名单");
 
 
     private final String value;

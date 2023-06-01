@@ -9,12 +9,12 @@ public class REPORT_MODIFY extends AuthBase {
 
 	@Override
 	public String getAuthDisplayName() {
-		return "auth.report.reportmodify.name";
+		return "报表管理员权限";
 	}
 
 	@Override
 	public String getAuthIntroduction() {
-		return "auth.report.reportmodify.introduction";
+		return "可以查看所有报表并对报表进行修改操作";
 	}
 
 	@Override
