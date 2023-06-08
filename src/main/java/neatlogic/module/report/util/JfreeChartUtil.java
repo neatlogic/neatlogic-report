@@ -1,6 +1,6 @@
 package neatlogic.module.report.util;
 
-import neatlogic.framework.util.I18nUtils;
+import neatlogic.framework.util.$;
 import neatlogic.module.report.constvalue.ActionType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -269,7 +269,7 @@ public class JfreeChartUtil {
         }
 
         public String getText() {
-            return I18nUtils.getMessage(text);
+            return $.t(text);
         }
         
         public String getType() {
