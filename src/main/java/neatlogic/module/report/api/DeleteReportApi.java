@@ -19,7 +19,7 @@ package neatlogic.module.report.api;
 import neatlogic.framework.auth.core.AuthAction;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
 import neatlogic.framework.restful.annotation.*;
-import neatlogic.module.report.auth.label.REPORT_MODIFY;
+import neatlogic.module.report.auth.label.REPORT_TEMPLATE_MODIFY;
 import neatlogic.module.report.dao.mapper.ReportInstanceMapper;
 import neatlogic.module.report.dao.mapper.ReportMapper;
 import neatlogic.module.report.dao.mapper.ReportSendJobMapper;
@@ -36,7 +36,7 @@ import neatlogic.framework.restful.core.privateapi.PrivateApiComponentBase;
 import neatlogic.module.report.dto.ReportVo;
 import org.springframework.transaction.annotation.Transactional;
 
-@AuthAction(action = REPORT_MODIFY.class)
+@AuthAction(action = REPORT_TEMPLATE_MODIFY.class)
 @OperationType(type = OperationTypeEnum.DELETE)
 @Service
 @Transactional

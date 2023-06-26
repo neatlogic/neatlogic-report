@@ -23,7 +23,7 @@ import neatlogic.framework.common.util.PageUtil;
 import neatlogic.framework.restful.annotation.*;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
 import neatlogic.framework.restful.core.privateapi.PrivateApiComponentBase;
-import neatlogic.module.report.auth.label.REPORT_MODIFY;
+import neatlogic.module.report.auth.label.REPORT_TEMPLATE_MODIFY;
 import neatlogic.module.report.dao.mapper.ReportMapper;
 import neatlogic.module.report.dto.ReportVo;
 import com.alibaba.fastjson.JSONObject;
@@ -33,7 +33,7 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
 
-@AuthAction(action = REPORT_MODIFY.class)
+@AuthAction(action = REPORT_TEMPLATE_MODIFY.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
 @Service
 public class SearchReportApi extends PrivateApiComponentBase {
