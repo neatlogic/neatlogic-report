@@ -48,7 +48,7 @@ public class GetReportTypeApi extends PrivateApiComponentBase {
 
     @Override
     public String getName() {
-        return "获取报表分类";
+        return "nmra.getreporttypeapi.getname";
     }
 
     @Override
@@ -56,7 +56,7 @@ public class GetReportTypeApi extends PrivateApiComponentBase {
         return null;
     }
 
-    @Description(desc = "获取报表分类")
+    @Description(desc = "nmra.getreporttypeapi.getname")
     @Output(@Param(explode = ReportTypeVo.class))
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
@@ -64,7 +64,7 @@ public class GetReportTypeApi extends PrivateApiComponentBase {
         List<ReportTypeVo> reportTypeList = reportMapper.getAllReportType();
         int reportCount = 0;
         JSONObject all = new JSONObject();
-        all.put("label", "所有");
+        all.put("label", "common.all");
         all.put("name", "all");
         all.put("id", "all");
         returnList.add(all);

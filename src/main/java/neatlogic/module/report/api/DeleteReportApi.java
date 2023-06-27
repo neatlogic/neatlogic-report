@@ -58,7 +58,7 @@ public class DeleteReportApi extends PrivateApiComponentBase {
 
 	@Override
 	public String getName() {
-		return "删除报表";
+		return "nmra.deletereportapi.getname";
 	}
 
 	@Override
@@ -66,9 +66,9 @@ public class DeleteReportApi extends PrivateApiComponentBase {
 		return null;
 	}
 
-	@Input({ @Param(name = "id", type = ApiParamType.LONG, isRequired = true, desc = "报表id") })
+	@Input({ @Param(name = "id", type = ApiParamType.LONG, isRequired = true, desc = "common.id") })
 	@Output({})
-	@Description(desc = "删除报表接口")
+	@Description(desc = "nmra.deletereportapi.getname")
 	@Override
 	public Object myDoService(JSONObject jsonObj) throws Exception {
 		Long reportId = jsonObj.getLong("id");

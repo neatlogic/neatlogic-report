@@ -49,7 +49,7 @@ public class UpdateReportActiveApi extends PrivateApiComponentBase {
 
     @Override
     public String getName() {
-        return "更改报表定义激活状态";
+        return "nmra.updatereportactiveapi.getname";
     }
 
     @Override
@@ -57,8 +57,8 @@ public class UpdateReportActiveApi extends PrivateApiComponentBase {
         return null;
     }
 
-    @Input({@Param(name = "id", type = ApiParamType.LONG, desc = "报表id"), @Param(name = "isActive", type = ApiParamType.INTEGER, desc = "是否激活")})
-    @Description(desc = "更改报表定义激活状态")
+    @Input({@Param(name = "id", type = ApiParamType.LONG, desc = "common.id"), @Param(name = "isActive", type = ApiParamType.INTEGER, desc = "common.isactive")})
+    @Description(desc = "nmra.updatereportactiveapi.getname")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
         ReportVo reportVo = JSONObject.toJavaObject(jsonObj, ReportVo.class);

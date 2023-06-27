@@ -59,7 +59,7 @@ public class ReportListApi extends PrivateApiComponentBase {
 
     @Override
     public String getName() {
-        return "获取报表定义列表";
+        return "nmra.reportlistapi.getname";
     }
 
     @Override
@@ -68,14 +68,14 @@ public class ReportListApi extends PrivateApiComponentBase {
     }
 
     @Input({
-            @Param(name = "keyword", type = ApiParamType.STRING, desc = "关键字", xss = true),
-            @Param(name = "defaultValue", type = ApiParamType.JSONARRAY, desc = "用于回显的报表ID列表"),
-            @Param(name = "needPage", type = ApiParamType.BOOLEAN, desc = "是否需要分页"),
-            @Param(name = "pageSize", type = ApiParamType.INTEGER, desc = "每页数量"),
-            @Param(name = "currentPage", type = ApiParamType.INTEGER, desc = "当前页"),
+            @Param(name = "keyword", type = ApiParamType.STRING, desc = "common.keyword", xss = true),
+            @Param(name = "defaultValue", type = ApiParamType.JSONARRAY, desc = "common.defaultvalue"),
+            @Param(name = "needPage", type = ApiParamType.BOOLEAN, desc = "common.isneedpage"),
+            @Param(name = "pageSize", type = ApiParamType.INTEGER, desc = "common.pagesize"),
+            @Param(name = "currentPage", type = ApiParamType.INTEGER, desc = "common.currentpage"),
     })
-    @Output({@Param(explode = BasePageVo.class), @Param(name = "tbodyList", desc = "报表定义列表", explode = ReportVo[].class)})
-    @Description(desc = "获取报表定义列表(用于报表实例编辑面板的模版选择下拉框)")
+    @Output({@Param(explode = BasePageVo.class), @Param(name = "tbodyList", desc = "common.tbodylist", explode = ReportVo[].class)})
+    @Description(desc = "nmra.reportlistapi.description.desc")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
         ReportVo reportVo = JSONObject.toJavaObject(jsonObj, ReportVo.class);

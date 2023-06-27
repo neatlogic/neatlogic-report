@@ -48,7 +48,7 @@ public class SearchReportApi extends PrivateApiComponentBase {
 
     @Override
     public String getName() {
-        return "查询报表定义";
+        return "nmra.searchreportapi.getname";
     }
 
     @Override
@@ -57,15 +57,15 @@ public class SearchReportApi extends PrivateApiComponentBase {
     }
 
     @Input({
-            @Param(name = "isActive", type = ApiParamType.ENUM, rule = "0,1", desc = "是否激活"),
-            @Param(name = "type", type = ApiParamType.STRING, desc = "类型"),
-            @Param(name = "keyword", type = ApiParamType.STRING, desc = "关键字", xss = true),
-            @Param(name = "needPage", type = ApiParamType.BOOLEAN, desc = "是否需要分页"),
-            @Param(name = "pageSize", type = ApiParamType.INTEGER, desc = "每页数量"),
-            @Param(name = "currentPage", type = ApiParamType.INTEGER, desc = "当前页"),
+            @Param(name = "isActive", type = ApiParamType.ENUM, rule = "0,1", desc = "common.isactive"),
+            @Param(name = "type", type = ApiParamType.STRING, desc = "common.type"),
+            @Param(name = "keyword", type = ApiParamType.STRING, desc = "common.keyword", xss = true),
+            @Param(name = "needPage", type = ApiParamType.BOOLEAN, desc = "common.isneedpage"),
+            @Param(name = "pageSize", type = ApiParamType.INTEGER, desc = "common.pagesize"),
+            @Param(name = "currentPage", type = ApiParamType.INTEGER, desc = "common.currentpage"),
     })
-    @Output({@Param(explode = BasePageVo.class), @Param(name = "tbodyList", desc = "报表定义列表", explode = ReportVo[].class)})
-    @Description(desc = "查询报表")
+    @Output({@Param(explode = BasePageVo.class), @Param(name = "tbodyList", desc = "common.tbodylist", explode = ReportVo[].class)})
+    @Description(desc = "nmra.searchreportapi.getname")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
         ReportVo reportVo = JSONObject.toJavaObject(jsonObj, ReportVo.class);
