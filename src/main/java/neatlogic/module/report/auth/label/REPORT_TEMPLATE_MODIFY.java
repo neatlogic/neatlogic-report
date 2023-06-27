@@ -45,6 +45,6 @@ public class REPORT_TEMPLATE_MODIFY extends AuthBase {
 
     @Override
     public List<Class<? extends AuthBase>> getIncludeAuths() {
-        return Arrays.asList(REPORT_BASE.class, REPORT_MODIFY.class);
+        return Arrays.asList(REPORT_BASE.class);
     }
 }

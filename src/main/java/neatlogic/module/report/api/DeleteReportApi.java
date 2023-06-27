@@ -19,7 +19,7 @@ package neatlogic.module.report.api;
 import neatlogic.framework.auth.core.AuthAction;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
 import neatlogic.framework.restful.annotation.*;
-import neatlogic.module.report.auth.label.REPORT_MODIFY;
+import neatlogic.module.report.auth.label.REPORT_TEMPLATE_MODIFY;
 import neatlogic.module.report.dao.mapper.ReportInstanceMapper;
 import neatlogic.module.report.dao.mapper.ReportMapper;
 import neatlogic.module.report.dao.mapper.ReportSendJobMapper;
@@ -36,7 +36,7 @@ import neatlogic.framework.restful.core.privateapi.PrivateApiComponentBase;
 import neatlogic.module.report.dto.ReportVo;
 import org.springframework.transaction.annotation.Transactional;
 
-@AuthAction(action = REPORT_MODIFY.class)
+@AuthAction(action = REPORT_TEMPLATE_MODIFY.class)
 @OperationType(type = OperationTypeEnum.DELETE)
 @Service
 @Transactional
@@ -58,7 +58,7 @@ public class DeleteReportApi extends PrivateApiComponentBase {
 
 	@Override
 	public String getName() {
-		return "删除报表";
+		return "nmra.deletereportapi.getname";
 	}
 
 	@Override
@@ -66,9 +66,9 @@ public class DeleteReportApi extends PrivateApiComponentBase {
 		return null;
 	}
 
-	@Input({ @Param(name = "id", type = ApiParamType.LONG, isRequired = true, desc = "报表id") })
+	@Input({ @Param(name = "id", type = ApiParamType.LONG, isRequired = true, desc = "common.id") })
 	@Output({})
-	@Description(desc = "删除报表接口")
+	@Description(desc = "nmra.deletereportapi.getname")
 	@Override
 	public Object myDoService(JSONObject jsonObj) throws Exception {
 		Long reportId = jsonObj.getLong("id");

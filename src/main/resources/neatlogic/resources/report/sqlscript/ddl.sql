@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `report` (
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `report_auth` (
   `report_id` bigint NOT NULL COMMENT '报表模版ID',
-  `type` enum('user','role','team') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'user：用户,role：角色,team：分组',
+  `type` enum('common', 'user','role','team') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'common：公共,user：用户,role：角色,team：分组',
   `auth_uuid` char(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'uuid',
   PRIMARY KEY (`report_id`,`type`,`auth_uuid`) USING BTREE,
   KEY `idx_uuid` (`auth_uuid`) USING BTREE

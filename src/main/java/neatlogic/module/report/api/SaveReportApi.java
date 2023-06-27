@@ -25,7 +25,7 @@ import neatlogic.framework.restful.annotation.*;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
 import neatlogic.framework.restful.core.IValid;
 import neatlogic.framework.restful.core.privateapi.PrivateApiComponentBase;
-import neatlogic.module.report.auth.label.REPORT_MODIFY;
+import neatlogic.module.report.auth.label.REPORT_TEMPLATE_MODIFY;
 import neatlogic.module.report.dao.mapper.ReportMapper;
 import neatlogic.module.report.dto.ReportAuthVo;
 import neatlogic.module.report.dto.ReportParamVo;
@@ -40,7 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.List;
 
-@AuthAction(action = REPORT_MODIFY.class)
+@AuthAction(action = REPORT_TEMPLATE_MODIFY.class)
 @OperationType(type = OperationTypeEnum.OPERATE)
 @Service
 @Transactional
@@ -59,7 +59,7 @@ public class SaveReportApi extends PrivateApiComponentBase {
 
     @Override
     public String getName() {
-        return "保存报表定义";
+        return "nmra.savereportapi.getname";
     }
 
     @Override
@@ -67,16 +67,16 @@ public class SaveReportApi extends PrivateApiComponentBase {
         return null;
     }
 
-    @Input({@Param(name = "id", type = ApiParamType.LONG, desc = "报表定义id"),
-            @Param(name = "name", type = ApiParamType.STRING, isRequired = true, desc = "报表定义名称"),
-            @Param(name = "type", type = ApiParamType.STRING, desc = "报表定义类型", defaultValue = ""),
-            @Param(name = "isActive", type = ApiParamType.INTEGER, desc = "是否激活"),
-            @Param(name = "sql", type = ApiParamType.STRING, desc = "报表定义数据源配置"),
-            @Param(name = "condition", type = ApiParamType.STRING, desc = "报表定义条件配置"),
-            @Param(name = "content", type = ApiParamType.STRING, desc = "报表定义内容配置"),
-            @Param(name = "authList", type = ApiParamType.JSONARRAY, desc = "报表定义授权列表")})
+    @Input({@Param(name = "id", type = ApiParamType.LONG, desc = "common.id"),
+            @Param(name = "name", type = ApiParamType.STRING, isRequired = true, desc = "common.name"),
+            @Param(name = "type", type = ApiParamType.STRING, desc = "common.type", defaultValue = ""),
+            @Param(name = "isActive", type = ApiParamType.INTEGER, desc = "common.isactive"),
+            @Param(name = "sql", type = ApiParamType.STRING, desc = "nmra.savereportapi.input.param.desc.sql"),
+            @Param(name = "condition", type = ApiParamType.STRING, desc = "common.condition"),
+            @Param(name = "content", type = ApiParamType.STRING, desc = "common.content"),
+            @Param(name = "authList", type = ApiParamType.JSONARRAY, desc = "common.authlist")})
     @Output({@Param(explode = ReportVo.class)})
-    @Description(desc = "保存报表定义")
+    @Description(desc = "nmra.savereportapi.getname")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
         ReportVo reportVo = JSONObject.toJavaObject(jsonObj, ReportVo.class);

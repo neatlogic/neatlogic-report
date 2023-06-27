@@ -23,7 +23,7 @@ import neatlogic.framework.restful.annotation.Output;
 import neatlogic.framework.restful.annotation.Param;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
 import neatlogic.framework.restful.core.privateapi.PrivateApiComponentBase;
-import neatlogic.module.report.auth.label.REPORT_MODIFY;
+import neatlogic.module.report.auth.label.REPORT_TEMPLATE_MODIFY;
 import neatlogic.module.report.dao.mapper.ReportMapper;
 import neatlogic.module.report.dto.ReportTypeVo;
 import com.alibaba.fastjson.JSONArray;
@@ -34,7 +34,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @Service
-@AuthAction(action = REPORT_MODIFY.class)
+@AuthAction(action = REPORT_TEMPLATE_MODIFY.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
 public class GetReportTypeApi extends PrivateApiComponentBase {
 
@@ -48,7 +48,7 @@ public class GetReportTypeApi extends PrivateApiComponentBase {
 
     @Override
     public String getName() {
-        return "获取报表分类";
+        return "nmra.getreporttypeapi.getname";
     }
 
     @Override
@@ -56,7 +56,7 @@ public class GetReportTypeApi extends PrivateApiComponentBase {
         return null;
     }
 
-    @Description(desc = "获取报表分类")
+    @Description(desc = "nmra.getreporttypeapi.getname")
     @Output(@Param(explode = ReportTypeVo.class))
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
@@ -64,7 +64,7 @@ public class GetReportTypeApi extends PrivateApiComponentBase {
         List<ReportTypeVo> reportTypeList = reportMapper.getAllReportType();
         int reportCount = 0;
         JSONObject all = new JSONObject();
-        all.put("label", "所有");
+        all.put("label", "common.all");
         all.put("name", "all");
         all.put("id", "all");
         returnList.add(all);

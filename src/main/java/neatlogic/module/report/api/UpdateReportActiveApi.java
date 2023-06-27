@@ -25,7 +25,7 @@ import neatlogic.framework.restful.annotation.OperationType;
 import neatlogic.framework.restful.annotation.Param;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
 import neatlogic.framework.restful.core.privateapi.PrivateApiComponentBase;
-import neatlogic.module.report.auth.label.REPORT_MODIFY;
+import neatlogic.module.report.auth.label.REPORT_TEMPLATE_MODIFY;
 import neatlogic.module.report.dao.mapper.ReportMapper;
 import neatlogic.module.report.dto.ReportVo;
 import neatlogic.framework.report.exception.ReportNotFoundException;
@@ -35,7 +35,7 @@ import org.springframework.stereotype.Service;
 
 
 @Service
-@AuthAction(action = REPORT_MODIFY.class)
+@AuthAction(action = REPORT_TEMPLATE_MODIFY.class)
 @OperationType(type = OperationTypeEnum.UPDATE)
 public class UpdateReportActiveApi extends PrivateApiComponentBase {
 
@@ -49,7 +49,7 @@ public class UpdateReportActiveApi extends PrivateApiComponentBase {
 
     @Override
     public String getName() {
-        return "更改报表定义激活状态";
+        return "nmra.updatereportactiveapi.getname";
     }
 
     @Override
@@ -57,8 +57,8 @@ public class UpdateReportActiveApi extends PrivateApiComponentBase {
         return null;
     }
 
-    @Input({@Param(name = "id", type = ApiParamType.LONG, desc = "报表id"), @Param(name = "isActive", type = ApiParamType.INTEGER, desc = "是否激活")})
-    @Description(desc = "更改报表定义激活状态")
+    @Input({@Param(name = "id", type = ApiParamType.LONG, desc = "common.id"), @Param(name = "isActive", type = ApiParamType.INTEGER, desc = "common.isactive")})
+    @Description(desc = "nmra.updatereportactiveapi.getname")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
         ReportVo reportVo = JSONObject.toJavaObject(jsonObj, ReportVo.class);
