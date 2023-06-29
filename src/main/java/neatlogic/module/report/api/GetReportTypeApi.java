@@ -23,6 +23,7 @@ import neatlogic.framework.restful.annotation.Output;
 import neatlogic.framework.restful.annotation.Param;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
 import neatlogic.framework.restful.core.privateapi.PrivateApiComponentBase;
+import neatlogic.framework.util.$;
 import neatlogic.module.report.auth.label.REPORT_TEMPLATE_MODIFY;
 import neatlogic.module.report.dao.mapper.ReportMapper;
 import neatlogic.module.report.dto.ReportTypeVo;
@@ -64,7 +65,7 @@ public class GetReportTypeApi extends PrivateApiComponentBase {
         List<ReportTypeVo> reportTypeList = reportMapper.getAllReportType();
         int reportCount = 0;
         JSONObject all = new JSONObject();
-        all.put("label", "common.all");
+        all.put("label", $.t("common.all"));
         all.put("name", "all");
         all.put("id", "all");
         returnList.add(all);
