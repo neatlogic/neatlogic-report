@@ -28,7 +28,6 @@ import neatlogic.framework.dto.AuthenticationInfoVo;
 import neatlogic.framework.restful.annotation.*;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
 import neatlogic.framework.restful.core.privateapi.PrivateApiComponentBase;
-import neatlogic.framework.service.AuthenticationInfoService;
 import neatlogic.module.report.auth.label.REPORT_BASE;
 import neatlogic.module.report.auth.label.REPORT_MODIFY;
 import neatlogic.module.report.dao.mapper.ReportMapper;
@@ -48,9 +47,6 @@ public class ReportListApi extends PrivateApiComponentBase {
 
     @Resource
     private ReportMapper reportMapper;
-
-    @Resource
-    private AuthenticationInfoService authenticationInfoService;
 
     @Override
     public String getToken() {
@@ -89,7 +85,7 @@ public class ReportListApi extends PrivateApiComponentBase {
             String userUuid = UserContext.get().getUserUuid();
             List<ReportAuthVo> reportAuthList = new ArrayList<>();
             reportAuthList.add(new ReportAuthVo(GroupSearch.COMMON.getValue(), UserType.ALL.getValue()));
-            AuthenticationInfoVo authenticationInfoVo = authenticationInfoService.getAuthenticationInfo(userUuid);
+            AuthenticationInfoVo authenticationInfoVo = UserContext.get().getAuthenticationInfoVo();;
             reportAuthList.add(new ReportAuthVo(ReportAuthVo.AUTHTYPE_USER, userUuid));
             for (String roleUuid : authenticationInfoVo.getRoleUuidList()) {
                 reportAuthList.add(new ReportAuthVo(ReportAuthVo.AUTHTYPE_ROLE, roleUuid));
