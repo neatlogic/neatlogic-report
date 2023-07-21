@@ -19,6 +19,7 @@ package neatlogic.module.report.api.statement;
 import neatlogic.framework.auth.core.AuthAction;
 import neatlogic.framework.common.constvalue.ApiParamType;
 import neatlogic.framework.report.dto.ReportStatementVo;
+import neatlogic.framework.report.exception.ReportStatementNotFoundEditTargetException;
 import neatlogic.framework.restful.annotation.*;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
 import neatlogic.framework.restful.core.privateapi.PrivateApiComponentBase;
@@ -43,7 +44,7 @@ public class GetReportStatementApi extends PrivateApiComponentBase {
 
     @Override
     public String getName() {
-        return "获取单个报表";
+        return "nmras.getreportstatementapi.getname";
     }
 
     @Override
@@ -51,12 +52,17 @@ public class GetReportStatementApi extends PrivateApiComponentBase {
         return null;
     }
 
-    @Input({@Param(name = "id", type = ApiParamType.LONG, isRequired = true, desc = "id")})
+    @Input({@Param(name = "id", type = ApiParamType.LONG, isRequired = true, desc = "common.id")})
     @Output({@Param(explode = ReportStatementVo.class)})
-    @Description(desc = "获取单个报表接口")
+    @Description(desc = "nmras.getreportstatementapi.getname")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
-        return reportStatementMapper.getReportStatementById(jsonObj.getLong("id"));
+        Long id = jsonObj.getLong("id");
+        ReportStatementVo reportStatementVo = reportStatementMapper.getReportStatementById(id);
+        if (reportStatementVo == null) {
+            throw new ReportStatementNotFoundEditTargetException(id);
+        }
+        return reportStatementVo;
     }
 
 }
