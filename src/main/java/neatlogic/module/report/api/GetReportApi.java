@@ -18,12 +18,14 @@ package neatlogic.module.report.api;
 
 import neatlogic.framework.auth.core.AuthAction;
 import neatlogic.framework.common.constvalue.ApiParamType;
+import neatlogic.framework.report.exception.ReportNotFoundEditTargetException;
 import neatlogic.framework.restful.annotation.*;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
 import neatlogic.framework.restful.core.privateapi.PrivateApiComponentBase;
 import neatlogic.framework.sqlrunner.SqlInfo;
 import neatlogic.framework.sqlrunner.SqlRunner;
 import neatlogic.module.report.auth.label.REPORT_BASE;
+import neatlogic.module.report.dao.mapper.ReportMapper;
 import neatlogic.module.report.dto.ReportVo;
 import neatlogic.module.report.service.ReportService;
 import com.alibaba.fastjson.JSONObject;
@@ -51,6 +53,9 @@ public class GetReportApi extends PrivateApiComponentBase {
     private static final Pattern pattern = Pattern.compile("drawTable\\((\\{.*\\})\\)");
 
     @Resource
+    private ReportMapper reportMapper;
+
+    @Resource
     private ReportService reportService;
 
     @Override
@@ -60,7 +65,7 @@ public class GetReportApi extends PrivateApiComponentBase {
 
     @Override
     public String getName() {
-        return "获取报表定义详细信息";
+        return "nmra.getreportapi.getname";
     }
 
     @Override
@@ -68,13 +73,16 @@ public class GetReportApi extends PrivateApiComponentBase {
         return null;
     }
 
-    @Input({@Param(name = "id", type = ApiParamType.LONG, desc = "报表定义id", isRequired = true)})
+    @Input({@Param(name = "id", type = ApiParamType.LONG, desc = "common.id", isRequired = true)})
     @Output({@Param(explode = ReportVo.class)})
-    @Description(desc = "获取报表定义详细信息")
+    @Description(desc = "nmra.getreportapi.getname")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
-
-        ReportVo reportVo = reportService.getReportDetailById(jsonObj.getLong("id"));
+        Long id = jsonObj.getLong("id");
+        if (reportMapper.getReportById(id) == null) {
+            throw new ReportNotFoundEditTargetException(id);
+        }
+        ReportVo reportVo = reportService.getReportDetailById(id);
         /* 查找表格 */
         try {
             getTableList(reportVo);

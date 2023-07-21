@@ -18,7 +18,7 @@ package neatlogic.module.report.api;
 
 import neatlogic.framework.auth.core.AuthAction;
 import neatlogic.framework.common.constvalue.ApiParamType;
-import neatlogic.framework.report.exception.ReportNotFoundEditTargetException;
+import neatlogic.framework.report.exception.ReportNotFoundException;
 import neatlogic.framework.restful.annotation.Description;
 import neatlogic.framework.restful.annotation.Input;
 import neatlogic.framework.restful.annotation.OperationType;
@@ -84,10 +84,6 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
         filter.putAll(paramObj);
         Long reportId = paramObj.getLong("id");
         Long reportInstanceId = paramObj.getLong("reportInstanceId");
-        ReportVo reportVo = reportService.getReportDetailById(reportId);
-        if (reportVo == null) {
-            throw new ReportNotFoundEditTargetException(reportId);
-        }
         // 统计使用次数
         reportMapper.updateReportVisitCount(reportId);
         reportMapper.updateReportInstanceVisitCount(reportInstanceId);
@@ -97,6 +93,10 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
         // Map<String, Object> paramMap = ReportToolkit.getParamMap(request);
         PrintWriter out = response.getWriter();
         try {
+            ReportVo reportVo = reportService.getReportDetailById(reportId);
+            if (reportVo == null) {
+                throw new ReportNotFoundException(reportId);
+            }
             List<SqlInfo> tableList = getTableList(reportVo.getContent());
             //out.write("<!DOCTYPE HTML>");
             //out.write("<html lang=\"en\">");
