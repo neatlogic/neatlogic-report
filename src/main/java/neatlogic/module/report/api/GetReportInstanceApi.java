@@ -24,6 +24,7 @@ import neatlogic.framework.common.constvalue.GroupSearch;
 import neatlogic.framework.common.constvalue.UserType;
 import neatlogic.framework.dto.AuthenticationInfoVo;
 import neatlogic.framework.exception.type.PermissionDeniedException;
+import neatlogic.framework.report.exception.ReportInstanceNotFoundEditTargetException;
 import neatlogic.framework.restful.annotation.*;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
 import neatlogic.framework.restful.core.privateapi.PrivateApiComponentBase;
@@ -34,7 +35,6 @@ import neatlogic.module.report.dto.ReportInstanceAuthVo;
 import neatlogic.module.report.dto.ReportInstanceVo;
 import neatlogic.module.report.dto.ReportParamVo;
 import neatlogic.module.report.dto.ReportVo;
-import neatlogic.framework.report.exception.ReportInstanceNotFoundException;
 import neatlogic.module.report.service.ReportInstanceService;
 import neatlogic.module.report.service.ReportService;
 import com.alibaba.fastjson.JSONObject;
@@ -67,7 +67,7 @@ public class GetReportInstanceApi extends PrivateApiComponentBase {
 
     @Override
     public String getName() {
-        return "获取报表详细信息";
+        return "nmra.getreportinstanceapi.getname";
     }
 
     @Override
@@ -75,15 +75,15 @@ public class GetReportInstanceApi extends PrivateApiComponentBase {
         return null;
     }
 
-    @Input({@Param(name = "id", type = ApiParamType.LONG, desc = "报表id", isRequired = true)})
+    @Input({@Param(name = "id", type = ApiParamType.LONG, desc = "common.id", isRequired = true)})
     @Output({@Param(explode = ReportVo.class)})
-    @Description(desc = "获取报表详细信息接口")
+    @Description(desc = "nmra.getreportinstanceapi.getname")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
         boolean hasAuth = AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName());
         Long reportInstanceId = jsonObj.getLong("id");
         if (reportInstanceMapper.checkReportInstanceExists(reportInstanceId) == 0) {
-            throw new ReportInstanceNotFoundException(reportInstanceId);
+            throw new ReportInstanceNotFoundEditTargetException(reportInstanceId);
         }
         ReportInstanceVo reportInstanceVo = reportInstanceService.getReportInstanceDetailById(reportInstanceId);
         // 如果不是创建人也没有REPORT_MODIFY权限，看是否在授权列表中，不在则无权查看

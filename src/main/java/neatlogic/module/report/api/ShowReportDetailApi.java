@@ -17,6 +17,7 @@
 package neatlogic.module.report.api;
 
 import neatlogic.framework.auth.core.AuthAction;
+import neatlogic.framework.common.constvalue.ApiParamType;
 import neatlogic.framework.report.exception.ReportNotFoundException;
 import neatlogic.framework.restful.annotation.Description;
 import neatlogic.framework.restful.annotation.Input;
@@ -31,7 +32,6 @@ import neatlogic.module.report.dto.ReportVo;
 import neatlogic.module.report.service.ReportService;
 import neatlogic.module.report.util.ReportFreemarkerUtil;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -65,7 +65,7 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
 
     @Override
     public String getName() {
-        return "展示报表";
+        return "nmra.showreportdetailapi.getname";
     }
 
     @Override
@@ -74,10 +74,10 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
     }
 
     @Input({
-            @Param(name = "id", desc = "报表id", isRequired = true),
-            @Param(name = "reportInstanceId", desc = "报表实例id"),
+            @Param(name = "id", type = ApiParamType.LONG, desc = "common.id", isRequired = true),
+            @Param(name = "reportInstanceId", type = ApiParamType.LONG, desc = "term.report.reportinstanceid"),
     })
-    @Description(desc = "展示报表接口")
+    @Description(desc = "nmra.showreportdetailapi.getname")
     @Override
     public Object myDoService(JSONObject paramObj, HttpServletRequest request, HttpServletResponse response) throws Exception {
         JSONObject filter = new JSONObject();

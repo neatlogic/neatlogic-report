@@ -18,7 +18,7 @@ package neatlogic.module.report.api.schedule;
 
 import neatlogic.framework.auth.core.AuthAction;
 import neatlogic.framework.common.constvalue.ApiParamType;
-import neatlogic.framework.report.exception.ReportSendJobNotFoundException;
+import neatlogic.framework.report.exception.ReportSendJobNotFoundEditTargetException;
 import neatlogic.framework.restful.annotation.*;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
 import neatlogic.framework.restful.core.privateapi.PrivateApiComponentBase;
@@ -54,7 +54,7 @@ public class ReportSendJobGetApi extends PrivateApiComponentBase {
 
     @Override
     public String getName() {
-        return "获取报表发送计划";
+        return "nmras.reportsendjobgetapi.getname";
     }
 
     @Override
@@ -62,14 +62,14 @@ public class ReportSendJobGetApi extends PrivateApiComponentBase {
         return null;
     }
 
-    @Input({@Param(name = "id", type = ApiParamType.LONG, isRequired = true, desc = "报表发送计划ID")})
-    @Output({@Param(name = "job", explode = ReportSendJobVo.class, desc = "发送计划")})
-    @Description(desc = "获取报表发送计划")
+    @Input({@Param(name = "id", type = ApiParamType.LONG, isRequired = true, desc = "common.id")})
+    @Output({@Param(name = "job", explode = ReportSendJobVo.class, desc = "term.report.sendplaninfo")})
+    @Description(desc = "nmras.reportsendjobgetapi.getname")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
         Long id = jsonObj.getLong("id");
         if (reportSendJobMapper.checkJobExists(id) == 0) {
-            throw new ReportSendJobNotFoundException(id);
+            throw new ReportSendJobNotFoundEditTargetException(id);
         }
         ReportSendJobVo job = reportSendJobMapper.getJobById(id);
         /** 获取报表条件控件回显值 */
