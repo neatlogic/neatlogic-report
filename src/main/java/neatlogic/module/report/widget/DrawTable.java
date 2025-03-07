@@ -153,12 +153,70 @@ public class DrawTable implements TemplateMethodModelEx {
             sb.append(" 条</span>");
             int prevPage = currentPage - 1;
             sb.append("<li title='上一页' page='" + prevPage + "' class='page ivu-page-prev" + (prevPage < 1 ? " ivu-page-disabled'" : "'") + "><a><i class='ivu-icon ivu-icon-ios-arrow-back'></i></a></li>");
+            // 首页码
+            List<Integer> homePageList = new ArrayList<>(1);
+            // 向前 5 页页码
+            List<Integer> forward5PageList = new ArrayList<>(1);
+            // 上2页 页码
+            List<Integer> previous2PageList = new ArrayList<>(2);
+            // 当前页码
+            List<Integer> currentPageList = new ArrayList<>(1);
+            // 后2页 页码
+            List<Integer> next2PageList = new ArrayList<>(2);
+            // 向后 5 页页码
+            List<Integer> backward5PageList = new ArrayList<>(1);
+            // 尾页码
+            List<Integer> lastPageList = new ArrayList<>(1);
             for (int i = 1; i <= pageCount; i++) {
-                sb.append("<li title='" + i + "' page='" + i + "' class='page ivu-page-item");
-                if (Objects.equals(currentPage, i)) {
-                    sb.append(" ivu-page-item-active");
+                if (i == 1 && i != currentPage) {
+                    homePageList.add(i);
+                } else if (i > 1 && i < (currentPage - 2)){
+                    if (CollectionUtils.isEmpty(forward5PageList)) {
+                        forward5PageList.add(currentPage - 5);
+                    }
+                } else if (i >= (currentPage - 2) && i < currentPage) {
+                    previous2PageList.add(i);
+                } else if (i == currentPage){
+                    currentPageList.add(i);
+                } else if (i > currentPage && i <= (currentPage + 2)){
+                    next2PageList.add(i);
+                } else if (i > (currentPage + 2) && i < pageCount){
+                    if (CollectionUtils.isEmpty(backward5PageList)) {
+                        backward5PageList.add(currentPage + 5);
+                    }
+                } else if (i == pageCount) {
+                    lastPageList.add(i);
                 }
-                sb.append("'><a>" + i + "</a></li>");
+            }
+            if (CollectionUtils.isNotEmpty(homePageList)) {
+                int i = homePageList.get(0);
+                sb.append("<li title='" + i + "' page='" + i + "' class='page ivu-page-item'><a>" + i + "</a></li>");
+            }
+            if (CollectionUtils.isNotEmpty(forward5PageList)) {
+                int i = Math.max(forward5PageList.get(0), 1);
+                sb.append("<li title='向前 5 页' page='" + i + "' class='page ivu-page-item-jump-prev'><a><i class='ivu-icon ivu-icon-ios-arrow-back'></i></a></li>");
+            }
+            if (CollectionUtils.isNotEmpty(previous2PageList)) {
+                for (Integer i : previous2PageList) {
+                    sb.append("<li title='" + i + "' page='" + i + "' class='page ivu-page-item'><a>" + i + "</a></li>");
+                }
+            }
+            if (CollectionUtils.isNotEmpty(currentPageList)) {
+                int i = currentPageList.get(0);
+                sb.append("<li title='" + i + "' page='" + i + "' class='page ivu-page-item ivu-page-item-active'><a>" + i + "</a></li>");
+            }
+            if (CollectionUtils.isNotEmpty(next2PageList)) {
+                for (Integer i : next2PageList) {
+                    sb.append("<li title='" + i + "' page='" + i + "' class='page ivu-page-item'><a>" + i + "</a></li>");
+                }
+            }
+            if (CollectionUtils.isNotEmpty(backward5PageList)) {
+                int i = Math.min(backward5PageList.get(0), pageCount);
+                sb.append("<li title='向后 5 页' page='" + i + "' class='page ivu-page-item-jump-next'><a><i class='ivu-icon ivu-icon-ios-arrow-forward'></i></a></li>");
+            }
+            if (CollectionUtils.isNotEmpty(lastPageList)) {
+                int i = lastPageList.get(0);
+                sb.append("<li title='" + i + "' page='" + i + "' class='page ivu-page-item'><a>" + i + "</a></li>");
             }
             int nextPage = currentPage + 1;
             sb.append("<li title='下一页' page='" + nextPage + "' class='page ivu-page-next" + (nextPage > pageCount ? " ivu-page-disabled'" : "'") + "><a><i class='ivu-icon ivu-icon-ios-arrow-forward'></i></a></li>");
