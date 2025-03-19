@@ -135,16 +135,25 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             String e = matcher.group();
             String tableId = getFieldValue(e, "data");
             if (StringUtils.isBlank(tableId)) {
-                continue;
+                tableId = getFieldValue(e, "\"data\"");
+                if (StringUtils.isBlank(tableId)) {
+                    continue;
+                }
             }
             SqlInfo sqlInfo = new SqlInfo();
             sqlInfo.setId(tableId);
             sqlInfoList.add(sqlInfo);
             String needPage = getFieldValue(e, "needPage");
+            if (StringUtils.isBlank(needPage)) {
+                needPage = getFieldValue(e, "\"needPage\"");
+            }
             if ("true".equalsIgnoreCase(needPage)) {
                 sqlInfo.setNeedPage(true);
             }
             String pageSize = getFieldValue(e, "pageSize");
+            if (StringUtils.isBlank(pageSize)) {
+                pageSize = getFieldValue(e, "\"pageSize\"");
+            }
             if (StringUtils.isNotBlank(pageSize)) {
                 sqlInfo.setPageSize(Integer.parseInt(pageSize));
             }
