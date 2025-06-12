@@ -43,6 +43,8 @@ public class ReportSendJobVo extends BaseEditorVo {
 	private List<ReportSendJobRelationVo> reportRelationList;
 	@EntityField(name = "报表列表", type = ApiParamType.JSONARRAY)
 	private List<ReportVo> reportList;
+	@EntityField(name = "是否已加载", type = ApiParamType.INTEGER)
+	private Integer isLoad;
 
 	public Long getId() {
 		if (id == null) {
@@ -173,5 +175,13 @@ public class ReportSendJobVo extends BaseEditorVo {
 
 	public void setReportList(List<ReportVo> reportList) {
 		this.reportList = reportList;
+	}
+
+	public Integer getIsLoad() {
+		return isLoad;
+	}
+
+	public void setIsLoad(Integer isLoad) {
+		this.isLoad = isLoad;
 	}
 }

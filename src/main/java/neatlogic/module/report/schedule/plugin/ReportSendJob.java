@@ -15,6 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.*/
 
 package neatlogic.module.report.schedule.plugin;
 
+import com.alibaba.fastjson.JSONObject;
 import neatlogic.framework.asynchronization.threadlocal.TenantContext;
 import neatlogic.framework.dao.mapper.UserMapper;
 import neatlogic.framework.dto.UserVo;
@@ -31,7 +32,6 @@ import neatlogic.module.report.dto.ReportSendJobVo;
 import neatlogic.module.report.dto.ReportVo;
 import neatlogic.module.report.service.ReportService;
 import neatlogic.module.report.util.ReportFreemarkerUtil;
-import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -110,8 +110,10 @@ public class ReportSendJob extends JobBase {
         /* 获取报表发送计划*/
         ReportSendJobVo sendJob = reportSendJobMapper.getJobById(id);
         Map<String, InputStream> reportMap = null;
-        String to = null;
-        String cc = null;
+        List<String> toEmailList = new ArrayList<>();
+        List<String> ccEmailList = new ArrayList<>();
+//        String to = null;
+//        String cc = null;
         boolean canExec = false;
         if (sendJob != null && Objects.equals(sendJob.getIsActive(), 1)) {
             List<ReportSendJobRelationVo> relatedReportList = sendJob.getReportRelationList();
@@ -121,24 +123,23 @@ public class ReportSendJob extends JobBase {
             }
             /* 获取收件人与抄送人 */
             List<ReportReceiverVo> receiverList = sendJob.getReceiverList();
-            List<String> toEmailList = new ArrayList<>();
-            List<String> ccEmailList = new ArrayList<>();
             getReceiverList(receiverList, toEmailList, ccEmailList);
-            if (CollectionUtils.isNotEmpty(toEmailList)) {
-                to = String.join(",", toEmailList);
-            }
-            if (CollectionUtils.isNotEmpty(ccEmailList)) {
-                cc = String.join(",", ccEmailList);
-            }
-            if (MapUtils.isNotEmpty(reportMap) && StringUtils.isNotBlank(to)) {
+//            if (CollectionUtils.isNotEmpty(toEmailList)) {
+//                to = String.join(",", toEmailList);
+//            }
+//            if (CollectionUtils.isNotEmpty(ccEmailList)) {
+//                cc = String.join(",", ccEmailList);
+//            }
+            if (MapUtils.isNotEmpty(reportMap) && CollectionUtils.isNotEmpty(toEmailList)) {
                 canExec = true;
             }
         }
         if (canExec) {
             /* 发送邮件 */
             try {
-                EmailUtil.sendEmailWithFile(sendJob.getEmailTitle(), sendJob.getEmailContent(), to, cc, reportMap);
+                EmailUtil.sendEmailWithFile(sendJob.getEmailTitle(), sendJob.getEmailContent(), toEmailList, ccEmailList, reportMap);
             } catch (Exception e) {
+                logger.error(e.getMessage(), e);
                 throw new JobExecutionException(e.getMessage());
             }
 
@@ -162,14 +163,18 @@ public class ReportSendJob extends JobBase {
                 if ("to".equals(vo.getType())) { //收件人
                     if (!vo.getReceiver().contains("@")) {
                         UserVo user = userMapper.getUserBaseInfoByUuid(vo.getReceiver());
-                        toEmailList.add(user.getEmail());
+                        if (user != null && StringUtils.isNotBlank(user.getEmail())) {
+                            toEmailList.add(user.getEmail());
+                        }
                     } else {
                         toEmailList.add(vo.getReceiver());
                     }
                 } else if ("cc".equals(vo.getType())) { //抄送人
                     if (!vo.getReceiver().contains("@")) {
                         UserVo user = userMapper.getUserBaseInfoByUuid(vo.getReceiver());
-                        ccEmailList.add(user.getEmail());
+                        if (user != null && StringUtils.isNotBlank(user.getEmail())) {
+                            ccEmailList.add(user.getEmail());
+                        }
                     } else {
                         ccEmailList.add(vo.getReceiver());
                     }
