@@ -1,14 +1,14 @@
 package neatlogic.module.report.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import neatlogic.framework.common.constvalue.ApiParamType;
 import neatlogic.framework.common.dto.BaseEditorVo;
 import neatlogic.framework.restful.annotation.EntityField;
+import neatlogic.framework.scheduler.dto.JobStatusVo;
 import neatlogic.framework.util.SnowflakeUtil;
-import com.alibaba.fastjson.annotation.JSONField;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class ReportSendJobVo extends BaseEditorVo {
@@ -25,8 +25,8 @@ public class ReportSendJobVo extends BaseEditorVo {
 	@EntityField(name = "是否激活", type = ApiParamType.INTEGER)
 	private Integer isActive;
 
-	@EntityField(name = "下次发送时间")
-	private Date nextFireTime;
+//	@EntityField(name = "下次发送时间")
+//	private Date nextFireTime;
 	@EntityField(name = "发送次数", type = ApiParamType.INTEGER)
 	private Integer execCount;
 	@EntityField(name = "邮件接收人列表", type = ApiParamType.JSONARRAY)
@@ -43,8 +43,8 @@ public class ReportSendJobVo extends BaseEditorVo {
 	private List<ReportSendJobRelationVo> reportRelationList;
 	@EntityField(name = "报表列表", type = ApiParamType.JSONARRAY)
 	private List<ReportVo> reportList;
-	@EntityField(name = "是否已加载", type = ApiParamType.INTEGER)
-	private Integer isLoad;
+
+	private JobStatusVo jobStatus;
 
 	public Long getId() {
 		if (id == null) {
@@ -97,13 +97,13 @@ public class ReportSendJobVo extends BaseEditorVo {
 		this.isActive = isActive;
 	}
 
-	public Date getNextFireTime() {
-		return nextFireTime;
-	}
-
-	public void setNextFireTime(Date nextFireTime) {
-		this.nextFireTime = nextFireTime;
-	}
+//	public Date getNextFireTime() {
+//		return nextFireTime;
+//	}
+//
+//	public void setNextFireTime(Date nextFireTime) {
+//		this.nextFireTime = nextFireTime;
+//	}
 
 	public Integer getExecCount() {
 		return execCount;
@@ -177,11 +177,11 @@ public class ReportSendJobVo extends BaseEditorVo {
 		this.reportList = reportList;
 	}
 
-	public Integer getIsLoad() {
-		return isLoad;
+	public JobStatusVo getJobStatus() {
+		return jobStatus;
 	}
 
-	public void setIsLoad(Integer isLoad) {
-		this.isLoad = isLoad;
+	public void setJobStatus(JobStatusVo jobStatus) {
+		this.jobStatus = jobStatus;
 	}
 }
