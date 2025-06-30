@@ -128,7 +128,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.-->
     </resultMap>
 
     <select id="searchJob" parameterType="neatlogic.module.report.dto.ReportSendJobVo"
-            resultType="jobDetailMap">
+            resultMap="jobDetailMap">
         select
         a.`id`,
         a.`name`,
