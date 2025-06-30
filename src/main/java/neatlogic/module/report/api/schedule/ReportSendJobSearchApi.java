@@ -25,14 +25,11 @@ import neatlogic.framework.common.util.PageUtil;
 import neatlogic.framework.restful.annotation.*;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
 import neatlogic.framework.restful.core.privateapi.PrivateApiComponentBase;
-import neatlogic.framework.scheduler.core.IJob;
-import neatlogic.framework.scheduler.core.SchedulerManager;
 import neatlogic.framework.scheduler.dao.mapper.SchedulerMapper;
 import neatlogic.framework.scheduler.dto.JobAuditVo;
 import neatlogic.module.report.auth.label.REPORT_BASE;
 import neatlogic.module.report.dao.mapper.ReportSendJobMapper;
 import neatlogic.module.report.dto.ReportSendJobVo;
-import neatlogic.module.report.schedule.plugin.ReportSendJob;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
@@ -50,9 +47,6 @@ public class ReportSendJobSearchApi extends PrivateApiComponentBase {
 
     @Resource
     private SchedulerMapper schedulerMapper;
-
-    @Resource
-    private SchedulerManager schedulerManager;
 
     @Override
     public String getToken() {
@@ -120,12 +114,6 @@ public class ReportSendJobSearchApi extends PrivateApiComponentBase {
                         }
                     }
                 }
-                boolean isLoad = false;
-                IJob jobHandler = SchedulerManager.getHandler(ReportSendJob.class.getName());
-                if (jobHandler != null) {
-                    isLoad = schedulerManager.checkJobIsExists(job.getId().toString(), jobHandler.getGroupName());
-                }
-                job.setIsLoad(isLoad ? 1 : 0);
             }
         }
         returnObj.put("jobList", jobList);
