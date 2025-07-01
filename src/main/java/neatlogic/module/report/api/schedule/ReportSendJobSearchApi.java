@@ -15,6 +15,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.*/
 
 package neatlogic.module.report.api.schedule;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import neatlogic.framework.auth.core.AuthAction;
 import neatlogic.framework.common.constvalue.ApiParamType;
 import neatlogic.framework.common.dto.BaseEditorVo;
@@ -27,9 +30,6 @@ import neatlogic.framework.scheduler.dto.JobAuditVo;
 import neatlogic.module.report.auth.label.REPORT_BASE;
 import neatlogic.module.report.dao.mapper.ReportSendJobMapper;
 import neatlogic.module.report.dto.ReportSendJobVo;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
@@ -102,8 +102,8 @@ public class ReportSendJobSearchApi extends PrivateApiComponentBase {
         /* 查询发送次数与收件人 */
         if (CollectionUtils.isNotEmpty(jobList)) {
             List<ReportSendJobVo> toList = reportSendJobMapper.getReportToList(jobList.stream().map(ReportSendJobVo::getId).collect(Collectors.toList()));
-            if (CollectionUtils.isNotEmpty(toList)) {
-                for (ReportSendJobVo job : jobList) {
+            for (ReportSendJobVo job : jobList) {
+                if (CollectionUtils.isNotEmpty(toList)) {
                     for (ReportSendJobVo to : toList) {
                         JobAuditVo jobAuditVo = new JobAuditVo();
                         jobAuditVo.setJobUuid(job.getId().toString());
