@@ -434,6 +434,7 @@ public class ReportServiceImpl implements ReportService {
         for (SqlInfo sqlInfo : sqlInfoList) {
             if (Objects.equals(sqlInfo.getId(), id)) {
                 propertyList = sqlInfo.getPropertyList();
+                break;
             }
         }
         if (object instanceof List) {
