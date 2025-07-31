@@ -123,15 +123,19 @@ public class ReportServiceImpl implements ReportService {
 
     private List<Map<String, Object>> selectTableColumns(List<String> showColumnList, List<Map<String, Object>> tmpList) {
         /* 筛选表格显示列 */
-        for (Map<String, Object> map : tmpList) {
-            map.entrySet().removeIf(stringObjectEntry -> !showColumnList.contains(stringObjectEntry.getKey()));
-        }
+//        for (Map<String, Object> map : tmpList) {
+//            map.entrySet().removeIf(stringObjectEntry -> !showColumnList.contains(stringObjectEntry.getKey()));
+//        }
         /* 排序 */
         List<Map<String, Object>> sqList = new ArrayList<>();
         for (Map<String, Object> map : tmpList) {
             Map<String, Object> _map = new LinkedHashMap<>();
             for (String s : showColumnList) {
-                _map.put(s, map.get(s));
+                Object value = map.get(s);
+                if (value == null) {
+                    value = "null";
+                }
+                _map.put(s, value);
             }
             sqList.add(_map);
         }
@@ -343,14 +347,26 @@ public class ReportServiceImpl implements ReportService {
             if (object == null) {
                 continue;
             }
+            List<String> propertyList = sqlInfo.getPropertyList();
             if (object instanceof List) {
                 List<Map<String, Object>> resultList = new ArrayList<>();
                 List list = (List) object;
                 for (Object obj : list) {
                     if (obj instanceof Map) {
+                        Map<?, ?> map = (Map<?, ?>) obj;
                         Map<String, Object> hashMap = new LinkedHashMap<>();
-                        for (Map.Entry<?, ?> entity : ((Map<?, ?>) obj).entrySet()) {
-                            hashMap.put((String) entity.getKey(), entity.getValue());
+                        if (CollectionUtils.isNotEmpty(propertyList)) {
+                            for (String property : propertyList) {
+                                Object value = map.get(property);
+                                if (value == null) {
+                                    value = "null";
+                                }
+                                hashMap.put(property, value);
+                            }
+                        } else {
+                            for (Map.Entry<?, ?> entity : map.entrySet()) {
+                                hashMap.put((String) entity.getKey(), entity.getValue());
+                            }
                         }
                         resultList.add(hashMap);
                     }
@@ -414,14 +430,31 @@ public class ReportServiceImpl implements ReportService {
         if (object == null) {
             return resultMap;
         }
+        List<String> propertyList = new ArrayList<>();
+        for (SqlInfo sqlInfo : sqlInfoList) {
+            if (Objects.equals(sqlInfo.getId(), id)) {
+                propertyList = sqlInfo.getPropertyList();
+            }
+        }
         if (object instanceof List) {
             List<Map<String, Object>> resultList = new ArrayList<>();
             List list = (List) object;
             for (Object obj : list) {
                 if (obj instanceof Map) {
-                    Map<String, Object> hashMap = new HashMap<>();
-                    for (Map.Entry<?, ?> entity : ((Map<?, ?>) obj).entrySet()) {
-                        hashMap.put((String) entity.getKey(), entity.getValue());
+                    Map<?, ?> map = (Map<?, ?>) obj;
+                    Map<String, Object> hashMap = new LinkedHashMap<>();
+                    if (CollectionUtils.isNotEmpty(propertyList)) {
+                        for (String property : propertyList) {
+                            Object value = map.get(property);
+                            if (value == null) {
+                                value = "null";
+                            }
+                            hashMap.put(property, value);
+                        }
+                    } else {
+                        for (Map.Entry<?, ?> entity : map.entrySet()) {
+                            hashMap.put((String) entity.getKey(), entity.getValue());
+                        }
                     }
                     resultList.add(hashMap);
                 }
