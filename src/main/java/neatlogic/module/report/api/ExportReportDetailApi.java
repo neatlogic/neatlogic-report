@@ -15,6 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.*/
 
 package neatlogic.module.report.api;
 
+import com.alibaba.fastjson.JSONObject;
 import neatlogic.framework.auth.core.AuthAction;
 import neatlogic.framework.common.constvalue.ApiParamType;
 import neatlogic.framework.exception.core.ApiRuntimeException;
@@ -33,7 +34,6 @@ import neatlogic.module.report.dao.mapper.ReportMapper;
 import neatlogic.module.report.dto.ReportVo;
 import neatlogic.module.report.service.ReportService;
 import neatlogic.module.report.util.ReportFreemarkerUtil;
-import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -80,7 +80,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             @Param(name = "id", desc = "报表id", type = ApiParamType.LONG, isRequired = true),
             @Param(name = "reportInstanceId", desc = "报表实例id", type = ApiParamType.LONG),
             @Param(name = "type", desc = "文件类型", type = ApiParamType.ENUM, rule = "pdf,word,excel", isRequired = true)})
-    @Description(desc = "导出报表接口")
+    @Description(desc = "导出报表")
     @Override
     public Object myDoService(JSONObject paramObj, HttpServletRequest request, HttpServletResponse response)
             throws Exception {
