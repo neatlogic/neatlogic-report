@@ -246,7 +246,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.-->
         UPDATE `report_send_job`
         SET `name`          = #{name},
             `email_title`   = #{emailTitle},
-            `email_content` = #{emailContent},
+            `email_content` = #{emailContent, typeHandler=CompressHandler},
             `cron`          = #{cron},
             `is_active`     = #{isActive},
             `lcu`           = #{lcu},
@@ -277,7 +277,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.-->
         VALUES (#{id},
                 #{name},
                 #{emailTitle},
-                #{emailContent},
+                #{emailContent, typeHandler=CompressHandler},
                 #{cron},
                 #{isActive},
                 now(3),
@@ -315,8 +315,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.-->
             (
             #{item.reportSendJobId},
             #{item.reportId},
-            #{item.condition},
-            #{item.config},
+            #{item.condition, typeHandler=CompressHandler},
+            #{item.config, typeHandler=CompressHandler},
             #{item.sort}
             )
         </foreach>

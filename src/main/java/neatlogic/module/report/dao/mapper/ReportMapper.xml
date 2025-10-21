@@ -205,9 +205,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.-->
             `report`
         SET `name`      = #{name},
             `type`      = #{type},
-            `sql`       = #{sql},
-            `condition` = #{condition},
-            `content`   = #{content},
+            `sql`       = #{sql, typeHandler=CompressHandler},
+            `condition` = #{condition, typeHandler=CompressHandler},
+            `content`   = #{content, typeHandler=CompressHandler},
             `is_active` = #{isActive},
             `lcu`       = #{lcu},
             `lcd`       = NOW(3)
@@ -240,7 +240,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.-->
                 #{name},
                 #{type},
                 #{label},
-                #{configStr},
+                #{configStr, typeHandler=CompressHandler},
                 #{sort},
                 #{width})
     </insert>
@@ -260,9 +260,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.-->
         VALUES (#{id},
                 #{name},
                 #{type},
-                #{sql},
-                #{condition},
-                #{content},
+                #{sql, typeHandler=CompressHandler},
+                #{condition, typeHandler=CompressHandler},
+                #{content, typeHandler=CompressHandler},
                 #{isActive},
                 #{fcu},
                 NOW(3),
@@ -292,7 +292,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.-->
             #{item.name},
             #{item.type},
             #{item.label},
-            #{item.configStr},
+            #{item.configStr, typeHandler=CompressHandler},
             #{item.sort},
             #{item.width}
             )
