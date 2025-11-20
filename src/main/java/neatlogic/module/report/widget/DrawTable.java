@@ -16,14 +16,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
+import neatlogic.framework.util.XssUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DrawTable implements TemplateMethodModelEx {
     // private static final Log logger = LogFactory.getLog(DrawTable.class);
@@ -52,6 +50,7 @@ public class DrawTable implements TemplateMethodModelEx {
     public Object exec(List arguments) throws TemplateModelException {
         String title = null, header = null, column = null, data = null;
         Boolean needPage = null;
+        Integer disableXss = null;
 //        SimpleSequence ss = null;
         List<String> keyList = new ArrayList<>();
         List<String> headerList;
@@ -66,6 +65,7 @@ public class DrawTable implements TemplateMethodModelEx {
                 header = configObj.getString("header");
                 column = configObj.getString("column");
                 needPage = configObj.getBoolean("needPage");
+                disableXss = configObj.getInteger("disableXss");
             } catch (Exception ex) {
                 // 非json格式
             }
@@ -102,7 +102,7 @@ public class DrawTable implements TemplateMethodModelEx {
         }
         String tableName = data;
         StringBuilder sb = new StringBuilder();
-        sb.append("<div id=\"" + data + "\" class=\"ivu-card ivu-card-dis-hover ivu-card-shadow\">");
+        sb.append("<div><div id=\"" + data + "\" class=\"ivu-card ivu-card-dis-hover ivu-card-shadow\">");
         if (StringUtils.isNotBlank(title)) {
             sb.append("<div class=\"ivu-card-head\">").append(title).append("</div>");
             tableName = title;
@@ -136,7 +136,11 @@ public class DrawTable implements TemplateMethodModelEx {
             for (Map<String, Object> tbody : tbodyList) {
                 sb.append("<tr>");
                 for (String col : columnList) {
-                    sb.append("<td>").append(tbody.get(col)).append("</td>");
+                    Object value = tbody.get(col);
+                    if (!Objects.equals(disableXss, 1) && value instanceof String) {
+                        value = XssUtil.escapeXss(value.toString());
+                    }
+                    sb.append("<td>").append(value).append("</td>");
                 }
                 sb.append("</tr>");
             }
@@ -250,7 +254,7 @@ public class DrawTable implements TemplateMethodModelEx {
             sb.append("});");
             sb.append("</script>");
         }
-        sb.append("</div>");
+        sb.append("</div></div>");
         return sb.toString();
     }
 
