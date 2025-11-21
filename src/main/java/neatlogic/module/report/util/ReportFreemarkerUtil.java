@@ -105,12 +105,12 @@ public class ReportFreemarkerUtil {
                     }
                 }
             }
-            out.write("<div id=\"footTip\" style=\"margin-top: 5px; padding-top: 10px; padding-bottom: 5px; border-top: 1px solid #ddd; color: #999; text-align: right;\">");
-            if (sqlTime.length() > 0) {
-                out.write("数据库执行耗时：" + sqlTime);
-            }
-            out.write("模板渲染耗时：" + (System.currentTimeMillis() - start) + "ms; ");
-            out.write("</div>");
+//            out.write("<div id=\"footTip\" style=\"margin-top: 5px; padding-top: 10px; padding-bottom: 5px; border-top: 1px solid #ddd; color: #999; text-align: right;\">");
+//            if (sqlTime.length() > 0) {
+//                out.write("数据库执行耗时：" + sqlTime);
+//            }
+//            out.write("模板渲染耗时：" + (System.currentTimeMillis() - start) + "ms; ");
+//            out.write("</div>");
         }
     }
 

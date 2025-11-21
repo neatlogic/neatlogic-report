@@ -100,6 +100,13 @@ public class GetReportTableApi extends PrivateBinaryStreamApiComponentBase {
             String data = getFieldValue(e, "data");
             if (Objects.equals(tableId, data)) {
                 tableContent = e;
+                String pageSize = getFieldValue(e, "pageSize");
+                if (StringUtils.isBlank(pageSize)) {
+                    pageSize = getFieldValue(e, "\"pageSize\"");
+                }
+                if (StringUtils.isNotBlank(pageSize)) {
+                    paramObj.put("pageSize", Integer.parseInt(pageSize));
+                }
                 break;
             }
         }
