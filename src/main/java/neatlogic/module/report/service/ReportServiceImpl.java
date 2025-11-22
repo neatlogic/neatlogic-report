@@ -446,7 +446,6 @@ public class ReportServiceImpl implements ReportService {
         } else {
             list = sqlRunner.runSqlById(sqlInfo, paramMap);
         }
-        System.out.println("list = " + JSONObject.toJSONString(list));
         List<String> propertyList = sqlInfo.getPropertyList();
         List<Map<String, Object>> resultList = new ArrayList<>();
         for (Object obj : list) {
@@ -455,9 +454,6 @@ public class ReportServiceImpl implements ReportService {
                 Map<String, Object> hashMap = new LinkedHashMap<>();
                 if (CollectionUtils.isNotEmpty(propertyList)) {
                     for (String property : propertyList) {
-                        if (!map.containsKey(property)) {
-                            System.out.println("property = " + property);
-                        }
                         Object value = map.get(property);
                         if (value == null) {
                             value = "null";
