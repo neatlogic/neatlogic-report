@@ -446,24 +446,12 @@ public class ReportServiceImpl implements ReportService {
         } else {
             list = sqlRunner.runSqlById(sqlInfo, paramMap);
         }
-        List<String> propertyList = sqlInfo.getPropertyList();
         List<Map<String, Object>> resultList = new ArrayList<>();
         for (Object obj : list) {
-            if (obj instanceof Map) {
-                Map<?, ?> map = (Map<?, ?>) obj;
+            if (obj instanceof Map<?, ?> map) {
                 Map<String, Object> hashMap = new LinkedHashMap<>();
-                if (CollectionUtils.isNotEmpty(propertyList)) {
-                    for (String property : propertyList) {
-                        Object value = map.get(property);
-                        if (value == null) {
-                            value = "null";
-                        }
-                        hashMap.put(property, value);
-                    }
-                } else {
-                    for (Map.Entry<?, ?> entity : map.entrySet()) {
-                        hashMap.put((String) entity.getKey(), entity.getValue());
-                    }
+                for (Map.Entry<?, ?> entity : map.entrySet()) {
+                    hashMap.put((String) entity.getKey(), entity.getValue());
                 }
                 resultList.add(hashMap);
             }
