@@ -28,7 +28,6 @@ import neatlogic.module.report.dao.mapper.ReportMapper;
 import neatlogic.module.report.dto.ReportVo;
 import neatlogic.module.report.service.ReportService;
 import neatlogic.module.report.util.ReportFreemarkerUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -39,17 +38,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @AuthAction(action = REPORT_BASE.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
 @Service
 public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
-    /**
-     * 匹配表格
-     */
-    private final Pattern pattern = Pattern.compile("\\$\\{drawTable\\(.*\\)\\}");
 
     @Resource
     private ReportMapper reportMapper;
@@ -96,7 +89,7 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             if (reportVo == null) {
                 throw new ReportNotFoundException(reportId);
             }
-            List<SqlInfo> tableList = getTableList(reportVo.getContent());
+            List<SqlInfo> tableList = reportService.getTableList(reportVo.getContent());
             //out.write("<!DOCTYPE HTML>");
             //out.write("<html lang=\"en\">");
             //out.write("<head>");
@@ -122,78 +115,6 @@ public class ShowReportDetailApi extends PrivateBinaryStreamApiComponentBase {
         //out.write("</body></html>");
         out.flush();
         out.close();
-        return null;
-    }
-
-    private List<SqlInfo> getTableList(String content) {
-        List<SqlInfo> sqlInfoList = new ArrayList<>();
-        if (StringUtils.isBlank(content)) {
-            return sqlInfoList;
-        }
-        Matcher matcher = pattern.matcher(content);
-        while(matcher.find()) {
-            String e = matcher.group();
-            String tableId = getFieldValue(e, "data");
-            if (StringUtils.isBlank(tableId)) {
-                tableId = getFieldValue(e, "\"data\"");
-                if (StringUtils.isBlank(tableId)) {
-                    continue;
-                }
-            }
-            SqlInfo sqlInfo = new SqlInfo();
-            sqlInfo.setId(tableId);
-            sqlInfoList.add(sqlInfo);
-            String needPage = getFieldValue(e, "needPage");
-            if (StringUtils.isBlank(needPage)) {
-                needPage = getFieldValue(e, "\"needPage\"");
-            }
-            if ("true".equalsIgnoreCase(needPage)) {
-                sqlInfo.setNeedPage(true);
-            }
-            String pageSize = getFieldValue(e, "pageSize");
-            if (StringUtils.isBlank(pageSize)) {
-                pageSize = getFieldValue(e, "\"pageSize\"");
-            }
-            if (StringUtils.isNotBlank(pageSize)) {
-                sqlInfo.setPageSize(Integer.parseInt(pageSize));
-            }
-        }
-        return sqlInfoList;
-    }
-
-    private String getFieldValue(String str, String field) {
-        int beginIndex = str.indexOf(field);
-        if (beginIndex != -1) {
-            beginIndex += field.length();
-            int index1 = str.indexOf(",", beginIndex);
-            int index2 = str.indexOf("}", beginIndex);
-            int endIndex = -1;
-            if (index1 == -1) {
-                endIndex = index2;
-            } else if (index2 == -1) {
-                endIndex = index1;
-            } else {
-                endIndex = Math.min(index1, index2);
-            }
-            if (endIndex == -1) {
-                return null;
-            }
-            String value = str.substring(beginIndex, endIndex);
-            value = value.trim();
-            if (!value.startsWith(":")) {
-                return null;
-            }
-            value = value.substring(1);
-            value = value.trim();
-            if (value.startsWith("\"")) {
-                value = value.substring(1);
-            }
-            if (value.endsWith("\"")) {
-                value = value.substring(0, value.length() - 1);
-            }
-            value = value.trim();
-            return value;
-        }
         return null;
     }
 }
