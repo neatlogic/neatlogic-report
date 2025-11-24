@@ -21,11 +21,13 @@ import neatlogic.framework.restful.annotation.OperationType;
 import neatlogic.framework.restful.annotation.Param;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
 import neatlogic.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
+import neatlogic.framework.sqlrunner.SqlInfo;
 import neatlogic.module.report.auth.label.REPORT_BASE;
 import neatlogic.module.report.dao.mapper.ReportMapper;
 import neatlogic.module.report.dto.ReportVo;
 import neatlogic.module.report.service.ReportService;
 import neatlogic.module.report.util.ReportFreemarkerUtil;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -33,21 +35,12 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
 
 @AuthAction(action = REPORT_BASE.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
 @Service
 public class GetReportTableApi extends PrivateBinaryStreamApiComponentBase {
-    /**
-     * 匹配表格
-     */
-    private final Pattern pattern = Pattern.compile("\\$\\{drawTable\\(.*\\)\\}");
 
     @Resource
     private ReportMapper reportMapper;
@@ -94,20 +87,14 @@ public class GetReportTableApi extends PrivateBinaryStreamApiComponentBase {
         }
         String tableContent = null;
         String tableId = paramObj.getString("tableId");
-        Matcher matcher = pattern.matcher(content);
-        while(matcher.find()) {
-            String e = matcher.group();
-            String data = getFieldValue(e, "data");
-            if (Objects.equals(tableId, data)) {
-                tableContent = e;
-                String pageSize = getFieldValue(e, "pageSize");
-                if (StringUtils.isBlank(pageSize)) {
-                    pageSize = getFieldValue(e, "\"pageSize\"");
+        SqlInfo currentTableSqlInfo = null;
+        List<SqlInfo> tableList = reportService.getTableList(reportVo.getContent());
+        if (CollectionUtils.isNotEmpty(tableList)) {
+            for (SqlInfo sqlInfo : tableList) {
+                if (Objects.equals(sqlInfo.getId(), tableId)) {
+                    currentTableSqlInfo = sqlInfo;
+                    tableContent = sqlInfo.getTableContent();
                 }
-                if (StringUtils.isNotBlank(pageSize)) {
-                    paramObj.put("pageSize", Integer.parseInt(pageSize));
-                }
-                break;
             }
         }
         if (StringUtils.isBlank(tableContent)) {
@@ -119,8 +106,9 @@ public class GetReportTableApi extends PrivateBinaryStreamApiComponentBase {
 
         PrintWriter out = response.getWriter();
         try {
-            boolean isFirst = request.getHeader("referer") == null || !request.getHeader("referer").contains("report-show/" + reportId);
-            Map<String, Object> returnMap = reportService.getQuerySqlResultById(tableId, reportVo, paramObj, showColumnsMap);
+//            boolean isFirst = request.getHeader("referer") == null || !request.getHeader("referer").contains("report-show/" + reportId);
+//            Map<String, Object> returnMap = reportService.getQuerySqlResultById(tableId, reportVo, paramObj, showColumnsMap);
+            Map<String, Object> returnMap = reportService.getQuerySqlResult(reportVo, paramObj, showColumnsMap, List.of(tableId), List.of(currentTableSqlInfo));
             Map<String, Object> tmpMap = new HashMap<>();
             Map<String, Object> commonMap = new HashMap<>();
             tmpMap.put("report", returnMap);
@@ -139,42 +127,6 @@ public class GetReportTableApi extends PrivateBinaryStreamApiComponentBase {
 
     @Override
     public String getConfig() {
-        return null;
-    }
-
-    private String getFieldValue(String str, String field) {
-        int beginIndex = str.indexOf(field);
-        if (beginIndex != -1) {
-            beginIndex += field.length();
-            int index1 = str.indexOf(",", beginIndex);
-            int index2 = str.indexOf("}", beginIndex);
-            int endIndex = -1;
-            if (index1 == -1) {
-                endIndex = index2;
-            } else if (index2 == -1) {
-                endIndex = index1;
-            } else {
-                endIndex = Math.min(index1, index2);
-            }
-            if (endIndex == -1) {
-                return null;
-            }
-            String value = str.substring(beginIndex, endIndex);
-            value = value.trim();
-            if (!value.startsWith(":")) {
-                return null;
-            }
-            value = value.substring(1);
-            value = value.trim();
-            if (value.startsWith("\"")) {
-                value = value.substring(1);
-            }
-            if (value.endsWith("\"")) {
-                value = value.substring(0, value.length() - 1);
-            }
-            value = value.trim();
-            return value;
-        }
         return null;
     }
 }

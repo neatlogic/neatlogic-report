@@ -40,11 +40,17 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
 public class ReportServiceImpl implements ReportService {
     Logger logger = LoggerFactory.getLogger(ReportServiceImpl.class);
+    /**
+     * 匹配表格
+     */
+    private final Pattern pattern = Pattern.compile("\\$\\{drawTable\\(.*\\)\\}");
 
     @Resource
     private ReportMapper reportMapper;
@@ -287,12 +293,91 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    public List<SqlInfo> getTableList(String content) {
+        List<SqlInfo> sqlInfoList = new ArrayList<>();
+        if (StringUtils.isBlank(content)) {
+            return sqlInfoList;
+        }
+        Matcher matcher = pattern.matcher(content);
+        while(matcher.find()) {
+            String e = matcher.group();
+            String tableId = getFieldValue(e, "data");
+            if (StringUtils.isBlank(tableId)) {
+                tableId = getFieldValue(e, "\"data\"");
+                if (StringUtils.isBlank(tableId)) {
+                    continue;
+                }
+            }
+            SqlInfo sqlInfo = new SqlInfo();
+            sqlInfo.setId(tableId);
+            sqlInfo.setTableContent(e);
+            sqlInfoList.add(sqlInfo);
+            String needPage = getFieldValue(e, "needPage");
+            if (StringUtils.isBlank(needPage)) {
+                needPage = getFieldValue(e, "\"needPage\"");
+            }
+            if ("true".equalsIgnoreCase(needPage)) {
+                sqlInfo.setNeedPage(true);
+            }
+            String pageSize = getFieldValue(e, "pageSize");
+            if (StringUtils.isBlank(pageSize)) {
+                pageSize = getFieldValue(e, "\"pageSize\"");
+            }
+            if (StringUtils.isNotBlank(pageSize)) {
+                sqlInfo.setPageSize(Integer.parseInt(pageSize));
+            }
+        }
+        return sqlInfoList;
+    }
+
+    private String getFieldValue(String str, String field) {
+        int beginIndex = str.indexOf(field);
+        if (beginIndex != -1) {
+            beginIndex += field.length();
+            int index1 = str.indexOf(",", beginIndex);
+            int index2 = str.indexOf("}", beginIndex);
+            int endIndex = -1;
+            if (index1 == -1) {
+                endIndex = index2;
+            } else if (index2 == -1) {
+                endIndex = index1;
+            } else {
+                endIndex = Math.min(index1, index2);
+            }
+            if (endIndex == -1) {
+                return null;
+            }
+            String value = str.substring(beginIndex, endIndex);
+            value = value.trim();
+            if (!value.startsWith(":")) {
+                return null;
+            }
+            value = value.substring(1);
+            value = value.trim();
+            if (value.startsWith("\"")) {
+                value = value.substring(1);
+            }
+            if (value.endsWith("\"")) {
+                value = value.substring(0, value.length() - 1);
+            }
+            value = value.trim();
+            return value;
+        }
+        return null;
+    }
+
+    @Override
     public Map<String, Object> getQuerySqlResult(ReportVo reportVo, JSONObject paramMap, Map<String, List<String>> showColumnsMap) {
-        return getQuerySqlResult(reportVo, paramMap, showColumnsMap, new ArrayList<>());
+        return getQuerySqlResult(reportVo, paramMap, showColumnsMap, new ArrayList<>(), new ArrayList<>());
     }
 
     @Override
     public Map<String, Object> getQuerySqlResult(ReportVo reportVo, JSONObject paramMap, Map<String, List<String>> showColumnsMap, List<SqlInfo> tableList) {
+        return getQuerySqlResult(reportVo, paramMap, showColumnsMap, new ArrayList<>(), tableList);
+    }
+
+    @Override
+    public Map<String, Object> getQuerySqlResult(ReportVo reportVo, JSONObject paramMap, Map<String, List<String>> showColumnsMap, List<String> needExecuteSqlIdList, List<SqlInfo> tableList) {
         Map<String, Object> resultMap = new HashMap<>();
         if (StringUtils.isBlank(reportVo.getSql())) {
             return resultMap;
@@ -309,84 +394,86 @@ public class ReportServiceImpl implements ReportService {
         }
         Map<String, Object> pageMap = new HashMap<>();
         Map<String, Long> timeMap = new HashMap<>();
-        BasePageVo basePageVo = new BasePageVo();
         for (SqlInfo sqlInfo : sqlInfoList) {
             // 如果SQL设置了延迟加载，第一次访问时不主动获取数据
 //            if (isFirst) {
 //                continue;
 //            }
-            long sqlTimeStart = System.currentTimeMillis();
-            if (sqlInfo.getNeedPage()) {
-                basePageVo.setPageSize(sqlInfo.getPageSize());
-                PageRowBounds rowBounds = new PageRowBounds(basePageVo.getStartNum(), basePageVo.getPageSize());
-                List list = sqlRunner.runSqlById(sqlInfo, paramMap, rowBounds);
-                if (CollectionUtils.isNotEmpty(list)) {
-                    resultMap.put(sqlInfo.getId(), list);
-                    timeMap.put("SQL_" + sqlInfo.getId() + "_SIZE", (long) list.size());
+            if (CollectionUtils.isEmpty(needExecuteSqlIdList) || needExecuteSqlIdList.contains(sqlInfo.getId())) {
+                long sqlTimeStart = System.currentTimeMillis();
+                if (sqlInfo.getNeedPage()) {
+                    BasePageVo basePageVo = new BasePageVo();
+                    Integer currentPage = paramMap.getInteger("currentPage");
+                    if (currentPage != null) {
+                        basePageVo.setCurrentPage(currentPage);
+                    }
+                    basePageVo.setPageSize(sqlInfo.getPageSize());
+                    PageRowBounds rowBounds = new PageRowBounds(basePageVo.getStartNum(), basePageVo.getPageSize());
+//                    List list = sqlRunner.runSqlById(sqlInfo, paramMap, rowBounds);
+                    List list = runSql(sqlRunner, sqlInfo, paramMap, rowBounds, showColumnsMap);
+                    if (CollectionUtils.isNotEmpty(list)) {
+                        resultMap.put(sqlInfo.getId(), list);
+                        timeMap.put("SQL_" + sqlInfo.getId() + "_SIZE", (long) list.size());
+                    }
+                    basePageVo.setRowNum(rowBounds.getRowNum());
+                    JSONObject pageObj = new JSONObject();
+                    pageObj.put("rowNum", basePageVo.getRowNum());
+                    pageObj.put("currentPage", basePageVo.getCurrentPage());
+                    pageObj.put("pageSize", basePageVo.getPageSize());
+                    pageObj.put("pageCount", basePageVo.getPageCount());
+                    pageObj.put("tableId", sqlInfo.getId());
+                    pageMap.put(sqlInfo.getId(), pageObj);
+                } else {
+//                    List list = sqlRunner.runSqlById(sqlInfo, paramMap);
+                    List list = runSql(sqlRunner, sqlInfo, paramMap, null, showColumnsMap);
+                    if (CollectionUtils.isNotEmpty(list)) {
+                        resultMap.put(sqlInfo.getId(), list);
+                        timeMap.put("SQL_" + sqlInfo.getId() + "_SIZE", (long) list.size());
+                    }
                 }
-                basePageVo.setRowNum(rowBounds.getRowNum());
-                JSONObject pageObj = new JSONObject();
-                pageObj.put("rowNum", basePageVo.getRowNum());
-                pageObj.put("currentPage", basePageVo.getCurrentPage());
-                pageObj.put("pageSize", basePageVo.getPageSize());
-                pageObj.put("pageCount", basePageVo.getPageCount());
-                pageObj.put("tableId", sqlInfo.getId());
-                pageMap.put(sqlInfo.getId(), pageObj);
-            } else {
-                List list = sqlRunner.runSqlById(sqlInfo, paramMap);
-                if (CollectionUtils.isNotEmpty(list)) {
-                    resultMap.put(sqlInfo.getId(), list);
-                    timeMap.put("SQL_" + sqlInfo.getId() + "_SIZE", (long) list.size());
-                }
+                timeMap.put("SQL_" + sqlInfo.getId(), System.currentTimeMillis() - sqlTimeStart);
             }
-            timeMap.put("SQL_" + sqlInfo.getId(), System.currentTimeMillis() - sqlTimeStart);
         }
         resultMap.put(ReportConfig.REPORT_PAGE_MAP_KEY, pageMap);
-        for (SqlInfo sqlInfo : sqlInfoList) {
-            Object object = resultMap.get(sqlInfo.getId());
-            if (object == null) {
-                continue;
-            }
-            List<String> propertyList = sqlInfo.getPropertyList();
-            if (object instanceof List) {
-                List<Map<String, Object>> resultList = new ArrayList<>();
-                List list = (List) object;
-                for (Object obj : list) {
-                    if (obj instanceof Map) {
-                        Map<?, ?> map = (Map<?, ?>) obj;
-                        Map<String, Object> hashMap = new LinkedHashMap<>();
-                        if (CollectionUtils.isNotEmpty(propertyList)) {
-                            for (String property : propertyList) {
-                                Object value = map.get(property);
-                                if (value == null) {
-                                    value = "null";
-                                }
-                                hashMap.put(property, value);
-                            }
-                        } else {
-                            for (Map.Entry<?, ?> entity : map.entrySet()) {
-                                hashMap.put((String) entity.getKey(), entity.getValue());
-                            }
-                        }
-                        resultList.add(hashMap);
-                    }
-                }
-                /* 如果存在表格且存在表格显示列的配置，则筛选显示列并排序
-                   showColumnMap:key->表格ID;value->配置的表格显示列
-                */
-                if (MapUtils.isNotEmpty(showColumnsMap)) {
-                    List<String> showColumnList = showColumnsMap.get(sqlInfo.getId());
-                    if (showColumnList != null) {
-                        List<Map<String, Object>> sqList = selectTableColumns(showColumnList, resultList);
-                        resultList = sqList;
-                    }
-                }
-                resultMap.put(sqlInfo.getId(), resultList);
-                timeMap.put("SQL_" + sqlInfo.getId() + "_SIZE", (long) resultList.size());
-            }
-        }
         resultMap.put(ReportConfig.REPORT_TIME_MAP_KEY, timeMap);
         return resultMap;
+    }
+
+    private List<Map<String, Object>> runSql(SqlRunner sqlRunner, SqlInfo sqlInfo, JSONObject paramMap, PageRowBounds rowBounds, Map<String, List<String>> showColumnsMap) {
+        List list = null;
+        if (rowBounds != null) {
+            list = sqlRunner.runSqlById(sqlInfo, paramMap, rowBounds);
+        } else {
+            list = sqlRunner.runSqlById(sqlInfo, paramMap);
+        }
+        List<String> propertyList = sqlInfo.getPropertyList();
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        for (Object obj : list) {
+            if (obj instanceof Map<?, ?> map) {
+                Map<String, Object> hashMap = new LinkedHashMap<>();
+                if (CollectionUtils.isNotEmpty(propertyList)) {
+                    for (String property : propertyList) {
+                        hashMap.put(property, map.get(property));
+                    }
+                } else {
+                    for (Map.Entry<?, ?> entity : map.entrySet()) {
+                        hashMap.put((String) entity.getKey(), entity.getValue());
+                    }
+                }
+                resultList.add(hashMap);
+            }
+        }
+        /* 如果存在表格且存在表格显示列的配置，则筛选显示列并排序
+           showColumnMap:key->表格ID;value->配置的表格显示列
+        */
+        if (MapUtils.isNotEmpty(showColumnsMap)) {
+            List<String> showColumnList = showColumnsMap.get(sqlInfo.getId());
+            if (showColumnList != null) {
+                List<Map<String, Object>> sqList = selectTableColumns(showColumnList, resultList);
+                resultList = sqList;
+            }
+        }
+        return resultList;
     }
 
     @Override
