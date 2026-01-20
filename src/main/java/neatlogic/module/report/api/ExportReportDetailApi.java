@@ -15,7 +15,9 @@ package neatlogic.module.report.api;
 import com.alibaba.fastjson.JSONObject;
 import neatlogic.framework.auth.core.AuthAction;
 import neatlogic.framework.common.constvalue.ApiParamType;
+import neatlogic.framework.dao.mapper.UserExportFileMapper;
 import neatlogic.framework.exception.core.ApiRuntimeException;
+import neatlogic.framework.report.enums.ReportUserExportFileType;
 import neatlogic.framework.report.exception.ReportNotFoundException;
 import neatlogic.framework.restful.annotation.Description;
 import neatlogic.framework.restful.annotation.Input;
@@ -23,14 +25,17 @@ import neatlogic.framework.restful.annotation.OperationType;
 import neatlogic.framework.restful.annotation.Param;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
 import neatlogic.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
+import neatlogic.framework.userexportfile.dto.UserExportFileVo;
 import neatlogic.framework.util.DocType;
 import neatlogic.framework.util.ExportUtil;
+import neatlogic.framework.util.UserExportFileUtil;
 import neatlogic.module.report.auth.label.REPORT_BASE;
 import neatlogic.module.report.constvalue.ActionType;
 import neatlogic.module.report.dao.mapper.ReportMapper;
 import neatlogic.module.report.dto.ReportVo;
 import neatlogic.module.report.service.ReportService;
 import neatlogic.module.report.util.ReportFreemarkerUtil;
+import org.apache.commons.io.output.DeferredFileOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -39,9 +44,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.OutputStream;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +59,9 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
 
     @Resource
     private ReportService reportService;
+
+    @Resource
+    private UserExportFileMapper userExportFileMapper;
 
     @Override
     public String getToken() {
@@ -92,7 +97,6 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
         /* 获取表格显示列配置 */
         Map<String, List<String>> showColumnsMap = reportService.getShowColumnsMap(reportInstanceId);
 
-        OutputStream os = null;
         try {
             ReportVo reportVo = reportService.getReportDetailById(reportId);
             if (reportVo == null) {
@@ -107,41 +111,28 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
 
             String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, returnMap, filter, reportVo.getContent(), ActionType.EXPORT.getValue());
             if (DocType.PDF.getValue().equals(type)) {
-                os = response.getOutputStream();
-                response.setContentType("application/pdf");
-                response.setHeader("Content-Disposition",
-                        " attachment; filename=\"" + URLEncoder.encode(reportVo.getName(), "utf-8") + ".pdf\"");
-                ExportUtil.getPdfFileByHtml(content, os, true, true);
+                UserExportFileVo userExportFileVo = new UserExportFileVo(ReportUserExportFileType.REPORT_DATA, reportVo.getName(), ".pdf", "application/pdf");
+                userExportFileMapper.insertUserExportFile(userExportFileVo);
+                DeferredFileOutputStream deferredFileOutputStream = UserExportFileUtil.getDeferredFileOutputStream(reportVo.getName(), ".pdf");
+                ExportUtil.getPdfFileByHtml(content, deferredFileOutputStream, true, true);
+                UserExportFileUtil.saveDeferredFileOutputStream(deferredFileOutputStream, userExportFileVo, response);
             } else if (DocType.WORD.getValue().equals(type)) {
-                os = response.getOutputStream();
-                response.setContentType("application/x-download");
-                response.setHeader("Content-Disposition",
-                        " attachment; filename=\"" + URLEncoder.encode(reportVo.getName(), "utf-8") + ".docx\"");
-                ExportUtil.getWordFileByHtml(content, os, true, true);
+                UserExportFileVo userExportFileVo = new UserExportFileVo(ReportUserExportFileType.REPORT_DATA, reportVo.getName(), ".docx", "application/x-download");
+                userExportFileMapper.insertUserExportFile(userExportFileVo);
+                DeferredFileOutputStream deferredFileOutputStream = UserExportFileUtil.getDeferredFileOutputStream(reportVo.getName(), ".docx");
+                ExportUtil.getWordFileByHtml(content, deferredFileOutputStream, true, true);
+                UserExportFileUtil.saveDeferredFileOutputStream(deferredFileOutputStream, userExportFileVo, response);
             } else if (DocType.EXCEL.getValue().equals(type)) {
+                UserExportFileVo userExportFileVo = new UserExportFileVo(ReportUserExportFileType.REPORT_DATA, reportVo.getName(), ".xlsx", "application/vnd.ms-excel;charset=utf-8");
+                userExportFileMapper.insertUserExportFile(userExportFileVo);
                 Workbook workbook = reportService.getReportWorkbook(content);
-                String fileNameEncode = reportVo.getName() + ".xlsx";
-                Boolean flag = request.getHeader("User-Agent").indexOf("Gecko") > 0;
-                if (request.getHeader("User-Agent").toLowerCase().indexOf("msie") > 0 || flag) {
-                    fileNameEncode = URLEncoder.encode(fileNameEncode, "UTF-8");// IE浏览器
-                } else {
-                    fileNameEncode = new String(fileNameEncode.replace(" ", "").getBytes(StandardCharsets.UTF_8), "ISO8859-1");
-                }
-                response.setContentType("application/vnd.ms-excel;charset=utf-8");
-                response.setHeader("Content-Disposition", " attachment; filename=\"" + fileNameEncode + "\"");
-                os = response.getOutputStream();
-                workbook.write(os);
+                UserExportFileUtil.saveWorkbook(workbook, userExportFileVo, response);
             }
         } catch (ApiRuntimeException ex) {
             logger.error(ex.getMessage(), ex);
             throw ex;
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
-        } finally {
-            if (os != null) {
-                os.flush();
-                os.close();
-            }
         }
         return null;
     }
