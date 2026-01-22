@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSONObject;
 import neatlogic.framework.auth.core.AuthAction;
 import neatlogic.framework.common.constvalue.ApiParamType;
 import neatlogic.framework.common.constvalue.MimeType;
+import neatlogic.framework.common.constvalue.ResponseCode;
 import neatlogic.framework.exception.core.ApiRuntimeException;
 import neatlogic.framework.report.exception.ReportNotFoundException;
 import neatlogic.framework.restful.annotation.Description;
@@ -26,7 +27,6 @@ import neatlogic.framework.restful.constvalue.OperationTypeEnum;
 import neatlogic.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
 import neatlogic.framework.userexportfile.constvalue.FrameworkUserExportFileType;
 import neatlogic.framework.userexportfile.core.ExportFileManager;
-import neatlogic.framework.userexportfile.exception.UserExportTimeCostTooLongException;
 import neatlogic.framework.util.DocType;
 import neatlogic.framework.util.ExportUtil;
 import neatlogic.framework.util.FileUtil;
@@ -159,7 +159,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
                     }
                 }
             } else {
-                throw new UserExportTimeCostTooLongException();
+                response.setStatus(ResponseCode.EXPORT_TIMEOUT.getCode());
             }
         }
         return null;
