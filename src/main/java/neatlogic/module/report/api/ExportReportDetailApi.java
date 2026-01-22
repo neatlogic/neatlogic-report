@@ -99,7 +99,8 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
         }
         // 统计使用次数
         reportMapper.updateReportVisitCount(reportId);
-        ExportFileManager exportFileManager = new ExportFileManager(FrameworkUserExportFileType.MATRIX_DATA);
+        ExportFileManager exportFileManager = new ExportFileManager(FrameworkUserExportFileType.MATRIX_DATA)
+                .withAwait(5, TimeUnit.SECONDS);
         if (DocType.PDF.getValue().equals(type)) {
             exportFileManager.withName(reportVo.getName() + ".pdf").withMimeType(MimeType.PDF);
         } else if (DocType.WORD.getValue().equals(type)) {
@@ -135,7 +136,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             logger.error(ex.getMessage(), ex);
         }
         });
-        try (DeferredFileOutputStream deferredFileOutputStream = exportFileManager.export(5, TimeUnit.SECONDS)) {
+        try (DeferredFileOutputStream deferredFileOutputStream = exportFileManager.export()) {
             if (deferredFileOutputStream != null) {
                 try (OutputStream os = response.getOutputStream()) {
                     response.setContentType(exportFileManager.getMimeType().getValue());
