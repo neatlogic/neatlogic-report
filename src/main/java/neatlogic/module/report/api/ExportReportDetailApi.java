@@ -15,9 +15,9 @@ package neatlogic.module.report.api;
 import com.alibaba.fastjson.JSONObject;
 import neatlogic.framework.auth.core.AuthAction;
 import neatlogic.framework.common.constvalue.ApiParamType;
-import neatlogic.framework.dao.mapper.UserExportFileMapper;
+import neatlogic.framework.common.constvalue.MimeType;
+import neatlogic.framework.common.constvalue.ResponseCode;
 import neatlogic.framework.exception.core.ApiRuntimeException;
-import neatlogic.framework.report.enums.ReportUserExportFileType;
 import neatlogic.framework.report.exception.ReportNotFoundException;
 import neatlogic.framework.restful.annotation.Description;
 import neatlogic.framework.restful.annotation.Input;
@@ -25,16 +25,18 @@ import neatlogic.framework.restful.annotation.OperationType;
 import neatlogic.framework.restful.annotation.Param;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
 import neatlogic.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
-import neatlogic.framework.userexportfile.dto.UserExportFileVo;
+import neatlogic.framework.userexportfile.constvalue.FrameworkUserExportFileType;
+import neatlogic.framework.userexportfile.core.ExportFileManager;
 import neatlogic.framework.util.DocType;
 import neatlogic.framework.util.ExportUtil;
-import neatlogic.framework.util.UserExportFileUtil;
+import neatlogic.framework.util.FileUtil;
 import neatlogic.module.report.auth.label.REPORT_BASE;
 import neatlogic.module.report.constvalue.ActionType;
 import neatlogic.module.report.dao.mapper.ReportMapper;
 import neatlogic.module.report.dto.ReportVo;
 import neatlogic.module.report.service.ReportService;
 import neatlogic.module.report.util.ReportFreemarkerUtil;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.DeferredFileOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,9 +46,11 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @AuthAction(action = REPORT_BASE.class)
 @OperationType(type = OperationTypeEnum.SEARCH)
@@ -59,9 +63,6 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
 
     @Resource
     private ReportService reportService;
-
-    @Resource
-    private UserExportFileMapper userExportFileMapper;
 
     @Override
     public String getToken() {
@@ -92,16 +93,25 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
         Long reportId = paramObj.getLong("id");
         String type = paramObj.getString("type");
         Long reportInstanceId = paramObj.getLong("reportInstanceId");
+        ReportVo reportVo = reportService.getReportDetailById(reportId);
+        if (reportVo == null) {
+            throw new ReportNotFoundException(reportId);
+        }
         // 统计使用次数
         reportMapper.updateReportVisitCount(reportId);
+        ExportFileManager exportFileManager = new ExportFileManager(FrameworkUserExportFileType.MATRIX_DATA);
+        if (DocType.PDF.getValue().equals(type)) {
+            exportFileManager.withName(reportVo.getName() + ".pdf").withMimeType(MimeType.PDF);
+        } else if (DocType.WORD.getValue().equals(type)) {
+            exportFileManager.withName(reportVo.getName() + ".docx").withMimeType(MimeType.DOCX);
+        } else if (DocType.EXCEL.getValue().equals(type)) {
+            exportFileManager.withName(reportVo.getName() + ".xlsx").withMimeType(MimeType.XLS);
+        }
+        exportFileManager.generateData((outputStream) -> {
         /* 获取表格显示列配置 */
         Map<String, List<String>> showColumnsMap = reportService.getShowColumnsMap(reportInstanceId);
 
         try {
-            ReportVo reportVo = reportService.getReportDetailById(reportId);
-            if (reportVo == null) {
-                throw new ReportNotFoundException(reportId);
-            }
             Map<String, Object> returnMap = reportService.getQuerySqlResult(reportVo, paramObj, showColumnsMap);
             Map<String, Object> tmpMap = new HashMap<>();
             Map<String, Object> commonMap = new HashMap<>();
@@ -111,28 +121,46 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
 
             String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, returnMap, filter, reportVo.getContent(), ActionType.EXPORT.getValue());
             if (DocType.PDF.getValue().equals(type)) {
-                UserExportFileVo userExportFileVo = new UserExportFileVo(ReportUserExportFileType.REPORT_DATA, reportVo.getName(), ".pdf", "application/pdf");
-                userExportFileMapper.insertUserExportFile(userExportFileVo);
-                DeferredFileOutputStream deferredFileOutputStream = UserExportFileUtil.getDeferredFileOutputStream(reportVo.getName(), ".pdf");
-                ExportUtil.getPdfFileByHtml(content, deferredFileOutputStream, true, true);
-                UserExportFileUtil.saveDeferredFileOutputStream(deferredFileOutputStream, userExportFileVo, response);
+                ExportUtil.getPdfFileByHtml(content, outputStream, true, true);
             } else if (DocType.WORD.getValue().equals(type)) {
-                UserExportFileVo userExportFileVo = new UserExportFileVo(ReportUserExportFileType.REPORT_DATA, reportVo.getName(), ".docx", "application/x-download");
-                userExportFileMapper.insertUserExportFile(userExportFileVo);
-                DeferredFileOutputStream deferredFileOutputStream = UserExportFileUtil.getDeferredFileOutputStream(reportVo.getName(), ".docx");
-                ExportUtil.getWordFileByHtml(content, deferredFileOutputStream, true, true);
-                UserExportFileUtil.saveDeferredFileOutputStream(deferredFileOutputStream, userExportFileVo, response);
+                ExportUtil.getWordFileByHtml(content, outputStream, true, true);
             } else if (DocType.EXCEL.getValue().equals(type)) {
-                UserExportFileVo userExportFileVo = new UserExportFileVo(ReportUserExportFileType.REPORT_DATA, reportVo.getName(), ".xlsx", "application/vnd.ms-excel;charset=utf-8");
-                userExportFileMapper.insertUserExportFile(userExportFileVo);
                 Workbook workbook = reportService.getReportWorkbook(content);
-                UserExportFileUtil.saveWorkbook(workbook, userExportFileVo, response);
+                workbook.write(outputStream);
             }
         } catch (ApiRuntimeException ex) {
             logger.error(ex.getMessage(), ex);
             throw ex;
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
+        }
+        });
+        try (DeferredFileOutputStream deferredFileOutputStream = exportFileManager.export(5, TimeUnit.SECONDS)) {
+            if (deferredFileOutputStream != null) {
+                try (OutputStream os = response.getOutputStream()) {
+                    response.setContentType(exportFileManager.getMimeType().getValue());
+                    String filename = FileUtil.getEncodedFileName(exportFileManager.getName());
+                    response.setHeader("Content-Disposition", " attachment; filename=\"" + filename + "\"");
+                    if (deferredFileOutputStream.isInMemory()) {
+                        try (InputStream inputStream = new ByteArrayInputStream(deferredFileOutputStream.getData())) {
+                            IOUtils.copyLarge(inputStream, os);
+                        }
+                    } else {
+                        try (InputStream inputStream = new BufferedInputStream(new FileInputStream(deferredFileOutputStream.getFile()))) {
+                            IOUtils.copyLarge(inputStream, os);
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.warn(e.getMessage(), e);
+                } finally {
+                    File tempFile = deferredFileOutputStream.getFile();
+                    if (tempFile.exists()) {
+                        boolean delete = tempFile.delete();
+                    }
+                }
+            } else {
+                response.setStatus(ResponseCode.EXPORT_TIMEOUT.getCode());
+            }
         }
         return null;
     }
