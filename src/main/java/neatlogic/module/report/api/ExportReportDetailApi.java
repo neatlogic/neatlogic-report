@@ -36,8 +36,6 @@ import neatlogic.module.report.dao.mapper.ReportMapper;
 import neatlogic.module.report.dto.ReportVo;
 import neatlogic.module.report.service.ReportService;
 import neatlogic.module.report.util.ReportFreemarkerUtil;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.DeferredFileOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -136,32 +134,14 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             logger.error(ex.getMessage(), ex);
         }
         });
-        try (DeferredFileOutputStream deferredFileOutputStream = exportFileManager.export()) {
-            if (deferredFileOutputStream != null) {
-                try (OutputStream os = response.getOutputStream()) {
-                    response.setContentType(exportFileManager.getMimeType().getValue());
-                    String filename = FileUtil.getEncodedFileName(exportFileManager.getName());
-                    response.setHeader("Content-Disposition", " attachment; filename=\"" + filename + "\"");
-                    if (deferredFileOutputStream.isInMemory()) {
-                        try (InputStream inputStream = new ByteArrayInputStream(deferredFileOutputStream.getData())) {
-                            IOUtils.copyLarge(inputStream, os);
-                        }
-                    } else {
-                        try (InputStream inputStream = new BufferedInputStream(new FileInputStream(deferredFileOutputStream.getFile()))) {
-                            IOUtils.copyLarge(inputStream, os);
-                        }
-                    }
-                } catch (Exception e) {
-                    logger.warn(e.getMessage(), e);
-                } finally {
-                    File tempFile = deferredFileOutputStream.getFile();
-                    if (tempFile.exists()) {
-                        boolean delete = tempFile.delete();
-                    }
-                }
-            } else {
+        try (OutputStream os = response.getOutputStream()) {
+            response.setContentType(exportFileManager.getMimeType().getValue());
+            response.setHeader("Content-Disposition", " attachment; filename=\"" + FileUtil.getEncodedFileName(exportFileManager.getName()) + "\"");
+            if (!exportFileManager.exportTo(os)) {
                 response.setStatus(ResponseCode.EXPORT_TIMEOUT.getCode());
             }
+        } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
         }
         return null;
     }
