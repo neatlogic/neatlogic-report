@@ -20,7 +20,7 @@ import neatlogic.framework.restful.annotation.Input;
 import neatlogic.framework.restful.annotation.OperationType;
 import neatlogic.framework.restful.annotation.Param;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
-import neatlogic.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
+import neatlogic.framework.restful.core.privateapi.binarystream.PrivateBinaryStreamApiComponentBase;
 import neatlogic.framework.sqlrunner.SqlInfo;
 import neatlogic.module.report.auth.label.REPORT_BASE;
 import neatlogic.module.report.dao.mapper.ReportMapper;

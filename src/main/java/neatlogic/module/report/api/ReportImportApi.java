@@ -28,7 +28,7 @@ import neatlogic.framework.exception.file.FileExtNotAllowedException;
 import neatlogic.framework.exception.file.FileNotUploadException;
 import neatlogic.framework.restful.annotation.*;
 import neatlogic.framework.restful.constvalue.OperationTypeEnum;
-import neatlogic.framework.restful.core.privateapi.PrivateBinaryStreamApiComponentBase;
+import neatlogic.framework.restful.core.privateapi.binarystream.PrivateBinaryStreamApiComponentBase;
 import neatlogic.framework.util.SnowflakeUtil;
 import neatlogic.module.report.auth.label.REPORT_TEMPLATE_MODIFY;
 import neatlogic.module.report.dao.mapper.ReportMapper;
