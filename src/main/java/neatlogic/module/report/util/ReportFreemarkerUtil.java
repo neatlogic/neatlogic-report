@@ -123,7 +123,7 @@ public class ReportFreemarkerUtil {
         out.write("<head>\n");
         out.write("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"></meta>\n");
         out.write("<style type=\"text/css\">\n");
-        out.write("html {font-family: \"PingFang SC\", \"Helvetica Neue\", \"思源黑体\", \"Microsoft YaHei\", \"黑体\", Helvetica;line-height: 1.42857143; color: #666666;font-size: 14px;}\n");
+        out.write("html {font-family: \"SimSun\", \"SimHei\", \"SimKai\", \"SimFang\", \"StFangSo\", \"PingFang SC\", \"Helvetica Neue\", \"思源黑体\", \"Microsoft YaHei\", \"黑体\", Helvetica;line-height: 1.42857143; color: #666666;font-size: 14px;}\n");
         out.write("table{width: 100%; max-width: 100%; margin-bottom: 10px; margin-top: 0;border-collapse:collapse;border-spacing:0;border-top:1px solid #ddd;}\n");
         out.write("th,td{padding: 8px; line-height: 1.42857143;  vertical-align: top; border-top: 1px solid #dddddd;}\n");
         out.write("th{text-align: left;color: #999999;}\n");
