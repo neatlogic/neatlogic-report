@@ -18,6 +18,7 @@ import neatlogic.framework.common.constvalue.ApiParamType;
 import neatlogic.framework.common.constvalue.MimeType;
 import neatlogic.framework.common.constvalue.ResponseCode;
 import neatlogic.framework.exception.core.ApiRuntimeException;
+import neatlogic.framework.report.enums.ReportUserExportFileType;
 import neatlogic.framework.report.exception.ReportNotFoundException;
 import neatlogic.framework.restful.annotation.Description;
 import neatlogic.framework.restful.annotation.Input;
@@ -97,7 +98,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
         }
         // 统计使用次数
         reportMapper.updateReportVisitCount(reportId);
-        ExportFileManager exportFileManager = new ExportFileManager(FrameworkUserExportFileType.MATRIX_DATA)
+        ExportFileManager exportFileManager = new ExportFileManager(ReportUserExportFileType.REPORT_DATA)
                 .withAwait(5, TimeUnit.SECONDS);
         if (DocType.PDF.getValue().equals(type)) {
             exportFileManager.withName(reportVo.getName() + ".pdf").withMimeType(MimeType.PDF);
@@ -120,7 +121,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
 
             String content = ReportFreemarkerUtil.getFreemarkerExportContent(tmpMap, returnMap, filter, reportVo.getContent(), ActionType.EXPORT.getValue());
             if (DocType.PDF.getValue().equals(type)) {
-                ExportUtil.getPdfFileByHtml(content, outputStream, true, true);
+                ExportUtil.getPdfFileByHtmlFast(content, outputStream, true, true);
             } else if (DocType.WORD.getValue().equals(type)) {
                 ExportUtil.getWordFileByHtml(content, outputStream, true, true);
             } else if (DocType.EXCEL.getValue().equals(type)) {
