@@ -123,7 +123,7 @@ public class ExportReportDetailApi extends PrivateBinaryStreamApiComponentBase {
             if (DocType.PDF.getValue().equals(type)) {
                 ExportUtil.getPdfFileByHtmlFast(content, outputStream, true, true);
             } else if (DocType.WORD.getValue().equals(type)) {
-                ExportUtil.getWordFileByHtml(content, outputStream, true, true);
+                ExportUtil.getWordFileByHtmlFast(content, outputStream, true, true);
             } else if (DocType.EXCEL.getValue().equals(type)) {
                 Workbook workbook = reportService.getReportWorkbook(content);
                 workbook.write(outputStream);
