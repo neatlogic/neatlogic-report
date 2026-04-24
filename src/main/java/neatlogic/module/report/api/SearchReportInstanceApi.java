@@ -1,6 +1,6 @@
 package neatlogic.module.report.api;
 
-import neatlogic.framework.asynchronization.threadlocal.UserContext;
+import com.alibaba.fastjson.JSONObject;
 import neatlogic.framework.auth.core.AuthAction;
 import neatlogic.framework.auth.core.AuthActionChecker;
 import neatlogic.framework.common.constvalue.ApiParamType;
@@ -13,7 +13,6 @@ import neatlogic.module.report.auth.label.REPORT_BASE;
 import neatlogic.module.report.auth.label.REPORT_MODIFY;
 import neatlogic.module.report.dao.mapper.ReportInstanceMapper;
 import neatlogic.module.report.dto.ReportInstanceVo;
-import com.alibaba.fastjson.JSONObject;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -43,6 +42,8 @@ public class SearchReportInstanceApi extends PrivateApiComponentBase {
     }
 
     @Input({@Param(name = "keyword", type = ApiParamType.STRING, desc = "关键字", xss = true),
+            @Param(name = "reportId", type = ApiParamType.LONG, desc = "报表模板id"),
+            @Param(name = "isActive", type = ApiParamType.ENUM, rule = "0,1", desc = "是否激活"),
             @Param(name = "needPage", type = ApiParamType.BOOLEAN, desc = "是否需要分页"),
             @Param(name = "pageSize", type = ApiParamType.INTEGER, desc = "每页数量"),
             @Param(name = "currentPage", type = ApiParamType.INTEGER, desc = "当前页"),})
