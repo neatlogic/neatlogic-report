@@ -52,6 +52,11 @@ import java.util.*;
 @Component
 @DisallowConcurrentExecution
 public class ReportSendJob extends JobBase {
+    @Override
+    public String getName() {
+        return "报表定时发送";
+    }
+
     static Logger logger = LoggerFactory.getLogger(ReportSendJob.class);
 
     @Resource
