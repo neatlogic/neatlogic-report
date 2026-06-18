@@ -1,0 +1,71 @@
+{
+  "moduleId": "report",
+  "name": "report_param",
+  "label": "报表模版参数表",
+  "description": "报表模版参数表 可用于报表相关的关联查询等报表查询场景。",
+  "fields": [
+    {
+      "name": "report_id",
+      "type": "bigint",
+      "description": "报表id，作为当前表记录的主键或唯一定位字段。"
+    },
+    {
+      "name": "id",
+      "type": "bigint",
+      "description": "主键，已建立普通索引，适合用于过滤、关联或排序查询。"
+    },
+    {
+      "name": "name",
+      "type": "varchar(100)",
+      "description": "名称，作为当前表记录的主键或唯一定位字段。"
+    },
+    {
+      "name": "type",
+      "type": "enum('forminput','formselect','formcheckbox','formradio','formdate','formdaterange','formselects')",
+      "description": "类型。"
+    },
+    {
+      "name": "label",
+      "type": "varchar(100)",
+      "description": "标签。"
+    },
+    {
+      "name": "sort",
+      "type": "int",
+      "description": "排序。"
+    },
+    {
+      "name": "width",
+      "type": "int",
+      "description": "宽度。"
+    },
+    {
+      "name": "config",
+      "type": "mediumtext",
+      "description": "配置。"
+    }
+  ],
+  "indexes": [
+    {
+      "name": "PRIMARY",
+      "type": "BTREE",
+      "unique": true,
+      "primary": true,
+      "columns": [
+        "report_id",
+        "name"
+      ],
+      "description": "主键索引，覆盖 report_id、name 字段，适合用于唯一定位记录和主表关联查询。"
+    },
+    {
+      "name": "idx_id",
+      "type": "BTREE",
+      "unique": false,
+      "primary": false,
+      "columns": [
+        "id"
+      ],
+      "description": "普通索引，覆盖 id 字段，适合用于过滤、关联或排序查询。"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "moduleId": "report",
+  "name": "report_blackwhitelist",
+  "label": "报表黑白名单表",
+  "description": "报表黑白名单表 可用于报表相关数据的查询、筛选和报表展示。",
+  "fields": [
+    {
+      "name": "id",
+      "type": "bigint",
+      "description": "id，作为当前表记录的主键或唯一定位字段。"
+    },
+    {
+      "name": "description",
+      "type": "varchar(500)",
+      "description": "说明。"
+    },
+    {
+      "name": "item_name",
+      "type": "varchar(255)",
+      "description": "表名或字段名，支持*作为模糊匹配，如果是字段名且带.，代表精确管理某张表的字段，已建立普通索引，适合用于过滤、关联或排序查询。"
+    },
+    {
+      "name": "item_type",
+      "type": "enum('table','column')",
+      "description": "对象类型。"
+    },
+    {
+      "name": "type",
+      "type": "enum('whitelist','blacklist')",
+      "description": "先根据白名单开放，再根据黑名单排除。"
+    }
+  ],
+  "indexes": [
+    {
+      "name": "PRIMARY",
+      "type": "BTREE",
+      "unique": true,
+      "primary": true,
+      "columns": [
+        "id"
+      ],
+      "description": "主键索引，覆盖 id 字段，适合用于唯一定位记录和主表关联查询。"
+    },
+    {
+      "name": "uk",
+      "type": "BTREE",
+      "unique": true,
+      "primary": false,
+      "columns": [
+        "item_name",
+        "item_type"
+      ],
+      "description": "唯一索引，覆盖 item_name、item_type 字段，适合用于精确检索、唯一性判断和去重查询。"
+    }
+  ]
+}

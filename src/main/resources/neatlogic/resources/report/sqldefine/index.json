@@ -1,0 +1,65 @@
+{
+  "moduleId": "report",
+  "tables": [
+    {
+      "name": "report",
+      "label": "报表模版表",
+      "description": "报表模版表 可用于报表相关的启用状态筛选、时间维度统计等报表查询场景。"
+    },
+    {
+      "name": "report_auth",
+      "label": "报表模版授权表",
+      "description": "报表模版授权表 可用于报表相关的关联查询等报表查询场景。"
+    },
+    {
+      "name": "report_blackwhitelist",
+      "label": "报表黑白名单表",
+      "description": "报表黑白名单表 可用于报表相关数据的查询、筛选和报表展示。"
+    },
+    {
+      "name": "report_china_country",
+      "label": "报表国家配置",
+      "description": "报表国家配置 可用于报表相关数据的查询、筛选和报表展示。"
+    },
+    {
+      "name": "report_param",
+      "label": "报表模版参数表",
+      "description": "报表模版参数表 可用于报表相关的关联查询等报表查询场景。"
+    },
+    {
+      "name": "report_receiver",
+      "label": "报表发送接收人表",
+      "description": "报表发送接收人表 可用于报表相关的关联查询等报表查询场景。"
+    },
+    {
+      "name": "report_send_job",
+      "label": "报表发送计划表",
+      "description": "报表发送计划表 可用于报表相关的启用状态筛选、时间维度统计等报表查询场景。"
+    },
+    {
+      "name": "report_send_job_relation",
+      "label": "报表发送计划-报表关联表",
+      "description": "报表发送计划-报表关联表 可用于报表相关的关联查询等报表查询场景。"
+    },
+    {
+      "name": "report_statement",
+      "label": "报表配置",
+      "description": "报表配置 可用于报表相关的启用状态筛选、时间维度统计等报表查询场景。"
+    },
+    {
+      "name": "reportinstance",
+      "label": "报表实例表",
+      "description": "报表实例表 可用于报表相关的启用状态筛选、时间维度统计、关联查询等报表查询场景。"
+    },
+    {
+      "name": "reportinstance_auth",
+      "label": "报表实例授权表",
+      "description": "报表实例授权表 可用于报表相关的关联查询等报表查询场景。"
+    },
+    {
+      "name": "reportinstance_table_column",
+      "label": "报表实例中含有的表格列表",
+      "description": "报表实例中含有的表格列表 可用于报表相关的关联查询等报表查询场景。"
+    }
+  ]
+}

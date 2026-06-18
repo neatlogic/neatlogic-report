@@ -1,0 +1,45 @@
+{
+  "moduleId": "report",
+  "name": "report_china_country",
+  "label": "报表国家配置",
+  "description": "报表国家配置 可用于报表相关数据的查询、筛选和报表展示。",
+  "fields": [
+    {
+      "name": "name",
+      "type": "varchar(255)",
+      "description": "国家名称。"
+    },
+    {
+      "name": "adcode",
+      "type": "varchar(6)",
+      "description": "区号，作为当前表记录的主键或唯一定位字段。"
+    },
+    {
+      "name": "level",
+      "type": "enum('district')",
+      "description": "水平。"
+    },
+    {
+      "name": "x",
+      "type": "float",
+      "description": "x轴。"
+    },
+    {
+      "name": "y",
+      "type": "float",
+      "description": "y轴。"
+    }
+  ],
+  "indexes": [
+    {
+      "name": "PRIMARY",
+      "type": "BTREE",
+      "unique": true,
+      "primary": true,
+      "columns": [
+        "adcode"
+      ],
+      "description": "主键索引，覆盖 adcode 字段，适合用于唯一定位记录和主表关联查询。"
+    }
+  ]
+}

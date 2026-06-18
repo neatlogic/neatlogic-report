@@ -1,0 +1,69 @@
+{
+  "moduleId": "report",
+  "name": "report_statement",
+  "label": "报表配置",
+  "description": "报表配置 可用于报表相关的启用状态筛选、时间维度统计等报表查询场景。",
+  "fields": [
+    {
+      "name": "id",
+      "type": "bigint",
+      "description": "id。"
+    },
+    {
+      "name": "name",
+      "type": "varchar(255)",
+      "description": "名称。"
+    },
+    {
+      "name": "is_active",
+      "type": "tinyint(1)",
+      "description": "是否激活。"
+    },
+    {
+      "name": "config",
+      "type": "longtext",
+      "description": "画布额外配置。"
+    },
+    {
+      "name": "widget_list",
+      "type": "longtext",
+      "description": "组件列表,json数组格式。"
+    },
+    {
+      "name": "width",
+      "type": "int",
+      "description": "宽度。"
+    },
+    {
+      "name": "height",
+      "type": "int",
+      "description": "高度。"
+    },
+    {
+      "name": "description",
+      "type": "varchar(500)",
+      "description": "描述。"
+    },
+    {
+      "name": "fcd",
+      "type": "timestamp(3)",
+      "description": "首次创建时间。"
+    },
+    {
+      "name": "fcu",
+      "type": "char(32)",
+      "description": "首次创建人。"
+    },
+    {
+      "name": "lcd",
+      "type": "timestamp(3)",
+      "description": "最近修改时间。"
+    },
+    {
+      "name": "lcu",
+      "type": "char(32)",
+      "description": "最近修改人。"
+    }
+  ],
+  "indexes": []
+}

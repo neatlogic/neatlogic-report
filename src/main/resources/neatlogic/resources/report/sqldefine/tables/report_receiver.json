@@ -1,0 +1,37 @@
+{
+  "moduleId": "report",
+  "name": "report_receiver",
+  "label": "报表发送接收人表",
+  "description": "报表发送接收人表 可用于报表相关的关联查询等报表查询场景。",
+  "fields": [
+    {
+      "name": "report_send_job_id",
+      "type": "bigint",
+      "description": "报表发送计划ID，作为当前表记录的主键或唯一定位字段。"
+    },
+    {
+      "name": "receiver",
+      "type": "varchar(100)",
+      "description": "接收人UUID或邮箱地址，作为当前表记录的主键或唯一定位字段。"
+    },
+    {
+      "name": "type",
+      "type": "enum('to','cc')",
+      "description": "to：收件人；cc：抄送人，作为当前表记录的主键或唯一定位字段。"
+    }
+  ],
+  "indexes": [
+    {
+      "name": "PRIMARY",
+      "type": "BTREE",
+      "unique": true,
+      "primary": true,
+      "columns": [
+        "report_send_job_id",
+        "receiver",
+        "type"
+      ],
+      "description": "主键索引，覆盖 report_send_job_id、receiver、type 字段，适合用于唯一定位记录和主表关联查询。"
+    }
+  ]
+}

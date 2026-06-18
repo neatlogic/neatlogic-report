@@ -1,0 +1,42 @@
+{
+  "moduleId": "report",
+  "name": "reportinstance_table_column",
+  "label": "报表实例中含有的表格列表",
+  "description": "报表实例中含有的表格列表 可用于报表相关的关联查询等报表查询场景。",
+  "fields": [
+    {
+      "name": "reportinstance_id",
+      "type": "bigint",
+      "description": "报表实例ID，作为当前表记录的主键或唯一定位字段。"
+    },
+    {
+      "name": "table_id",
+      "type": "varchar(50)",
+      "description": "表格ID，作为当前表记录的主键或唯一定位字段。"
+    },
+    {
+      "name": "column",
+      "type": "varchar(50)",
+      "description": "字段名，作为当前表记录的主键或唯一定位字段。"
+    },
+    {
+      "name": "sort",
+      "type": "int",
+      "description": "排序。"
+    }
+  ],
+  "indexes": [
+    {
+      "name": "PRIMARY",
+      "type": "BTREE",
+      "unique": true,
+      "primary": true,
+      "columns": [
+        "reportinstance_id",
+        "table_id",
+        "column"
+      ],
+      "description": "主键索引，覆盖 reportinstance_id、table_id、column 字段，适合用于唯一定位记录和主表关联查询。"
+    }
+  ]
+}
