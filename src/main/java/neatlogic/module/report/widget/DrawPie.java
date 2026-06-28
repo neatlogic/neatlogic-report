@@ -18,6 +18,7 @@ import freemarker.template.TemplateModelException;
 import neatlogic.module.report.util.JfreeChartUtil;
 import neatlogic.module.report.util.JfreeChartUtil.ChartColor;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jfree.chart.ChartFactory;
@@ -54,6 +55,8 @@ public class DrawPie implements TemplateMethodModelEx {
 		int height = 500;
 		DefaultPieDataset dataset = new DefaultPieDataset();
 		String title = "", data = "";
+		String typeFieldName = "typeField";
+		String valueFieldName = "valueField";
 
 		if (arguments.size() >= 1) {
 			String config = arguments.get(0).toString();
@@ -61,6 +64,8 @@ public class DrawPie implements TemplateMethodModelEx {
 				JSONObject configObj = JSONObject.parseObject(config);
 				data = configObj.getString("data");
 				title = configObj.getString("title");
+				typeFieldName = StringUtils.defaultIfBlank(configObj.getString("typeField"), typeFieldName);
+				valueFieldName = StringUtils.defaultIfBlank(configObj.getString("valueField"), valueFieldName);
 				if (configObj.getIntValue("width") > 0) {
 					width = configObj.getIntValue("width");
 				}
@@ -76,8 +81,8 @@ public class DrawPie implements TemplateMethodModelEx {
 		List<Map<String, Object>> tbodyList = (List<Map<String, Object>>) reportMap.get(data);
 		if (CollectionUtils.isNotEmpty(tbodyList)) {
 			for (Map<String, Object> tbody : tbodyList) {
-				Object typeField = tbody.get("typeField");
-				Number valueField = (Number) tbody.get("valueField");
+				Object typeField = tbody.get(typeFieldName);
+				Number valueField = getNumber(tbody.get(valueFieldName));
 				if (typeField != null && valueField != null) {
 					dataset.setValue(typeField.toString(), valueField);
 				}
@@ -100,6 +105,20 @@ public class DrawPie implements TemplateMethodModelEx {
             
 		}
 		return "";
+	}
+
+	private Number getNumber(Object value) {
+		if (value instanceof Number) {
+			return (Number) value;
+		}
+		if (value != null) {
+			try {
+				return Double.parseDouble(value.toString());
+			} catch (NumberFormatException ignored) {
+				return null;
+			}
+		}
+		return null;
 	}
 
 	static class CustomRenderer {

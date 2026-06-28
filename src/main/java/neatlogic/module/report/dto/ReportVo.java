@@ -32,6 +32,10 @@ public class ReportVo extends BaseEditorVo {
     private String type;
     @EntityField(name = "sql配置内容", type = ApiParamType.STRING)
     private String sql;
+    @EntityField(name = "SQL编辑模式", type = ApiParamType.STRING)
+    private String sqlEditMode;
+    @EntityField(name = "SQL绘图配置", type = ApiParamType.STRING)
+    private String sqlGraphConfig;
     @EntityField(name = "条件配置内容", type = ApiParamType.STRING)
     private String condition;
     @EntityField(name = "主体配置内容", type = ApiParamType.STRING)
@@ -102,6 +106,22 @@ public class ReportVo extends BaseEditorVo {
 
     public void setSql(String sql) {
         this.sql = sql;
+    }
+
+    public String getSqlEditMode() {
+        return sqlEditMode;
+    }
+
+    public void setSqlEditMode(String sqlEditMode) {
+        this.sqlEditMode = sqlEditMode;
+    }
+
+    public String getSqlGraphConfig() {
+        return sqlGraphConfig;
+    }
+
+    public void setSqlGraphConfig(String sqlGraphConfig) {
+        this.sqlGraphConfig = sqlGraphConfig;
     }
 
     public String getCondition() {

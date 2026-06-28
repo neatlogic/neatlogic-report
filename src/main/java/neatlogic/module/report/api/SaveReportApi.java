@@ -29,7 +29,9 @@ import neatlogic.module.report.dto.ReportAuthVo;
 import neatlogic.module.report.dto.ReportParamVo;
 import neatlogic.module.report.dto.ReportVo;
 import neatlogic.module.report.service.ReportService;
+import neatlogic.module.report.service.ReportSqlGraphService;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +49,9 @@ public class SaveReportApi extends PrivateApiComponentBase {
 
     @Resource
     private ReportService reportService;
+
+    @Resource
+    private ReportSqlGraphService reportSqlGraphService;
 
     @Override
     public String getToken() {
@@ -68,6 +73,8 @@ public class SaveReportApi extends PrivateApiComponentBase {
             @Param(name = "type", type = ApiParamType.STRING, desc = "common.type", defaultValue = ""),
             @Param(name = "isActive", type = ApiParamType.INTEGER, desc = "common.isactive"),
             @Param(name = "sql", type = ApiParamType.STRING, desc = "nmra.savereportapi.input.param.desc.sql"),
+            @Param(name = "sqlEditMode", type = ApiParamType.STRING, desc = "SQL编辑模式"),
+            @Param(name = "sqlGraphConfig", type = ApiParamType.STRING, desc = "SQL绘图配置"),
             @Param(name = "condition", type = ApiParamType.STRING, desc = "common.condition"),
             @Param(name = "content", type = ApiParamType.STRING, desc = "common.content"),
             @Param(name = "authList", type = ApiParamType.JSONARRAY, desc = "common.authlist")})
@@ -79,6 +86,17 @@ public class SaveReportApi extends PrivateApiComponentBase {
         if (reportVo.getType() == null) {
             //type不能为null，兼容前端回选
             reportVo.setType("");
+        }
+        if (StringUtils.isBlank(reportVo.getSqlEditMode())) {
+            // 老报表没有编辑模式字段时，统一按原 XML 配置方式处理。
+            reportVo.setSqlEditMode("xml");
+        }
+        if (StringUtils.equals(reportVo.getSqlEditMode(), "graph") && StringUtils.isNotBlank(reportVo.getSqlGraphConfig())) {
+            JSONObject buildResult = reportSqlGraphService.buildSql(JSONObject.parseObject(reportVo.getSqlGraphConfig()));
+            if (CollectionUtils.isNotEmpty(buildResult.getJSONArray("errorList"))) {
+                throw new IllegalArgumentException(StringUtils.join(buildResult.getJSONArray("errorList"), "；"));
+            }
+            reportVo.setSql(buildResult.getString("sql"));
         }
         if (reportMapper.checkReportNameIsExists(reportVo) > 0) {
             throw new ReportRepeatException(reportVo.getName());
