@@ -29,6 +29,7 @@ import neatlogic.framework.restful.core.privateapi.PrivateApiComponentBase;
 import neatlogic.framework.scheduler.core.IJob;
 import neatlogic.framework.scheduler.core.SchedulerManager;
 import neatlogic.framework.scheduler.dto.JobObject;
+import neatlogic.framework.scheduler.enums.JobLoadTriggerType;
 import neatlogic.framework.scheduler.exception.ScheduleIllegalParameterException;
 import neatlogic.framework.util.RegexUtils;
 import neatlogic.module.report.auth.label.REPORT_MODIFY;
@@ -135,9 +136,10 @@ public class ReportSendJobSaveApi extends PrivateApiComponentBase {
         String tenantUuid = TenantContext.get().getTenantUuid();
         JobObject newJobObject = new JobObject.Builder(jobVo.getId().toString(), handler.getGroupName(), handler.getClassName(), tenantUuid).withCron(jobVo.getCron()).addData("sendJobId", jobVo.getId()).build();
         if (jobVo.getIsActive().intValue() == 1) {
-            schedulerManager.loadJob(newJobObject);
+            schedulerManager.loadJob(newJobObject, JobLoadTriggerType.INITIAL_CREATE);
         } else {
             schedulerManager.unloadJob(newJobObject);
+            schedulerManager.saveJobSource(newJobObject);
         }
 
         JSONObject result = new JSONObject();

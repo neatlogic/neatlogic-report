@@ -26,6 +26,7 @@ import neatlogic.framework.restful.core.privateapi.PrivateApiComponentBase;
 import neatlogic.framework.scheduler.core.IJob;
 import neatlogic.framework.scheduler.core.SchedulerManager;
 import neatlogic.framework.scheduler.dto.JobObject;
+import neatlogic.framework.scheduler.enums.JobLoadTriggerType;
 import neatlogic.module.report.auth.label.REPORT_MODIFY;
 import neatlogic.module.report.dao.mapper.ReportSendJobMapper;
 import neatlogic.module.report.dto.ReportSendJobVo;
@@ -79,9 +80,10 @@ public class ReportSendJobStatusUpdateApi extends PrivateApiComponentBase {
         String tenantUuid = TenantContext.get().getTenantUuid();
         JobObject newJobObject = new JobObject.Builder(job.getId().toString(), handler.getGroupName(), handler.getClassName(), tenantUuid).withCron(job.getCron()).addData("sendJobId", job.getId()).build();
         if (jobVo.getIsActive() == 1) {
-            schedulerManager.loadJob(newJobObject);
+            schedulerManager.loadJob(newJobObject, JobLoadTriggerType.INITIAL_CREATE);
         } else {
             schedulerManager.unloadJob(newJobObject);
+            schedulerManager.saveJobSource(newJobObject);
         }
 
         return null;
