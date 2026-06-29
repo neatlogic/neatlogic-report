@@ -18,6 +18,7 @@ import neatlogic.framework.dao.mapper.UserMapper;
 import neatlogic.framework.dto.UserVo;
 import neatlogic.framework.scheduler.core.JobBase;
 import neatlogic.framework.scheduler.dto.JobObject;
+import neatlogic.framework.scheduler.enums.JobLoadTriggerType;
 import neatlogic.framework.util.EmailUtil;
 import neatlogic.framework.util.ExportUtil;
 import neatlogic.module.report.constvalue.ActionType;
@@ -82,13 +83,13 @@ public class ReportSendJob extends JobBase {
     }
 
     @Override
-    public void reloadJob(JobObject jobObject) {
+    public void reloadJob(JobObject jobObject, JobLoadTriggerType triggerType) {
         String tenantUuid = jobObject.getTenantUuid();
         TenantContext.get().switchTenant(tenantUuid);
         ReportSendJobVo jobVo = reportSendJobMapper.getJobBaseInfoById(Long.valueOf(jobObject.getJobName()));
         if (jobVo != null && Objects.equals(jobVo.getIsActive(), 1)) {
             JobObject newJobObject = new JobObject.Builder(jobVo.getId().toString(), this.getGroupName(), this.getClassName(), tenantUuid).withCron(jobVo.getCron()).addData("sendJobId", jobVo.getId()).build();
-            schedulerManager.loadJob(newJobObject);
+            schedulerManager.loadJob(newJobObject, triggerType);
         } else {
             schedulerManager.unloadJob(jobObject);
         }
@@ -101,7 +102,7 @@ public class ReportSendJob extends JobBase {
         if (CollectionUtils.isNotEmpty(jobList)) {
             for (ReportSendJobVo vo : jobList) {
                 JobObject newJobObject = new JobObject.Builder(vo.getId().toString(), this.getGroupName(), this.getClassName(), tenantUuid).withCron(vo.getCron()).addData("sendJobId", vo.getId()).build();
-                schedulerManager.loadJob(newJobObject);
+                schedulerManager.loadJob(newJobObject, JobLoadTriggerType.SERVER_RESTART);
             }
         }
     }
