@@ -79,16 +79,30 @@
         where a.`id` = #{value}
     </select>
 
+    <sql id="searchJobWhere">
+        <where>
+            (c.`job_name` IS NULL
+            <choose>
+                <when test="sourceServerGroup != null and sourceServerGroup != ''">
+                    OR c.`server_group` = #{sourceServerGroup}
+                </when>
+                <otherwise>
+                    OR c.`server_group` IS NULL
+                </otherwise>
+            </choose>
+            )
+            <if test="keyword != null and keyword != ''">
+                and a.`name` LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+    </sql>
+
     <select id="searchJobCount" parameterType="neatlogic.module.report.dto.ReportSendJobVo" resultType="int">
         SELECT
         COUNT(1)
-        FROM
-        `report_send_job`
-        WHERE
-        1=1
-        <if test="keyword != null and keyword != ''">
-            and `name` LIKE CONCAT('%', #{keyword}, '%')
-        </if>
+        FROM `report_send_job` a
+        LEFT JOIN `schedule_job_source` c ON c.`job_name` = a.`id`
+        <include refid="searchJobWhere"/>
     </select>
 
     <resultMap id="jobDetailMap" type="neatlogic.module.report.dto.ReportSendJobVo">
@@ -101,6 +115,8 @@
         <result column="fcu" property="fcu"/>
         <result column="lcd" property="lcd"/>
         <result column="lcu" property="lcu"/>
+        <result column="sourceServerId" property="sourceServerId"/>
+        <result column="sourceServerGroup" property="sourceServerGroup"/>
         <association property="jobStatus" resultMap="jobStatusMap"/>
     </resultMap>
 
@@ -132,14 +148,13 @@
         b.last_finish_time as lastFinishTime,
         b.last_fire_time as lastFireTime,
         b.next_fire_time as nextFireTime,
-        b.exec_count as execCount
+        b.exec_count as execCount,
+        c.server_id AS sourceServerId,
+        c.server_group AS sourceServerGroup
         from `report_send_job` a
         LEFT JOIN schedule_job_status b ON a.id = b.job_name
-        <where>
-            <if test="keyword != null and keyword != ''">
-                and a.`name` LIKE CONCAT('%', #{keyword}, '%')
-            </if>
-        </where>
+        LEFT JOIN `schedule_job_source` c ON c.`job_name` = a.`id`
+        <include refid="searchJobWhere"/>
         order by a.`lcd` desc
         <if test="needPage == true">
             LIMIT #{startNum}, #{pageSize}
