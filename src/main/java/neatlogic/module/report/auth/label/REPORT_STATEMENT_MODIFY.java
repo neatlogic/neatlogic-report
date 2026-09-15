@@ -17,16 +17,17 @@ import neatlogic.framework.auth.core.AuthBase;
 import java.util.Collections;
 import java.util.List;
 
+/** 权限名称与说明使用国际化键，权限标识及校验规则保持不变。 */
 public class REPORT_STATEMENT_MODIFY extends AuthBase {
 
     @Override
     public String getAuthDisplayName() {
-        return "大屏管理权限";
+        return "auth.report_statement_modify.name";
     }
 
     @Override
     public String getAuthIntroduction() {
-        return "拥有包括创建和修改大屏的权限";
+        return "auth.report_statement_modify.description";
     }
 
     @Override

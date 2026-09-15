@@ -17,16 +17,17 @@ import neatlogic.framework.auth.core.AuthBase;
 import java.util.Arrays;
 import java.util.List;
 
+/** 权限名称与说明使用国际化键，权限标识及校验规则保持不变。 */
 public class REPORT_ADMIN extends AuthBase {
 
     @Override
     public String getAuthDisplayName() {
-        return "报表模块超级管理员权限";
+        return "auth.report_admin.name";
     }
 
     @Override
     public String getAuthIntroduction() {
-        return "拥有报表模块所有管理功能";
+        return "auth.report_admin.description";
     }
 
     @Override

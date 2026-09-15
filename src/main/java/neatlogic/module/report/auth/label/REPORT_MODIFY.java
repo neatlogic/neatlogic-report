@@ -5,16 +5,17 @@ import neatlogic.framework.auth.core.AuthBase;
 import java.util.Collections;
 import java.util.List;
 
+/** 权限名称与说明使用国际化键，权限标识及校验规则保持不变。 */
 public class REPORT_MODIFY extends AuthBase {
 
 	@Override
 	public String getAuthDisplayName() {
-		return "报表管理权限";
+		return "auth.report_modify.name";
 	}
 
 	@Override
 	public String getAuthIntroduction() {
-		return "可以查看所有报表并对报表进行修改操作";
+		return "auth.report_modify.description";
 	}
 
 	@Override
