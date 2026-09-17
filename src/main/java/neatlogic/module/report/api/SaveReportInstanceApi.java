@@ -100,7 +100,7 @@ public class SaveReportInstanceApi extends PrivateApiComponentBase {
             if (instance == null) {
                 throw new ReportInstanceNotFoundException(reportInstanceVo.getId());
             }
-            if (!AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName())
+            if (!AuthActionChecker.check(REPORT_MODIFY.class)
                     && !Objects.equals(UserContext.get().getUserUuid(), instance.getFcu())) {
                 throw new PermissionDeniedException(REPORT_MODIFY.class);
             }

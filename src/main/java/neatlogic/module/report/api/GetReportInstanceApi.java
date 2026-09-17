@@ -76,7 +76,7 @@ public class GetReportInstanceApi extends PrivateApiComponentBase {
     @Description(desc = "nmra.getreportinstanceapi.getname")
     @Override
     public Object myDoService(JSONObject jsonObj) throws Exception {
-        boolean hasAuth = AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName());
+        boolean hasAuth = AuthActionChecker.check(REPORT_MODIFY.class);
         Long reportInstanceId = jsonObj.getLong("id");
         if (reportInstanceMapper.checkReportInstanceExists(reportInstanceId) == 0) {
             throw new ReportInstanceNotFoundEditTargetException(reportInstanceId);

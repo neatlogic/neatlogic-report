@@ -54,7 +54,7 @@ public class SearchReportInstanceApi extends PrivateApiComponentBase {
     public Object myDoService(JSONObject jsonObj) throws Exception {
         // 查询当前用户创建的实例，如果有REPORT_MODIFY权限，则查询所有
         ReportInstanceVo reportInstanceVo = JSONObject.toJavaObject(jsonObj, ReportInstanceVo.class);
-        if (!AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName())) {
+        if (!AuthActionChecker.check(REPORT_MODIFY.class)) {
             reportInstanceVo.setSearchByFcu(1);
         }
         List<ReportInstanceVo> reportInstanceList = reportInstanceMapper.searchReportInstance(reportInstanceVo);

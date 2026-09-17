@@ -77,7 +77,7 @@ public class ReportInstanceListApi extends PrivateApiComponentBase {
         ReportInstanceVo reportInstanceVo = new ReportInstanceVo();
         reportInstanceVo.setIsActive(1);
         List<ReportInstanceVo> instanceList = new ArrayList<>();
-        if (!AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName())) {
+        if (!AuthActionChecker.check(REPORT_MODIFY.class)) {
             // 查询当前用户有权看到的实例
             String userUuid = UserContext.get().getUserUuid(true);
             List<ReportInstanceAuthVo> reportAuthList = new ArrayList<>();

@@ -77,7 +77,7 @@ public class ReportListApi extends PrivateApiComponentBase {
         因为进入报表管理页就需要报表管理权限（REPORT_MODIFY），所以调用该接口的用户一定拥有报表管理权限（REPORT_MODIFY），
         下面的if语句将不会成立，在创建报表模板时设置的使用授权数据在这里没有用上，目前也没有发现其他地方用到。
          */
-        if (!AuthActionChecker.check(REPORT_MODIFY.class.getSimpleName())) {
+        if (!AuthActionChecker.check(REPORT_MODIFY.class)) {
             String userUuid = UserContext.get().getUserUuid();
             List<ReportAuthVo> reportAuthList = new ArrayList<>();
             reportAuthList.add(new ReportAuthVo(GroupSearch.COMMON.getValue(), UserType.ALL.getValue()));
