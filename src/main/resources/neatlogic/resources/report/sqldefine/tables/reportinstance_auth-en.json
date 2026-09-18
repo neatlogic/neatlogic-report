@@ -1,0 +1,47 @@
+{
+  "moduleId": "report",
+  "name": "reportinstance_auth",
+  "label": "Report Instance Authorization Table",
+  "description": "Instance authorization table for report instances this table is used for related queries related to report instances, such as report queries.",
+  "fields": [
+    {
+      "name": "reportinstance_id",
+      "type": "bigint",
+      "description": "Report instance ID, used as the primary key or unique identifier for records in this table."
+    },
+    {
+      "name": "type",
+      "type": "enum('user','role','team','common')",
+      "description": "user: user; role: role; team: group. Used as the primary key or unique identifier for records in this table."
+    },
+    {
+      "name": "auth_uuid",
+      "type": "char(32)",
+      "description": "UUID, used as the primary key or unique identifier for records in this table."
+    }
+  ],
+  "indexes": [
+    {
+      "name": "PRIMARY",
+      "type": "BTREE",
+      "unique": true,
+      "primary": true,
+      "columns": [
+        "reportinstance_id",
+        "type",
+        "auth_uuid"
+      ],
+      "description": "Primary key index covering the reportinstance_id, type, auth_uuid fields, suitable for uniquely identifying records and queries that join the primary table."
+    },
+    {
+      "name": "idx_uuid",
+      "type": "BTREE",
+      "unique": false,
+      "primary": false,
+      "columns": [
+        "auth_uuid"
+      ],
+      "description": "Standard index covering the auth_uuid field, suitable for filtering, join, and sort queries."
+    }
+  ]
+}

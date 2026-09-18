@@ -1,0 +1,45 @@
+{
+  "moduleId": "report",
+  "name": "report_china_country",
+  "label": "Report Country Configuration",
+  "description": "The national configuration is used for querying, filtering, and displaying data related to reports.",
+  "fields": [
+    {
+      "name": "name",
+      "type": "varchar(255)",
+      "description": "Country name."
+    },
+    {
+      "name": "adcode",
+      "type": "varchar(6)",
+      "description": "Area code, used as the primary key or unique identifier for records in this table."
+    },
+    {
+      "name": "level",
+      "type": "enum('district')",
+      "description": "Horizontal."
+    },
+    {
+      "name": "x",
+      "type": "float",
+      "description": "X-axis."
+    },
+    {
+      "name": "y",
+      "type": "float",
+      "description": "Y axis."
+    }
+  ],
+  "indexes": [
+    {
+      "name": "PRIMARY",
+      "type": "BTREE",
+      "unique": true,
+      "primary": true,
+      "columns": [
+        "adcode"
+      ],
+      "description": "Primary key index covering the adcode field, suitable for uniquely identifying records and queries that join the primary table."
+    }
+  ]
+}

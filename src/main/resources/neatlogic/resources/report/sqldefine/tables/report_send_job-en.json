@@ -1,0 +1,70 @@
+{
+  "moduleId": "report",
+  "name": "report_send_job",
+  "label": "Report Scheduling Plan Table",
+  "description": "The report scheduling plan is used for filtering enabled statuses related to reports and statistical time dimensions.",
+  "fields": [
+    {
+      "name": "id",
+      "type": "bigint",
+      "description": "Primary key, used as the primary key or unique identifier for records in this table."
+    },
+    {
+      "name": "name",
+      "type": "varchar(50)",
+      "description": "Name."
+    },
+    {
+      "name": "email_title",
+      "type": "varchar(50)",
+      "description": "Email subject."
+    },
+    {
+      "name": "email_content",
+      "type": "mediumtext",
+      "description": "Email body."
+    },
+    {
+      "name": "cron",
+      "type": "varchar(50)",
+      "description": "Cron expression."
+    },
+    {
+      "name": "is_active",
+      "type": "tinyint",
+      "description": "1: Enable; 0: disable."
+    },
+    {
+      "name": "fcd",
+      "type": "timestamp(3)",
+      "description": "Creation time."
+    },
+    {
+      "name": "fcu",
+      "type": "char(32)",
+      "description": "Creator."
+    },
+    {
+      "name": "lcd",
+      "type": "timestamp(3)",
+      "description": "Update the timestamp."
+    },
+    {
+      "name": "lcu",
+      "type": "char(32)",
+      "description": "Updated by."
+    }
+  ],
+  "indexes": [
+    {
+      "name": "PRIMARY",
+      "type": "BTREE",
+      "unique": true,
+      "primary": true,
+      "columns": [
+        "id"
+      ],
+      "description": "Primary key index covering the ID field, suitable for uniquely identifying records and queries that join the primary table."
+    }
+  ]
+}

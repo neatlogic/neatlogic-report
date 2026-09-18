@@ -1,0 +1,70 @@
+{
+  "moduleId": "report",
+  "name": "reportinstance",
+  "label": "Report Instance Table",
+  "description": "The report instance table is used for filtering enabled states of reports, time dimension statistics, and query association scenarios.",
+  "fields": [
+    {
+      "name": "id",
+      "type": "bigint",
+      "description": "ID, used as the primary key or unique identifier for records in this table."
+    },
+    {
+      "name": "report_id",
+      "type": "bigint",
+      "description": "Report ID."
+    },
+    {
+      "name": "name",
+      "type": "varchar(200)",
+      "description": "Report name."
+    },
+    {
+      "name": "visit_count",
+      "type": "int",
+      "description": "Clicks."
+    },
+    {
+      "name": "is_active",
+      "type": "tinyint(1)",
+      "description": "Indicates whether it is active."
+    },
+    {
+      "name": "config",
+      "type": "mediumtext",
+      "description": "Configure in JSON format."
+    },
+    {
+      "name": "fcu",
+      "type": "varchar(100)",
+      "description": "Creator."
+    },
+    {
+      "name": "lcu",
+      "type": "varchar(100)",
+      "description": "Updated by."
+    },
+    {
+      "name": "fcd",
+      "type": "timestamp(3)",
+      "description": "Update the timestamp."
+    },
+    {
+      "name": "lcd",
+      "type": "timestamp(3)",
+      "description": "Update the timestamp."
+    }
+  ],
+  "indexes": [
+    {
+      "name": "PRIMARY",
+      "type": "BTREE",
+      "unique": true,
+      "primary": true,
+      "columns": [
+        "id"
+      ],
+      "description": "Primary key index covering the ID field, suitable for uniquely identifying records and queries that join the primary table."
+    }
+  ]
+}

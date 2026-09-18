@@ -1,0 +1,37 @@
+{
+  "moduleId": "report",
+  "name": "report_receiver",
+  "label": "Report Sender-Receiver Table",
+  "description": "Report sender/receiver table used for related queries related to report processing and reporting scenarios.",
+  "fields": [
+    {
+      "name": "report_send_job_id",
+      "type": "bigint",
+      "description": "Report send plan ID, used as the primary key or unique identifier for records in this table."
+    },
+    {
+      "name": "receiver",
+      "type": "varchar(100)",
+      "description": "Assign the UUID or email address of the receiver, used as the primary key or unique identifier for records in this table."
+    },
+    {
+      "name": "type",
+      "type": "enum('to','cc')",
+      "description": "To: recipient; cc: carbon copy, used as the primary key or unique identifier for records in this table."
+    }
+  ],
+  "indexes": [
+    {
+      "name": "PRIMARY",
+      "type": "BTREE",
+      "unique": true,
+      "primary": true,
+      "columns": [
+        "report_send_job_id",
+        "receiver",
+        "type"
+      ],
+      "description": "Primary key index covering the report_send_job_id, receiver, type fields, suitable for uniquely identifying records and queries that join the primary table."
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "moduleId": "report",
+  "name": "report_param",
+  "label": "Report Template Parameter Table",
+  "description": "Report template parameter table used for related queries related to report scenarios such as report queries.",
+  "fields": [
+    {
+      "name": "report_id",
+      "type": "bigint",
+      "description": "Report ID, used as the primary key or unique identifier for records in this table."
+    },
+    {
+      "name": "id",
+      "type": "bigint",
+      "description": "Primary key. A standard index is defined on this field, making it suitable for filtering, join, and sort queries."
+    },
+    {
+      "name": "name",
+      "type": "varchar(100)",
+      "description": "Name, used as the primary key or unique identifier for records in this table."
+    },
+    {
+      "name": "type",
+      "type": "enum('forminput','formselect','formcheckbox','formradio','formdate','formdaterange','formselects')",
+      "description": "Type."
+    },
+    {
+      "name": "label",
+      "type": "varchar(100)",
+      "description": "Tags."
+    },
+    {
+      "name": "sort",
+      "type": "int",
+      "description": "Sort."
+    },
+    {
+      "name": "width",
+      "type": "int",
+      "description": "Width."
+    },
+    {
+      "name": "config",
+      "type": "mediumtext",
+      "description": "Configuration."
+    }
+  ],
+  "indexes": [
+    {
+      "name": "PRIMARY",
+      "type": "BTREE",
+      "unique": true,
+      "primary": true,
+      "columns": [
+        "report_id",
+        "name"
+      ],
+      "description": "Primary key index covering the report_id, name fields, suitable for uniquely identifying records and queries that join the primary table."
+    },
+    {
+      "name": "idx_id",
+      "type": "BTREE",
+      "unique": false,
+      "primary": false,
+      "columns": [
+        "id"
+      ],
+      "description": "Standard index covering the ID field, suitable for filtering, join, and sort queries."
+    }
+  ]
+}

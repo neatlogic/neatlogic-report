@@ -1,0 +1,42 @@
+{
+  "moduleId": "report",
+  "name": "reportinstance_table_column",
+  "label": "List of Tables Contained in Report Instances",
+  "description": "The list of tables contained in the report instance can be used for related queries and report queries related to the report.",
+  "fields": [
+    {
+      "name": "reportinstance_id",
+      "type": "bigint",
+      "description": "Report instance ID, used as the primary key or unique identifier for records in this table."
+    },
+    {
+      "name": "table_id",
+      "type": "varchar(50)",
+      "description": "Table ID, used as the primary key or unique identifier for records in this table."
+    },
+    {
+      "name": "column",
+      "type": "varchar(50)",
+      "description": "Field name, used as the primary key or unique identifier for records in this table."
+    },
+    {
+      "name": "sort",
+      "type": "int",
+      "description": "Sort."
+    }
+  ],
+  "indexes": [
+    {
+      "name": "PRIMARY",
+      "type": "BTREE",
+      "unique": true,
+      "primary": true,
+      "columns": [
+        "reportinstance_id",
+        "table_id",
+        "column"
+      ],
+      "description": "Primary key index covering the reportinstance_id, table_id, column fields, suitable for uniquely identifying records and queries that join the primary table."
+    }
+  ]
+}

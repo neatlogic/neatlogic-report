@@ -1,0 +1,90 @@
+{
+  "moduleId": "report",
+  "name": "report",
+  "label": "Report Template Table",
+  "description": "Report template table used for enabling state filtering and time dimension statistics in report queries.",
+  "fields": [
+    {
+      "name": "id",
+      "type": "bigint",
+      "description": "Primary key, used as the primary key or unique identifier for records in this table."
+    },
+    {
+      "name": "name",
+      "type": "varchar(100)",
+      "description": "Name."
+    },
+    {
+      "name": "type",
+      "type": "varchar(100)",
+      "description": "Type. A standard index is defined on this field, making it suitable for filtering, join, and sort queries."
+    },
+    {
+      "name": "sql",
+      "type": "longtext",
+      "description": "SQL configuration."
+    },
+    {
+      "name": "condition",
+      "type": "longtext",
+      "description": "Condition template."
+    },
+    {
+      "name": "content",
+      "type": "longtext",
+      "description": "Content template."
+    },
+    {
+      "name": "is_active",
+      "type": "tinyint(1)",
+      "description": "Indicates whether it is active."
+    },
+    {
+      "name": "visit_count",
+      "type": "int",
+      "description": "Usage frequency."
+    },
+    {
+      "name": "fcu",
+      "type": "varchar(100)",
+      "description": "Creator."
+    },
+    {
+      "name": "lcu",
+      "type": "varchar(100)",
+      "description": "Updated by."
+    },
+    {
+      "name": "fcd",
+      "type": "timestamp(3)",
+      "description": "Creation time."
+    },
+    {
+      "name": "lcd",
+      "type": "timestamp(3)",
+      "description": "Update the timestamp."
+    }
+  ],
+  "indexes": [
+    {
+      "name": "PRIMARY",
+      "type": "BTREE",
+      "unique": true,
+      "primary": true,
+      "columns": [
+        "id"
+      ],
+      "description": "Primary key index covering the ID field, suitable for uniquely identifying records and queries that join the primary table."
+    },
+    {
+      "name": "idx_type",
+      "type": "BTREE",
+      "unique": false,
+      "primary": false,
+      "columns": [
+        "type"
+      ],
+      "description": "Standard index covering the type field, suitable for filtering, join, and sort queries."
+    }
+  ]
+}

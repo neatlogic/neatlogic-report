@@ -1,0 +1,69 @@
+{
+  "moduleId": "report",
+  "name": "report_statement",
+  "label": "Report Configuration",
+  "description": "Report configuration is used for enabling state filtering and time dimension statistics in report query scenarios.",
+  "fields": [
+    {
+      "name": "id",
+      "type": "bigint",
+      "description": "ID."
+    },
+    {
+      "name": "name",
+      "type": "varchar(255)",
+      "description": "Name."
+    },
+    {
+      "name": "is_active",
+      "type": "tinyint(1)",
+      "description": "Indicates whether it is active."
+    },
+    {
+      "name": "config",
+      "type": "longtext",
+      "description": "Additional configuration on the canvas."
+    },
+    {
+      "name": "widget_list",
+      "type": "longtext",
+      "description": "Component list, JSON array format."
+    },
+    {
+      "name": "width",
+      "type": "int",
+      "description": "Width."
+    },
+    {
+      "name": "height",
+      "type": "int",
+      "description": "Height."
+    },
+    {
+      "name": "description",
+      "type": "varchar(500)",
+      "description": "Description."
+    },
+    {
+      "name": "fcd",
+      "type": "timestamp(3)",
+      "description": "Creation time."
+    },
+    {
+      "name": "fcu",
+      "type": "char(32)",
+      "description": "First creator."
+    },
+    {
+      "name": "lcd",
+      "type": "timestamp(3)",
+      "description": "Last modified time."
+    },
+    {
+      "name": "lcu",
+      "type": "char(32)",
+      "description": "Last modified by."
+    }
+  ],
+  "indexes": []
+}

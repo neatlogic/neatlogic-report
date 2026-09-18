@@ -1,0 +1,47 @@
+{
+  "moduleId": "report",
+  "name": "report_auth",
+  "label": "Report Template Authorization Table",
+  "description": "Report template authorization table used for associated queries related to report operations.",
+  "fields": [
+    {
+      "name": "report_id",
+      "type": "bigint",
+      "description": "Report template ID, used as the primary key or unique identifier for records in this table."
+    },
+    {
+      "name": "type",
+      "type": "enum('user','role','team','common')",
+      "description": "Common: public user: user role: role team: team, used as the primary key or unique identifier for records in this table."
+    },
+    {
+      "name": "auth_uuid",
+      "type": "char(32)",
+      "description": "UUID, used as the primary key or unique identifier for records in this table."
+    }
+  ],
+  "indexes": [
+    {
+      "name": "PRIMARY",
+      "type": "BTREE",
+      "unique": true,
+      "primary": true,
+      "columns": [
+        "report_id",
+        "type",
+        "auth_uuid"
+      ],
+      "description": "Primary key index covering the report_id, type, auth_uuid fields, suitable for uniquely identifying records and queries that join the primary table."
+    },
+    {
+      "name": "idx_uuid",
+      "type": "BTREE",
+      "unique": false,
+      "primary": false,
+      "columns": [
+        "auth_uuid"
+      ],
+      "description": "Standard index covering the auth_uuid field, suitable for filtering, join, and sort queries."
+    }
+  ]
+}

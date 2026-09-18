@@ -1,0 +1,65 @@
+{
+  "moduleId": "report",
+  "tables": [
+    {
+      "name": "report",
+      "label": "Report Template Table",
+      "description": "Report template table used for enabling state filtering and time dimension statistics in report queries."
+    },
+    {
+      "name": "report_auth",
+      "label": "Report Template Authorization Table",
+      "description": "Report template authorization table used for associated queries related to report operations."
+    },
+    {
+      "name": "report_blackwhitelist",
+      "label": "Blacklist Whitelist Table",
+      "description": "Whitelist table for report access, used for querying, filtering, and displaying report data."
+    },
+    {
+      "name": "report_china_country",
+      "label": "Report Country Configuration",
+      "description": "The national configuration is used for querying, filtering, and displaying data related to reports."
+    },
+    {
+      "name": "report_param",
+      "label": "Report Template Parameter Table",
+      "description": "Report template parameter table used for related queries related to report scenarios such as report queries."
+    },
+    {
+      "name": "report_receiver",
+      "label": "Report Sender-Receiver Table",
+      "description": "Report sender/receiver table used for related queries related to report processing and reporting scenarios."
+    },
+    {
+      "name": "report_send_job",
+      "label": "Report Scheduling Plan Table",
+      "description": "The report scheduling plan is used for filtering enabled statuses related to reports and statistical time dimensions."
+    },
+    {
+      "name": "report_send_job_relation",
+      "label": "Report Scheduling -- Report Association Table",
+      "description": "Reporting schedule - reporting association table used for reporting-related association queries and reporting queries."
+    },
+    {
+      "name": "report_statement",
+      "label": "Report Configuration",
+      "description": "Report configuration is used for enabling state filtering and time dimension statistics in report query scenarios."
+    },
+    {
+      "name": "reportinstance",
+      "label": "Report Instance Table",
+      "description": "The report instance table is used for filtering enabled states of reports, time dimension statistics, and query association scenarios."
+    },
+    {
+      "name": "reportinstance_auth",
+      "label": "Report Instance Authorization Table",
+      "description": "Instance authorization table for report instances this table is used for related queries related to report instances, such as report queries."
+    },
+    {
+      "name": "reportinstance_table_column",
+      "label": "List of Tables Contained in Report Instances",
+      "description": "The list of tables contained in the report instance can be used for related queries and report queries related to the report."
+    }
+  ]
+}

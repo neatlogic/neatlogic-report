@@ -1,0 +1,56 @@
+{
+  "moduleId": "report",
+  "name": "report_blackwhitelist",
+  "label": "Blacklist Whitelist Table",
+  "description": "Whitelist table for report access, used for querying, filtering, and displaying report data.",
+  "fields": [
+    {
+      "name": "id",
+      "type": "bigint",
+      "description": "ID, used as the primary key or unique identifier for records in this table."
+    },
+    {
+      "name": "description",
+      "type": "varchar(500)",
+      "description": "Explanation."
+    },
+    {
+      "name": "item_name",
+      "type": "varchar(255)",
+      "description": "Table or field name, supports * for fuzzy matching, if it is a field name with a dot, represents precise management of a specific table's fields. A standard index is defined on this field, making it suitable for filtering, join, and sort queries."
+    },
+    {
+      "name": "item_type",
+      "type": "enum('table','column')",
+      "description": "Object type."
+    },
+    {
+      "name": "type",
+      "type": "enum('whitelist','blacklist')",
+      "description": "Open first with the whitelist, then exclude with the blacklist."
+    }
+  ],
+  "indexes": [
+    {
+      "name": "PRIMARY",
+      "type": "BTREE",
+      "unique": true,
+      "primary": true,
+      "columns": [
+        "id"
+      ],
+      "description": "Primary key index covering the ID field, suitable for uniquely identifying records and queries that join the primary table."
+    },
+    {
+      "name": "uk",
+      "type": "BTREE",
+      "unique": true,
+      "primary": false,
+      "columns": [
+        "item_name",
+        "item_type"
+      ],
+      "description": "Unique index covering the item_name, item_type fields, suitable for exact-match retrieval, uniqueness checks, and duplicate detection."
+    }
+  ]
+}

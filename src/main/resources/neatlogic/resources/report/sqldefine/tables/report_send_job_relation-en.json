@@ -1,0 +1,46 @@
+{
+  "moduleId": "report",
+  "name": "report_send_job_relation",
+  "label": "Report Scheduling -- Report Association Table",
+  "description": "Reporting schedule - reporting association table used for reporting-related association queries and reporting queries.",
+  "fields": [
+    {
+      "name": "report_send_job_id",
+      "type": "bigint",
+      "description": "Report send plan ID, used as the primary key or unique identifier for records in this table."
+    },
+    {
+      "name": "report_id",
+      "type": "bigint",
+      "description": "Report ID, used as the primary key or unique identifier for records in this table."
+    },
+    {
+      "name": "condition",
+      "type": "mediumtext",
+      "description": "Conditions."
+    },
+    {
+      "name": "config",
+      "type": "mediumtext",
+      "description": "Configuration."
+    },
+    {
+      "name": "sort",
+      "type": "int",
+      "description": "Sort."
+    }
+  ],
+  "indexes": [
+    {
+      "name": "PRIMARY",
+      "type": "BTREE",
+      "unique": true,
+      "primary": true,
+      "columns": [
+        "report_send_job_id",
+        "report_id"
+      ],
+      "description": "Primary key index covering the report_send_job_id, report_id fields, suitable for uniquely identifying records and queries that join the primary table."
+    }
+  ]
+}
