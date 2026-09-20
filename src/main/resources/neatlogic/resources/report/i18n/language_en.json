@@ -1,0 +1,80 @@
+{
+  "auth": {
+    "report_admin": {
+      "description": "Use all report module management features.",
+      "name": "Report Module Super Administrator Permission"
+    },
+    "report_base": {
+      "description": "View reports.",
+      "name": "Report View Permission"
+    },
+    "report_modify": {
+      "description": "View all reports and modify reports.",
+      "name": "Report Management Permission"
+    },
+    "report_statement_modify": {
+      "description": "Create and modify large screen dashboards.",
+      "name": "Large Screen Dashboard Management Permission"
+    },
+    "report_template_modify": {
+      "description": "View and modify report templates.",
+      "name": "Report Template Management Permission"
+    }
+  },
+  "nmra": {
+    "deletereportapi": {
+      "getname": "Delete Report"
+    },
+    "getreportapi": {
+      "getname": "Obtain report definition details"
+    },
+    "getreportinstanceapi": {
+      "getname": "Obtain report details"
+    },
+    "getreporttypeapi": {
+      "getname": "Obtain Report Classification"
+    },
+    "reportlistapi": {
+      "description": {
+        "desc": "Obtain a list of report definitions (template selection drop-down box for report instance editing panel)"
+      },
+      "getname": "Obtain a list of report definitions"
+    },
+    "savereportapi": {
+      "getname": "Save Report Definition",
+      "input": {
+        "param": {
+          "desc": {
+            "sql": "Report Definition Data Source Configuration"
+          }
+        }
+      }
+    },
+    "searchreportapi": {
+      "getname": "Query Report Definition"
+    },
+    "showreportdetailapi": {
+      "getname": "Display Report"
+    },
+    "updatereportactiveapi": {
+      "getname": "Change Report Definition Activation Status"
+    }
+  },
+  "nmras": {
+    "getreportstatementapi": {
+      "getname": "Obtain a single report"
+    },
+    "reportsendjobgetapi": {
+      "getname": "Obtain report sending plan"
+    }
+  },
+  "term": {
+    "report": {
+      "groupdesc": "Intelligent data analysis platform",
+      "groupname": "Report",
+      "name": "Report",
+      "reportinstanceid": "Report instance ID",
+      "sendplaninfo": "Send Plan Information"
+    }
+  }
+}

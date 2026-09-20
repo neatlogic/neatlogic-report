@@ -1,0 +1,80 @@
+{
+  "auth": {
+    "report_admin": {
+      "description": "拥有报表模块所有管理功能",
+      "name": "报表模块超级管理员权限"
+    },
+    "report_base": {
+      "description": "查看报表",
+      "name": "报表基础权限"
+    },
+    "report_modify": {
+      "description": "可以查看所有报表并对报表进行修改操作",
+      "name": "报表管理权限"
+    },
+    "report_statement_modify": {
+      "description": "拥有包括创建和修改大屏的权限",
+      "name": "大屏管理权限"
+    },
+    "report_template_modify": {
+      "description": "可以查看和修改报表模板",
+      "name": "报表模板管理权限"
+    }
+  },
+  "nmra": {
+    "deletereportapi": {
+      "getname": "删除报表"
+    },
+    "getreportapi": {
+      "getname": "获取报表定义详细信息"
+    },
+    "getreportinstanceapi": {
+      "getname": "获取报表详细信息"
+    },
+    "getreporttypeapi": {
+      "getname": "获取报表分类"
+    },
+    "reportlistapi": {
+      "description": {
+        "desc": "获取报表定义列表(用于报表实例编辑面板的模版选择下拉框)"
+      },
+      "getname": "获取报表定义列表"
+    },
+    "savereportapi": {
+      "getname": "保存报表定义",
+      "input": {
+        "param": {
+          "desc": {
+            "sql": "报表定义数据源配置"
+          }
+        }
+      }
+    },
+    "searchreportapi": {
+      "getname": "查询报表定义"
+    },
+    "showreportdetailapi": {
+      "getname": "展示报表"
+    },
+    "updatereportactiveapi": {
+      "getname": "更改报表定义激活状态"
+    }
+  },
+  "nmras": {
+    "getreportstatementapi": {
+      "getname": "获取单个报表"
+    },
+    "reportsendjobgetapi": {
+      "getname": "获取报表发送计划"
+    }
+  },
+  "term": {
+    "report": {
+      "groupdesc": "智能数据分析平台",
+      "groupname": "报表",
+      "name": "报表模块",
+      "reportinstanceid": "报表实例id",
+      "sendplaninfo": "发送计划信息"
+    }
+  }
+}
