@@ -14,6 +14,7 @@ package neatlogic.module.report.dto;
 
 import neatlogic.framework.common.constvalue.ApiParamType;
 import neatlogic.framework.restful.annotation.EntityField;
+import neatlogic.framework.util.$;
 import org.apache.commons.lang3.StringUtils;
 
 public class ReportTypeVo {
@@ -34,7 +35,7 @@ public class ReportTypeVo {
 
     public String getLabel() {
         if (StringUtils.isBlank(label)) {
-            label = "未分类";
+            label = $.t("common.uncategorized");
         }
         return label;
     }

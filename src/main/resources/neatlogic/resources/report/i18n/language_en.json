@@ -21,6 +21,14 @@
       "name": "Report Template Management Permission"
     }
   },
+  "nmrr": {
+    "drawtable": {
+      "nextpage": "Next Page",
+      "nodata": "No Data",
+      "perpage": "items/page",
+      "total": "Total {0} items"
+    }
+  },
   "nmra": {
     "deletereportapi": {
       "getname": "Delete Report"

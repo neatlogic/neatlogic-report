@@ -17,6 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 import neatlogic.framework.util.XssUtil;
+import neatlogic.framework.util.$;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -147,14 +148,14 @@ public class DrawTable implements TemplateMethodModelEx {
             sb.append("</tbody>");
 
         } else {
-            sb.append("<tbody class=\"tbody-main\"><tr><td>无数据</td></tr></tbody>");
+            sb.append("<tbody class=\"tbody-main\"><tr><td>" + $.t("nmrr.drawtable.nodata") + "</td></tr></tbody>");
         }
         sb.append("</table></div></div>");
 
         if (needPage) {
-            sb.append("<div><div class='tstable-page text-right'><ul tableid='" + data + "' class='ivu-page mini'><span class='ivu-page-total'>共 ");
-            sb.append(rowNum);
-            sb.append(" 条</span>");
+            sb.append("<div><div class='tstable-page text-right'><ul tableid='" + data + "' class='ivu-page mini'><span class='ivu-page-total'>");
+            sb.append($.t("nmrr.drawtable.total", rowNum));
+            sb.append("</span>");
             int prevPage = currentPage - 1;
             sb.append("<li title='上一页' page='" + prevPage + "' class='page ivu-page-prev" + (prevPage < 1 ? " ivu-page-disabled'" : "'") + "><a><i class='ivu-icon ivu-icon-ios-arrow-back'></i></a></li>");
             // 首页码
@@ -223,10 +224,10 @@ public class DrawTable implements TemplateMethodModelEx {
                 sb.append("<li title='" + i + "' page='" + i + "' class='page ivu-page-item'><a>" + i + "</a></li>");
             }
             int nextPage = currentPage + 1;
-            sb.append("<li title='下一页' page='" + nextPage + "' class='page ivu-page-next" + (nextPage > pageCount ? " ivu-page-disabled'" : "'") + "><a><i class='ivu-icon ivu-icon-ios-arrow-forward'></i></a></li>");
+            sb.append("<li title='" + $.t("nmrr.drawtable.nextpage") + "' page='" + nextPage + "' class='page ivu-page-next" + (nextPage > pageCount ? " ivu-page-disabled'" : "'") + "><a><i class='ivu-icon ivu-icon-ios-arrow-forward'></i></a></li>");
             sb.append("<div class='ivu-page-options'><div class='ivu-page-options-sizer'><div class='ivu-select ivu-select-single ivu-select-small'><div tabindex='0' class='ivu-select-selection'><input type='hidden' value='20'><div><span class='ivu-select-selected-value'>");
             sb.append(pageSize);
-            sb.append(" 条/页</span>");
+            sb.append(" " + $.t("nmrr.drawtable.perpage") + "</span>");
 //            sb.append("<i class='ivu-icon ivu-icon-ios-arrow-down ivu-select-arrow'></i>");
             sb.append("</div></div></div></div></div>");
             sb.append("</ul></div></div>");

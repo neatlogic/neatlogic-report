@@ -21,6 +21,14 @@
       "name": "报表模板管理权限"
     }
   },
+  "nmrr": {
+    "drawtable": {
+      "nextpage": "下一页",
+      "nodata": "无数据",
+      "perpage": "条/页",
+      "total": "共 {0} 条"
+    }
+  },
   "nmra": {
     "deletereportapi": {
       "getname": "删除报表"
